@@ -15,7 +15,7 @@ $subscriptions = array_map(function ($row) {
     return [
         'id' => (string) $row['id'],
         'serviceName' => $row['service_name'],
-        'price' => (float) $row['price'],
+        'price' => round((float) $row['price'], 2),
         'currency' => $row['currency'],
         'startDate' => $row['start_date'],
         'cancelDate' => $row['cancel_date'],
