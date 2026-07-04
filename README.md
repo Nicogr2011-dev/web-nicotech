@@ -84,24 +84,36 @@ Abre [http://localhost:5173](http://localhost:5173).
    npm install
    npm run build
    ```
-   Esto genera la carpeta `dist/` con los archivos estáticos (HTML/CSS/JS).
+   Esto genera la carpeta `dist/` con los archivos estáticos (HTML/CSS/JS). **`dist/` se commitea al repositorio** (no es lo habitual, pero aquí no hay Node.js en el servidor para compilarlo allí, así que es la forma más simple de que `git pull` en el servidor deje la web lista sin pasos extra).
 
-2. **Sube por FTP/SSH**:
-   - El **contenido** de `dist/` (no la carpeta en sí) va a la raíz pública de tu hosting (`www/`, `public_html/`, etc.).
-   - La carpeta `api/` completa va también dentro de esa misma raíz pública, como `www/api/`.
+2. **Clona el repositorio en el servidor, fuera de la carpeta pública** (importante: nunca dentro de `~/www`, para no exponer el código fuente ni el `.git` por web):
+   ```bash
+   cd ~
+   git clone https://github.com/Nicogr2011-dev/web-nicotech.git nicotech-repo
+   ```
 
 3. **Crea la base de datos** desde el panel de tu hosting (sección "Bases de Datos"), tipo MySQL/MariaDB, y anota host, nombre, usuario y contraseña.
 
-4. **Importa el esquema** (`db/schema.sql`) usando phpMyAdmin del panel, o por SSH:
+4. **Importa el esquema**:
    ```bash
-   mysql -u tu_usuario -p tu_base_de_datos < db/schema.sql
+   mysql -u tu_usuario -p tu_base_de_datos < ~/nicotech-repo/db/schema.sql
    ```
 
-5. **Configura las credenciales**: en el servidor, copia `api/config.example.php` a `api/config.php` (si no lo subiste ya editado) y rellena los datos reales de tu base de datos.
+5. **Configura las credenciales**: dentro de `~/nicotech-repo`, copia `api/config.example.php` a `api/config.php` y rellena los datos reales de tu base de datos. Este archivo no está en git (ver `.gitignore`), así que sobrevive a futuros `git pull`.
 
-6. Abre tu dominio — ya no hace falta ningún proceso corriendo, PHP se ejecuta bajo demanda como cualquier web PHP normal.
+6. **Despliega** el frontend compilado y la API a la carpeta pública con el script incluido:
+   ```bash
+   cd ~/nicotech-repo
+   ./deploy.sh
+   ```
+   Esto copia `dist/*` y `api/` a `~/www`. Ábrelo — ya no hace falta ningún proceso corriendo, PHP se ejecuta bajo demanda como cualquier web PHP normal.
 
-Para desplegar una actualización: repite el paso 1 y vuelve a subir el contenido de `dist/` (y `api/` si cambiaste el backend).
+**Para desplegar una actualización** (tras hacer cambios y `git push` desde tu ordenador):
+```bash
+cd ~/nicotech-repo
+git pull
+./deploy.sh
+```
 
 ## Roadmap (próximas fases)
 
