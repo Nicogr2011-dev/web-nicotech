@@ -1,0 +1,46 @@
+// Prisma schema for Nicotech — Fase 1 (organizar suscripciones existentes)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String?
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id                    String             @id @default(cuid())
+  userId                String
+  serviceName           String
+  price                 Decimal            @db.Decimal(10, 2)
+  currency              String             @default("EUR")
+  billingDay            Int
+  startDate             DateTime
+  autoCancelAfterMonths Int?
+  cancelDate            DateTime?
+  status                SubscriptionStatus @default(ACTIVE)
+  accentColor           String
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
