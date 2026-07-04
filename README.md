@@ -8,7 +8,7 @@ Esta fase cubre **organización de suscripciones existentes**, sin compra ni pag
 
 - Página de bienvenida pública que explica el producto.
 - Cuentas de usuario reales (registro e inicio de sesión con email/contraseña).
-- Área de cliente (`/dashboard`) protegida, con:
+- Área de cliente (`/#/dashboard`) protegida, con:
   - Alta, edición, cancelación y borrado de suscripciones.
   - Buscador de servicios sobre un catálogo curado de ~170 servicios reales (streaming, música, software, gaming, IA, etc.) con sus planes y precios de referencia (`src/lib/serviceCatalog.ts`) — al elegir un plan se prellenan precio y moneda, siempre editables. Si el servicio no está en el catálogo, se puede escribir el nombre a mano.
   - Fecha de cobro única (de ahí se deriva el día del mes) y cálculo automático del próximo cobro.
@@ -19,131 +19,89 @@ Explícitamente **fuera de alcance** en esta fase (para fases futuras): compra/p
 
 ## Stack técnico
 
-- **Next.js 16** (App Router) + **TypeScript** + **Tailwind CSS 4**
-- **PostgreSQL** + **Prisma 7** como ORM, usando el driver adapter `@prisma/adapter-pg` (Prisma 7 ya no acepta la URL de conexión directamente en el `schema.prisma`; hay que pasarla vía un adapter al instanciar `PrismaClient`, ver `src/lib/prisma.ts`)
-- **NextAuth.js v4** (proveedor Credentials, contraseñas con `bcryptjs`, sesión JWT)
-- **Zod** para validación de formularios y `date-fns` para cálculo de fechas
+- **Frontend**: SPA con **React 19 + TypeScript**, compilada con **Vite** y estilada con **Tailwind CSS 4**. Enrutado 100% en el cliente con `react-router-dom` (`HashRouter`, rutas tipo `/#/dashboard`).
+- **Backend**: **PHP** (compatible con PHP 7.4+) como API JSON sin framework — sesiones nativas de PHP para auth, `password_hash()`/`password_verify()` para contraseñas, PDO para la base de datos.
+- **Base de datos**: **MySQL/MariaDB**.
 
-Se eligió este stack porque permite auto-alojar todo (base de datos y backend) en un VPS propio, sin depender de servicios de terceros como Vercel o Supabase — pensado para desplegarse en un VPS Debian con Node.js, tal como se describe más abajo.
+### Por qué este stack
 
-### Nota sobre versiones
-
-Este proyecto usa versiones muy recientes (Next.js 16, Prisma 7, Tailwind 4, Zod 4) que cambiaron bastante respecto a versiones anteriores muy documentadas en internet. Dos cambios importantes a tener en cuenta si tocas este código:
-
-- **Prisma 7**: el cliente se genera en `src/generated/prisma` (no en `node_modules/@prisma/client` como antes) y requiere un *driver adapter* (`@prisma/adapter-pg`) en tiempo de ejecución.
-- **NextAuth v4 + Credentials**: solo admite estrategia de sesión `"jwt"`. Las sesiones en base de datos (`strategy: "database"`) no son compatibles con el proveedor Credentials — por eso este proyecto no tiene tablas `Account`/`Session` en Prisma, solo `User` y `Subscription`.
+El hosting compartido disponible (Dinahosting, plan básico) **no tiene Node.js**, solo PHP y MySQL. En vez de comprar un plan superior o un VPS, se optó por mantener la misma interfaz y experiencia (misma estética, mismas animaciones, todo sigue siendo instantáneo sin recargas de página) pero moviendo el backend de Node/Prisma a PHP puro, que sí funciona en cualquier hosting compartido barato. El frontend se compila una vez (`npm run build`) a archivos HTML/CSS/JS estáticos — **no hace falta Node.js en el servidor**, solo para compilar en tu propio ordenador antes de subir.
 
 ## Estructura del proyecto
 
 ```
-prisma/schema.prisma              Modelos User y Subscription
-src/lib/
-  prisma.ts                       Cliente Prisma (con el driver adapter de pg)
-  auth.ts                         Configuración de NextAuth (Credentials + JWT)
-  password.ts                     Hash/verificación de contraseñas (bcryptjs)
-  validation.ts                   Esquemas de Zod (registro y suscripciones)
-  subscriptions.ts                Cálculo de próximo cobro y fecha de cancelación
-src/app/
-  page.tsx                        Landing pública
-  (auth)/login, (auth)/register   Páginas de autenticación (grupo con layout propio)
-  (dashboard)/dashboard           Área de cliente protegida + Server Actions (actions.ts)
-  api/auth/[...nextauth]          Endpoint de NextAuth
-src/components/
-  nav/                            Barra de navegación y menú de usuario
-  landing/                        Secciones de la página de bienvenida
-  dashboard/                      Tarjetas, formulario, modal y stats de suscripciones
-  ui/                             Botones, inputs, cards, badges reutilizables
-ecosystem.config.js               Configuración de PM2 para producción
+src/                      Frontend (Vite + React + TS)
+  main.tsx, App.tsx        Punto de entrada y rutas (HashRouter)
+  pages/                   Landing, Login, Register, Dashboard
+  lib/
+    api.ts                 Cliente fetch hacia la API PHP
+    AuthContext.tsx         Estado de sesión (login/register/logout/me)
+    serviceCatalog.ts       Catálogo de ~170 servicios con planes y precios
+    subscriptions.ts        Cálculo del próximo cobro
+    validation.ts           Constantes/validación compartidas (paleta de colores, etc.)
+  components/
+    nav/, landing/, dashboard/, ui/   Componentes de UI (idénticos visualmente a antes)
+
+api/                      Backend PHP (API JSON)
+  _bootstrap.php           Sesión, conexión PDO, helpers (json_response, require_auth...)
+  config.php                Credenciales de BD (NO se sube a git, ver config.example.php)
+  auth/{register,login,logout,me}.php
+  subscriptions/{list,create,update,delete,toggle}.php
+
+db/schema.sql             Esquema MySQL (tablas users y subscriptions)
 ```
 
 ## Diseño
 
 Estética inspirada en [coolors.co](https://coolors.co): tema claro, paleta de colores vivos usados como "swatches" (coral, sunflower, mint, azure, grape, flamingo), tipografía grande en negrita (Inter + Sora), navegación superior minimalista con CTA en píldora, tarjetas redondeadas con sombra suave y pequeñas animaciones de scroll.
 
-## Variables de entorno
-
-Copia `.env.example` a `.env` y rellena:
-
-| Variable | Descripción |
-|---|---|
-| `DATABASE_URL` | Cadena de conexión a PostgreSQL, ej. `postgresql://usuario:password@localhost:5432/nicotech` |
-| `NEXTAUTH_URL` | URL pública del sitio (`http://localhost:3000` en local) |
-| `NEXTAUTH_SECRET` | Secreto para firmar los JWT de sesión — genera uno con `openssl rand -base64 32` |
-
 ## Desarrollo local
 
-Requisitos: Node.js LTS y PostgreSQL corriendo localmente.
+Requisitos: Node.js (solo para compilar el frontend), PHP 7.4+ y MySQL/MariaDB corriendo localmente.
 
 ```bash
-cp .env.example .env   # rellena las variables de arriba
-npx prisma migrate dev
+# 1. Base de datos
+mysql -u root -e "CREATE DATABASE nicotech CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root nicotech < db/schema.sql
+
+# 2. Configura las credenciales de BD
+cp api/config.example.php api/config.php   # edita host/usuario/contraseña/nombre de BD
+
+# 3. Backend PHP (sirve la carpeta api/ en el puerto 8000)
+php -S localhost:8000 -t api
+
+# 4. Frontend (en otra terminal — proxy /api -> localhost:8000, ver vite.config.ts)
+npm install
 npm run dev
 ```
 
-Abre [http://localhost:3000](http://localhost:3000). Para inspeccionar la base de datos: `npx prisma studio`.
+Abre [http://localhost:5173](http://localhost:5173).
 
-## Despliegue en un VPS Debian (self-hosted)
+## Despliegue en hosting compartido (Dinahosting o similar, sin Node.js)
 
-1. **Node.js**: instala Node.js LTS (por ejemplo con `nvm` o el repositorio de NodeSource).
-2. **PostgreSQL**: instala PostgreSQL en el VPS (`apt install postgresql`) y crea la base de datos:
+1. **Compila el frontend en tu ordenador**:
    ```bash
-   sudo -u postgres createdb nicotech
-   sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'tu-password-seguro';"
-   ```
-3. **Clona el proyecto y las dependencias**:
-   ```bash
-   git clone https://github.com/Nicogr2011-dev/web-nicotech.git nicotech && cd nicotech
-   npm ci
-   ```
-4. **Variables de entorno**: crea `.env` en el servidor con valores de producción:
-   ```
-   DATABASE_URL="postgresql://postgres:tu-password-seguro@localhost:5432/nicotech"
-   NEXTAUTH_URL="https://tudominio.com"
-   NEXTAUTH_SECRET="genera-uno-con-openssl-rand--base64-32"
-   ```
-5. **Migraciones y build**:
-   ```bash
-   npx prisma migrate deploy
+   npm install
    npm run build
    ```
-6. **PM2** (mantiene el proceso vivo y lo reinicia si falla o si reinicia el servidor):
-   ```bash
-   npm install -g pm2
-   pm2 start ecosystem.config.js
-   pm2 save
-   pm2 startup   # sigue las instrucciones que imprime para persistir tras reboot
-   ```
-7. **Nginx como reverse proxy** (`/etc/nginx/sites-available/nicotech`):
-   ```nginx
-   server {
-     listen 80;
-     server_name tudominio.com;
+   Esto genera la carpeta `dist/` con los archivos estáticos (HTML/CSS/JS).
 
-     location / {
-       proxy_pass http://127.0.0.1:3000;
-       proxy_http_version 1.1;
-       proxy_set_header Upgrade $http_upgrade;
-       proxy_set_header Connection 'upgrade';
-       proxy_set_header Host $host;
-       proxy_set_header X-Real-IP $remote_addr;
-       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-       proxy_set_header X-Forwarded-Proto $scheme;
-       proxy_cache_bypass $http_upgrade;
-     }
-   }
-   ```
-   Activa el sitio y recarga Nginx:
+2. **Sube por FTP/SSH**:
+   - El **contenido** de `dist/` (no la carpeta en sí) va a la raíz pública de tu hosting (`www/`, `public_html/`, etc.).
+   - La carpeta `api/` completa va también dentro de esa misma raíz pública, como `www/api/`.
+
+3. **Crea la base de datos** desde el panel de tu hosting (sección "Bases de Datos"), tipo MySQL/MariaDB, y anota host, nombre, usuario y contraseña.
+
+4. **Importa el esquema** (`db/schema.sql`) usando phpMyAdmin del panel, o por SSH:
    ```bash
-   sudo ln -s /etc/nginx/sites-available/nicotech /etc/nginx/sites-enabled/
-   sudo nginx -t && sudo systemctl reload nginx
-   ```
-8. **HTTPS con Certbot**:
-   ```bash
-   sudo apt install certbot python3-certbot-nginx
-   sudo certbot --nginx -d tudominio.com
+   mysql -u tu_usuario -p tu_base_de_datos < db/schema.sql
    ```
 
-Para desplegar una actualización: `git pull`, `npm ci`, `npx prisma migrate deploy`, `npm run build`, `pm2 restart nicotech`.
+5. **Configura las credenciales**: en el servidor, copia `api/config.example.php` a `api/config.php` (si no lo subiste ya editado) y rellena los datos reales de tu base de datos.
+
+6. Abre tu dominio — ya no hace falta ningún proceso corriendo, PHP se ejecuta bajo demanda como cualquier web PHP normal.
+
+Para desplegar una actualización: repite el paso 1 y vuelve a subir el contenido de `dist/` (y `api/` si cambiaste el backend).
 
 ## Roadmap (próximas fases)
 

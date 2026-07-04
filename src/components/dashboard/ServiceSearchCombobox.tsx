@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { searchServices, type CatalogService, type ServicePlan } from "@/lib/serviceCatalog";
 import { Input, Label } from "@/components/ui/Input";

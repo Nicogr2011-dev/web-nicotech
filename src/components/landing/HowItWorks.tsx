@@ -2,7 +2,7 @@ import { Reveal } from "@/components/landing/Reveal";
 
 const steps = [
   { number: "1", title: "Crea tu cuenta", text: "Regístrate gratis en menos de un minuto.", color: "text-coral" },
-  { number: "2", title: "Añade tus suscripciones", text: "Registra las que ya tienes y su día de cobro.", color: "text-azure" },
+  { number: "2", title: "Añade tus suscripciones", text: "Busca el servicio, elige el plan y su día de cobro.", color: "text-azure" },
   { number: "3", title: "Consulta tu panel", text: "Mira de un vistazo qué se te cobra y cuándo.", color: "text-mint" },
 ];
 

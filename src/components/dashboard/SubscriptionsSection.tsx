@@ -1,43 +1,89 @@
-"use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { apiGet, apiPost } from "@/lib/api";
+import { computeNextChargeDate } from "@/lib/subscriptions";
 import { Button } from "@/components/ui/Button";
 import { SummaryStats } from "@/components/dashboard/SummaryStats";
 import { SubscriptionCard } from "@/components/dashboard/SubscriptionCard";
 import { SubscriptionModal } from "@/components/dashboard/SubscriptionModal";
 import { SubscriptionForm } from "@/components/dashboard/SubscriptionForm";
 import { EmptyState } from "@/components/dashboard/EmptyState";
-import { createSubscription, updateSubscription } from "@/app/(dashboard)/dashboard/actions";
 import type { SubscriptionView } from "./types";
 
-export function SubscriptionsSection({
-  subscriptions,
-  monthlyTotal,
-  currency,
-  nextCharge,
-  scheduledCancellations,
-}: {
-  subscriptions: SubscriptionView[];
-  monthlyTotal: number;
-  currency: string;
-  nextCharge: { serviceName: string; date: string } | null;
-  scheduledCancellations: number;
-}) {
-  const router = useRouter();
+type RawSubscription = Omit<SubscriptionView, "nextChargeDate">;
+
+function withComputedFields(raw: RawSubscription[]): SubscriptionView[] {
+  return raw.map((s) => ({
+    ...s,
+    nextChargeDate: computeNextChargeDate(new Date(s.startDate)).toISOString(),
+  }));
+}
+
+function formDataToPayload(formData: FormData) {
+  return {
+    serviceName: String(formData.get("serviceName") ?? ""),
+    price: Number(formData.get("price")),
+    currency: String(formData.get("currency") ?? "EUR"),
+    startDate: String(formData.get("startDate") ?? ""),
+    cancelDate: formData.get("cancelDate") ? String(formData.get("cancelDate")) : null,
+    accentColor: String(formData.get("accentColor") ?? ""),
+  };
+}
+
+export function SubscriptionsSection() {
+  const [subscriptions, setSubscriptions] = useState<SubscriptionView[] | null>(null);
   const [modal, setModal] = useState<null | "add" | { edit: SubscriptionView }>(null);
 
+  const load = useCallback(async () => {
+    const data = await apiGet<{ subscriptions: RawSubscription[] }>("/subscriptions/list.php");
+    setSubscriptions(withComputedFields(data.subscriptions));
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
   async function handleAdd(formData: FormData) {
-    await createSubscription(formData);
+    await apiPost("/subscriptions/create.php", formDataToPayload(formData));
     setModal(null);
-    router.refresh();
+    await load();
   }
 
   async function handleEdit(id: string, formData: FormData) {
-    await updateSubscription(id, formData);
+    await apiPost("/subscriptions/update.php", { id, ...formDataToPayload(formData) });
     setModal(null);
-    router.refresh();
+    await load();
   }
+
+  async function handleDelete(id: string) {
+    await apiPost("/subscriptions/delete.php", { id });
+    await load();
+  }
+
+  async function handleToggle(id: string) {
+    await apiPost("/subscriptions/toggle.php", { id });
+    await load();
+  }
+
+  if (subscriptions === null) {
+    return <p className="text-slate">Cargando tus suscripciones…</p>;
+  }
+
+  const activeSubs = subscriptions.filter((s) => s.status === "ACTIVE");
+  const currency = activeSubs[0]?.currency ?? "EUR";
+  const monthlyTotal = activeSubs.reduce((sum, s) => sum + s.price, 0);
+  const scheduledCancellations = subscriptions.filter((s) => s.cancelDate).length;
+
+  const nextChargeSub = [...activeSubs].sort(
+    (a, b) => new Date(a.nextChargeDate).getTime() - new Date(b.nextChargeDate).getTime()
+  )[0];
+  const nextCharge = nextChargeSub
+    ? {
+        serviceName: nextChargeSub.serviceName,
+        date: new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short" }).format(
+          new Date(nextChargeSub.nextChargeDate)
+        ),
+      }
+    : null;
 
   return (
     <div className="space-y-8">
@@ -62,6 +108,8 @@ export function SubscriptionsSection({
               key={subscription.id}
               subscription={subscription}
               onEdit={() => setModal({ edit: subscription })}
+              onDelete={handleDelete}
+              onToggle={handleToggle}
             />
           ))}
         </div>

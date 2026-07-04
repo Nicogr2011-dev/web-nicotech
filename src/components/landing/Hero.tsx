@@ -14,14 +14,17 @@ export function Hero() {
           Organiza todas tus suscripciones en un solo lugar
         </h1>
         <p className="mt-5 max-w-md text-lg text-slate">
-          Registra las suscripciones que ya tienes, elige el día en que se cobran y programa que se cancelen solas
-          cuando quieras. Sin sorpresas.
+          Busca el servicio, elige el plan, define el día en que se cobra y programa que se cancele solo cuando
+          quieras. Sin sorpresas.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/register">Crear cuenta gratis</ButtonLink>
-          <ButtonLink href="#como-funciona" variant="ghost">
+          <button
+            onClick={() => document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" })}
+            className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold text-ink transition-all duration-200 hover:-translate-y-0.5 hover:bg-ink/5"
+          >
             Ver cómo funciona
-          </ButtonLink>
+          </button>
         </div>
       </div>
 

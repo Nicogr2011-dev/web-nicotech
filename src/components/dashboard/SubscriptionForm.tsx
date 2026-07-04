@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Field, Input, Label } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";

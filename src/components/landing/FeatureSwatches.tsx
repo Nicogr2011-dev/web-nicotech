@@ -4,19 +4,19 @@ const features = [
   {
     icon: "⚡",
     title: "Regístralas en segundos",
-    text: "Añade cualquier suscripción que ya tengas: nombre, precio y fecha de inicio.",
+    text: "Busca cualquier servicio en nuestro catálogo o añádelo a mano.",
     bg: "bg-coral/10",
   },
   {
     icon: "📅",
     title: "Elige el día de cobro",
-    text: "Define en qué día del mes se cobra cada servicio y consulta el próximo cargo.",
+    text: "Define cuándo se cobra cada servicio y consulta el próximo cargo.",
     bg: "bg-sunflower/10",
   },
   {
     icon: "⏳",
     title: "Programa la cancelación",
-    text: "Marca que una suscripción se cancele sola pasados los meses que tú decidas.",
+    text: "Marca la fecha exacta en la que una suscripción se cancela sola.",
     bg: "bg-mint/10",
   },
   {

@@ -1,9 +1,6 @@
-"use client";
-
-import { useTransition } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { deleteSubscription, toggleSubscriptionStatus } from "@/app/(dashboard)/dashboard/actions";
 import type { SubscriptionView } from "./types";
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", year: "numeric" });
@@ -15,23 +12,27 @@ function formatDate(iso: string) {
 export function SubscriptionCard({
   subscription,
   onEdit,
+  onDelete,
+  onToggle,
 }: {
   subscription: SubscriptionView;
   onEdit: () => void;
+  onDelete: (id: string) => Promise<void>;
+  onToggle: (id: string) => Promise<void>;
 }) {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!confirm(`¿Eliminar la suscripción a ${subscription.serviceName}?`)) return;
-    startTransition(() => {
-      deleteSubscription(subscription.id);
-    });
+    setIsPending(true);
+    await onDelete(subscription.id);
+    setIsPending(false);
   }
 
-  function handleToggle() {
-    startTransition(() => {
-      toggleSubscriptionStatus(subscription.id);
-    });
+  async function handleToggle() {
+    setIsPending(true);
+    await onToggle(subscription.id);
+    setIsPending(false);
   }
 
   return (

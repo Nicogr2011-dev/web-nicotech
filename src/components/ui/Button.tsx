@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { clsx } from "clsx";
 import type { ButtonHTMLAttributes } from "react";
 
@@ -33,7 +33,7 @@ export function ButtonLink({
   children: React.ReactNode;
 }) {
   return (
-    <Link href={href} className={clsx(baseClasses, variantClasses[variant], className)}>
+    <Link to={href} className={clsx(baseClasses, variantClasses[variant], className)}>
       {children}
     </Link>
   );
