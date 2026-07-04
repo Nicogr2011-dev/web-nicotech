@@ -19,6 +19,7 @@ export function SubscriptionForm({
   const [serviceName, setServiceName] = useState(subscription?.serviceName ?? "");
   const [price, setPrice] = useState(subscription?.price?.toString() ?? "");
   const [currency, setCurrency] = useState(subscription?.currency ?? "EUR");
+  const [website, setWebsite] = useState<string | null>(null);
   const [cancelEnabled, setCancelEnabled] = useState(Boolean(subscription?.cancelDate));
   const [accentColor, setAccentColor] = useState(subscription?.accentColor ?? ACCENT_COLORS[0]);
 
@@ -42,10 +43,11 @@ export function SubscriptionForm({
       <ServiceSearchCombobox
         value={serviceName}
         onQueryChange={setServiceName}
-        onSelectPlan={({ serviceName, price, currency }) => {
+        onSelectPlan={({ serviceName, price, currency, website }) => {
           setServiceName(serviceName);
           setPrice(String(price));
           setCurrency(currency);
+          setWebsite(website);
         }}
       />
 
@@ -127,8 +129,17 @@ export function SubscriptionForm({
         <Button type="button" variant="ghost" onClick={onCancel}>
           Cancelar
         </Button>
+        {!subscription && website ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => window.open(website, "_blank", "noopener,noreferrer")}
+          >
+            Comprar
+          </Button>
+        ) : null}
         <Button type="submit" disabled={pending}>
-          {pending ? "Guardando…" : "Guardar"}
+          {pending ? "Guardando…" : "Aceptar"}
         </Button>
       </div>
     </form>

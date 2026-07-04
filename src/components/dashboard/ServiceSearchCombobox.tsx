@@ -9,7 +9,7 @@ export function ServiceSearchCombobox({
 }: {
   value: string;
   onQueryChange: (value: string) => void;
-  onSelectPlan: (values: { serviceName: string; price: number; currency: string }) => void;
+  onSelectPlan: (values: { serviceName: string; price: number; currency: string; website: string | null }) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [planPicker, setPlanPicker] = useState<CatalogService | null>(null);
@@ -39,7 +39,7 @@ export function ServiceSearchCombobox({
   function choosePlan(service: CatalogService, plan: ServicePlan) {
     const serviceName = service.plans.length > 1 ? `${service.name} (${plan.name})` : service.name;
     onQueryChange(serviceName);
-    onSelectPlan({ serviceName, price: plan.price, currency: plan.currency });
+    onSelectPlan({ serviceName, price: plan.price, currency: plan.currency, website: service.website });
     setOpen(false);
     setPlanPicker(null);
   }
