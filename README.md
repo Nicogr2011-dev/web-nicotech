@@ -1,6 +1,6 @@
 # Nicotech
 
-Nicotech es una web para organizar todas tus suscripciones (Netflix, Spotify, iCloud, etc.) en un solo lugar: registras las que ya tienes, eliges el día del mes en que se cobran y, si quieres, programas que se cancelen solas pasado un número de meses.
+Nicotech es una web para organizar todas tus suscripciones (Netflix, Spotify, iCloud, etc.) en un solo lugar: buscas el servicio, eliges el plan (con precio real de referencia), fijas la fecha de cobro y, si quieres, una fecha en la que se cancele sola.
 
 ## Estado actual — Fase 1
 
@@ -10,8 +10,9 @@ Esta fase cubre **organización de suscripciones existentes**, sin compra ni pag
 - Cuentas de usuario reales (registro e inicio de sesión con email/contraseña).
 - Área de cliente (`/dashboard`) protegida, con:
   - Alta, edición, cancelación y borrado de suscripciones.
-  - Día de cobro mensual y cálculo automático del próximo cobro.
-  - Cancelación automática programada a N meses, con fecha calculada y mostrada.
+  - Buscador de servicios sobre un catálogo curado de ~170 servicios reales (streaming, música, software, gaming, IA, etc.) con sus planes y precios de referencia (`src/lib/serviceCatalog.ts`) — al elegir un plan se prellenan precio y moneda, siempre editables. Si el servicio no está en el catálogo, se puede escribir el nombre a mano.
+  - Fecha de cobro única (de ahí se deriva el día del mes) y cálculo automático del próximo cobro.
+  - Cancelación automática en una fecha concreta que tú eliges (no por número de meses).
   - Resumen: gasto mensual total, próximo cobro y número de cancelaciones programadas.
 
 Explícitamente **fuera de alcance** en esta fase (para fases futuras): compra/pago de suscripciones, recordatorios por email, sincronización de calendario, recuperación de contraseña, multi-moneda, cuentas compartidas/equipo.

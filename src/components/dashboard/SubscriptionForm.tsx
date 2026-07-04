@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Field, Input, Label } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { ACCENT_COLORS } from "@/lib/validation";
+import { ServiceSearchCombobox } from "@/components/dashboard/ServiceSearchCombobox";
 import type { SubscriptionView } from "./types";
 
 export function SubscriptionForm({
@@ -17,14 +18,18 @@ export function SubscriptionForm({
 }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [autoCancelEnabled, setAutoCancelEnabled] = useState(Boolean(subscription?.autoCancelAfterMonths));
+  const [serviceName, setServiceName] = useState(subscription?.serviceName ?? "");
+  const [price, setPrice] = useState(subscription?.price?.toString() ?? "");
+  const [currency, setCurrency] = useState(subscription?.currency ?? "EUR");
+  const [cancelEnabled, setCancelEnabled] = useState(Boolean(subscription?.cancelDate));
   const [accentColor, setAccentColor] = useState(subscription?.accentColor ?? ACCENT_COLORS[0]);
 
   async function handleSubmit(formData: FormData) {
     setPending(true);
     setError(null);
+    formData.set("serviceName", serviceName);
     formData.set("accentColor", accentColor);
-    if (!autoCancelEnabled) formData.set("autoCancelAfterMonths", "");
+    if (!cancelEnabled) formData.set("cancelDate", "");
 
     try {
       await onSubmit(formData);
@@ -36,16 +41,15 @@ export function SubscriptionForm({
 
   return (
     <form action={handleSubmit} className="space-y-4">
-      <Field label="Nombre del servicio" htmlFor="serviceName">
-        <Input
-          id="serviceName"
-          name="serviceName"
-          type="text"
-          defaultValue={subscription?.serviceName}
-          placeholder="Netflix, Spotify…"
-          required
-        />
-      </Field>
+      <ServiceSearchCombobox
+        value={serviceName}
+        onQueryChange={setServiceName}
+        onSelectPlan={({ serviceName, price, currency }) => {
+          setServiceName(serviceName);
+          setPrice(String(price));
+          setCurrency(currency);
+        }}
+      />
 
       <div className="grid grid-cols-2 gap-3">
         <Field label="Precio" htmlFor="price">
@@ -55,57 +59,50 @@ export function SubscriptionForm({
             type="number"
             step="0.01"
             min="0"
-            defaultValue={subscription?.price}
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
             required
           />
         </Field>
         <Field label="Moneda" htmlFor="currency">
-          <Input id="currency" name="currency" type="text" defaultValue={subscription?.currency ?? "EUR"} maxLength={3} required />
+          <Input
+            id="currency"
+            name="currency"
+            type="text"
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            maxLength={3}
+            required
+          />
         </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Día de cobro (1-31)" htmlFor="billingDay">
-          <Input
-            id="billingDay"
-            name="billingDay"
-            type="number"
-            min={1}
-            max={31}
-            defaultValue={subscription?.billingDay}
-            required
-          />
-        </Field>
-        <Field label="Fecha de inicio" htmlFor="startDate">
-          <Input
-            id="startDate"
-            name="startDate"
-            type="date"
-            defaultValue={subscription?.startDate?.slice(0, 10)}
-            required
-          />
-        </Field>
-      </div>
+      <Field label="Fecha de cobro" htmlFor="startDate">
+        <Input
+          id="startDate"
+          name="startDate"
+          type="date"
+          defaultValue={subscription?.startDate?.slice(0, 10)}
+          required
+        />
+      </Field>
 
       <div>
         <label className="flex items-center gap-2 text-sm font-semibold text-ink">
           <input
             type="checkbox"
-            checked={autoCancelEnabled}
-            onChange={(e) => setAutoCancelEnabled(e.target.checked)}
+            checked={cancelEnabled}
+            onChange={(e) => setCancelEnabled(e.target.checked)}
             className="h-4 w-4 rounded border-black/20 text-azure focus:ring-azure/30"
           />
-          Cancelar automáticamente después de un tiempo
+          Cancelar automáticamente en una fecha
         </label>
-        {autoCancelEnabled ? (
+        {cancelEnabled ? (
           <Input
             className="mt-2"
-            name="autoCancelAfterMonths"
-            type="number"
-            min={1}
-            max={120}
-            defaultValue={subscription?.autoCancelAfterMonths ?? 6}
-            placeholder="Número de meses"
+            name="cancelDate"
+            type="date"
+            defaultValue={subscription?.cancelDate?.slice(0, 10)}
           />
         ) : null}
       </div>

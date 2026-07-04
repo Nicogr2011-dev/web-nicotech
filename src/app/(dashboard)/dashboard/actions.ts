@@ -5,7 +5,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { subscriptionSchema } from "@/lib/validation";
-import { computeCancelDate } from "@/lib/subscriptions";
 
 async function requireUserId(): Promise<string> {
   const session = await getServerSession(authOptions);
@@ -18,9 +17,8 @@ function parseSubscriptionForm(formData: FormData) {
     serviceName: formData.get("serviceName"),
     price: formData.get("price"),
     currency: formData.get("currency") || "EUR",
-    billingDay: formData.get("billingDay"),
     startDate: formData.get("startDate"),
-    autoCancelAfterMonths: formData.get("autoCancelAfterMonths") ?? "",
+    cancelDate: formData.get("cancelDate") ?? "",
     accentColor: formData.get("accentColor"),
   });
 }
@@ -28,10 +26,9 @@ function parseSubscriptionForm(formData: FormData) {
 export async function createSubscription(formData: FormData) {
   const userId = await requireUserId();
   const data = parseSubscriptionForm(formData);
-  const cancelDate = computeCancelDate(data.startDate, data.autoCancelAfterMonths);
 
   await prisma.subscription.create({
-    data: { ...data, cancelDate, userId },
+    data: { ...data, userId },
   });
 
   revalidatePath("/dashboard");
@@ -40,11 +37,10 @@ export async function createSubscription(formData: FormData) {
 export async function updateSubscription(id: string, formData: FormData) {
   const userId = await requireUserId();
   const data = parseSubscriptionForm(formData);
-  const cancelDate = computeCancelDate(data.startDate, data.autoCancelAfterMonths);
 
   await prisma.subscription.updateMany({
     where: { id, userId },
-    data: { ...data, cancelDate },
+    data: { ...data },
   });
 
   revalidatePath("/dashboard");

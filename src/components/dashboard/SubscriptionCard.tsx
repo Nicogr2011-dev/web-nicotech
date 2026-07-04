@@ -53,7 +53,7 @@ export function SubscriptionCard({
       </div>
 
       <div className="space-y-1 text-sm text-slate">
-        <p>Cobra el día {subscription.billingDay}</p>
+        <p>Cobra el día {new Date(subscription.startDate).getDate()}</p>
         <p>Próximo cobro: {formatDate(subscription.nextChargeDate)}</p>
       </div>
 

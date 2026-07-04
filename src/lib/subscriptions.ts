@@ -1,7 +1,8 @@
 import { addMonths, setDate, isBefore, startOfDay } from "date-fns";
 
-/** Próxima fecha de cobro a partir de un día de facturación (1-31) y una fecha de referencia. */
-export function computeNextChargeDate(billingDay: number, referenceDate: Date = new Date()): Date {
+/** Próxima fecha de cobro a partir de la fecha de cobro (se usa su día del mes) y una fecha de referencia. */
+export function computeNextChargeDate(startDate: Date, referenceDate: Date = new Date()): Date {
+  const billingDay = startDate.getDate();
   const today = startOfDay(referenceDate);
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   const clampedDay = Math.min(billingDay, daysInMonth);
@@ -13,10 +14,4 @@ export function computeNextChargeDate(billingDay: number, referenceDate: Date = 
     candidate = setDate(next, Math.min(billingDay, daysInNextMonth));
   }
   return candidate;
-}
-
-/** Fecha en la que se cancelará automáticamente la suscripción, o null si no aplica. */
-export function computeCancelDate(startDate: Date, autoCancelAfterMonths: number | null): Date | null {
-  if (!autoCancelAfterMonths) return null;
-  return addMonths(startDate, autoCancelAfterMonths);
 }

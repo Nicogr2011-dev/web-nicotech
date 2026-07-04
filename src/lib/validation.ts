@@ -19,10 +19,9 @@ export const subscriptionSchema = z.object({
   serviceName: z.string().trim().min(1, "Introduce el nombre del servicio").max(100),
   price: z.coerce.number().positive("El precio debe ser mayor que 0").max(1_000_000),
   currency: z.string().trim().length(3).default("EUR"),
-  billingDay: z.coerce.number().int().min(1, "El día debe estar entre 1 y 31").max(31),
   startDate: z.coerce.date(),
-  autoCancelAfterMonths: z
-    .union([z.coerce.number().int().positive().max(120), z.literal("")])
+  cancelDate: z
+    .union([z.coerce.date(), z.literal("")])
     .optional()
     .transform((v) => (v === "" || v === undefined ? null : v)),
   accentColor: z.enum(ACCENT_COLORS),

@@ -11,7 +11,7 @@ export default async function DashboardPage() {
 
   const subscriptions = await prisma.subscription.findMany({
     where: { userId },
-    orderBy: { billingDay: "asc" },
+    orderBy: { startDate: "asc" },
   });
 
   const views: SubscriptionView[] = subscriptions.map((s) => ({
@@ -19,13 +19,11 @@ export default async function DashboardPage() {
     serviceName: s.serviceName,
     price: Number(s.price),
     currency: s.currency,
-    billingDay: s.billingDay,
     startDate: s.startDate.toISOString(),
-    autoCancelAfterMonths: s.autoCancelAfterMonths,
     cancelDate: s.cancelDate ? s.cancelDate.toISOString() : null,
     status: s.status,
     accentColor: s.accentColor,
-    nextChargeDate: computeNextChargeDate(s.billingDay).toISOString(),
+    nextChargeDate: computeNextChargeDate(s.startDate).toISOString(),
   }));
 
   const activeViews = views.filter((v) => v.status === "ACTIVE");
