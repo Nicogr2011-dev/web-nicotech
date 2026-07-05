@@ -74,7 +74,7 @@ export function FeatureSwatches() {
     <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <Reveal>
         {userCount !== null && userCount > 0 ? (
-          <p className="mb-4 text-center font-display text-3xl font-extrabold text-ink">
+          <p className="mb-44 text-center font-display text-3xl font-extrabold text-ink">
             <DancingText
               segments={[
                 { text: "Ya somos" },

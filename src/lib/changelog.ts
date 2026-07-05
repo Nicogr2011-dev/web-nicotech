@@ -211,6 +211,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "El contador de \"Ya somos X personas\" ahora es tan grande como un titular, y sus letras bailan solas todo el rato, lentito.",
   },
+  {
+    date: "05.07.26",
+    major: 9,
+    minor: 2,
+    type: "MINOR",
+    title: "Ajustes finos del contador",
+    description:
+      "El número del contador se queda en azul y el resto del texto en negro. Además, ahora hay el mismo espacio debajo del contador que el que hay justo encima, respecto a los botones de la cabecera.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
