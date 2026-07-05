@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { apiGet, apiPost, ApiError } from "@/lib/api";
+import { getRecaptchaToken } from "@/lib/recaptcha";
 
 export type AuthUser = {
   id: number;
@@ -38,7 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function login(email: string, password: string) {
     try {
-      const data = await apiPost<{ user: AuthUser }>("/auth/login.php", { email, password });
+      const recaptchaToken = await getRecaptchaToken("login").catch(() => null);
+      const data = await apiPost<{ user: AuthUser }>("/auth/login.php", { email, password, recaptchaToken });
       setUser(data.user);
       return {};
     } catch (err) {
@@ -48,7 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function register(name: string, email: string, password: string) {
     try {
-      await apiPost("/auth/register.php", { name, email, password });
+      const recaptchaToken = await getRecaptchaToken("register").catch(() => null);
+      await apiPost("/auth/register.php", { name, email, password, recaptchaToken });
       return login(email, password);
     } catch (err) {
       return { error: err instanceof ApiError ? err.message : "No se pudo crear la cuenta" };

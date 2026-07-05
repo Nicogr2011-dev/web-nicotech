@@ -9,6 +9,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $body = read_json_body();
 $email = trim((string) ($body['email'] ?? ''));
 $password = (string) ($body['password'] ?? '');
+$recaptchaToken = $body['recaptchaToken'] ?? null;
+
+if (!verify_recaptcha($recaptchaToken, 'login')) {
+    json_error('Verificación de seguridad fallida. Recarga la página e inténtalo de nuevo.', 400);
+}
 
 $stmt = $pdo->prepare('SELECT id, name, email, password_hash FROM users WHERE email = ?');
 $stmt->execute([$email]);

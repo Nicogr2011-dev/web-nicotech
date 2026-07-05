@@ -10,6 +10,11 @@ $body = read_json_body();
 $name = trim((string) ($body['name'] ?? ''));
 $email = trim((string) ($body['email'] ?? ''));
 $password = (string) ($body['password'] ?? '');
+$recaptchaToken = $body['recaptchaToken'] ?? null;
+
+if (!verify_recaptcha($recaptchaToken, 'register')) {
+    json_error('Verificación de seguridad fallida. Recarga la página e inténtalo de nuevo.', 400);
+}
 
 if ($name === '' || strlen($name) > 100) {
     json_error('Introduce tu nombre');
