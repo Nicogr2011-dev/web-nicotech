@@ -44,6 +44,25 @@ function require_auth(): int
 }
 
 /**
+ * Carga el usuario y lo formatea para devolverlo en JSON, con los mismos
+ * campos siempre (evita repetir el SELECT + mapeo en cada endpoint).
+ */
+function user_response(PDO $pdo, int $userId): array
+{
+    $stmt = $pdo->prepare('SELECT id, name, email, tier, avatar_path FROM users WHERE id = ?');
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch();
+
+    return [
+        'id' => (int) $user['id'],
+        'name' => $user['name'],
+        'email' => $user['email'],
+        'tier' => $user['tier'],
+        'avatarUrl' => $user['avatar_path'],
+    ];
+}
+
+/**
  * Verifica un token de reCAPTCHA v3 contra la API de Google.
  * Si no hay secreto configurado todavía (CHANGE_ME / vacío), no bloquea nada
  * — permite desplegar el código antes de tener las claves reales.

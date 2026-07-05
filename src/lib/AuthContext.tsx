@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { apiGet, apiPost, ApiError } from "@/lib/api";
+import { apiGet, apiPost, apiUpload, ApiError } from "@/lib/api";
 import { getRecaptchaToken } from "@/lib/recaptcha";
 
 export type AuthUser = {
@@ -7,6 +7,7 @@ export type AuthUser = {
   name: string;
   email: string;
   tier: "BASICO" | "PREMIUM" | "PREMIUM_LITE";
+  avatarUrl: string | null;
 };
 
 type AuthContextValue = {
@@ -16,6 +17,11 @@ type AuthContextValue = {
   register: (name: string, email: string, password: string) => Promise<{ error?: string }>;
   logout: () => Promise<void>;
   setTier: (tier: AuthUser["tier"], code?: string) => Promise<{ error?: string }>;
+  updateName: (name: string) => Promise<{ error?: string }>;
+  updateEmail: (email: string, currentPassword: string) => Promise<{ error?: string }>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<{ error?: string }>;
+  uploadAvatar: (file: File) => Promise<{ error?: string }>;
+  deleteAccount: (password: string) => Promise<{ error?: string }>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -75,8 +81,72 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  async function updateName(name: string) {
+    try {
+      const data = await apiPost<{ user: AuthUser }>("/account/update-name.php", { name });
+      setUser(data.user);
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo actualizar el nombre" };
+    }
+  }
+
+  async function updateEmail(email: string, currentPassword: string) {
+    try {
+      const data = await apiPost<{ user: AuthUser }>("/account/update-email.php", { email, currentPassword });
+      setUser(data.user);
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo actualizar el email" };
+    }
+  }
+
+  async function updatePassword(currentPassword: string, newPassword: string) {
+    try {
+      await apiPost("/account/update-password.php", { currentPassword, newPassword });
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo actualizar la contraseña" };
+    }
+  }
+
+  async function uploadAvatar(file: File) {
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+      const data = await apiUpload<{ user: AuthUser }>("/account/upload-avatar.php", formData);
+      setUser(data.user);
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo subir la foto" };
+    }
+  }
+
+  async function deleteAccount(password: string) {
+    try {
+      await apiPost("/account/delete-account.php", { password });
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo eliminar la cuenta" };
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, setTier }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        setTier,
+        updateName,
+        updateEmail,
+        updatePassword,
+        uploadAvatar,
+        deleteAccount,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { clsx } from "clsx";
 import type { InputHTMLAttributes, LabelHTMLAttributes, ReactNode } from "react";
 
@@ -17,16 +18,15 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
   );
 }
 
-export function IconInput({
-  icon,
-  rightSlot,
-  className,
-  ...props
-}: InputHTMLAttributes<HTMLInputElement> & { icon: ReactNode; rightSlot?: ReactNode }) {
+export const IconInput = forwardRef<
+  HTMLInputElement,
+  InputHTMLAttributes<HTMLInputElement> & { icon: ReactNode; rightSlot?: ReactNode }
+>(function IconInput({ icon, rightSlot, className, ...props }, ref) {
   return (
     <div className="relative">
       <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate">{icon}</span>
       <input
+        ref={ref}
         className={clsx(
           "w-full rounded-xl border border-black/10 bg-white py-2.5 pl-10 text-ink placeholder:text-slate/60 outline-none transition-colors focus:border-azure focus:ring-2 focus:ring-azure/20",
           rightSlot ? "pr-10" : "pr-4",
@@ -37,7 +37,7 @@ export function IconInput({
       {rightSlot ? <span className="absolute right-3 top-1/2 -translate-y-1/2">{rightSlot}</span> : null}
     </div>
   );
-}
+});
 
 export function Field({
   label,

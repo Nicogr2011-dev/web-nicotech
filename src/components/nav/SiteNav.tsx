@@ -5,6 +5,7 @@ import { PaletteDots } from "@/components/ui/PaletteDots";
 import { DownloadIcon, MenuIcon, CloseIcon } from "@/components/ui/Icon";
 import { UserMenu } from "@/components/nav/UserMenu";
 import { TierBadge } from "@/components/nav/TierBadge";
+import { Avatar } from "@/components/ui/Avatar";
 
 function scrollToHowItWorks() {
   document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" });
@@ -14,10 +15,12 @@ export function SiteNav({
   authed = false,
   userName,
   tier,
+  avatarUrl,
 }: {
   authed?: boolean;
   userName?: string;
   tier?: "BASICO" | "PREMIUM" | "PREMIUM_LITE";
+  avatarUrl?: string | null;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -45,10 +48,13 @@ export function SiteNav({
               <Link to="/precios" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
                 Precios
               </Link>
+              <Link to="/cuenta" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
+                Mi cuenta
+              </Link>
               <Link to="/" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
                 Ver la web
               </Link>
-              <UserMenu userName={userName} tier={tier} />
+              <UserMenu userName={userName} tier={tier} avatarUrl={avatarUrl} />
             </>
           ) : (
             <>
@@ -85,7 +91,10 @@ export function SiteNav({
               <>
                 {userName ? (
                   <div className="flex items-center justify-between py-3">
-                    <span className="text-sm font-medium text-slate">{userName}</span>
+                    <span className="flex items-center gap-2">
+                      <Avatar name={userName} avatarUrl={avatarUrl} size={26} />
+                      <span className="text-sm font-medium text-slate">{userName}</span>
+                    </span>
                     {tier ? <TierBadge tier={tier} /> : null}
                   </div>
                 ) : null}
@@ -97,6 +106,9 @@ export function SiteNav({
                 </Link>
                 <Link to="/precios" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-ink">
                   Precios
+                </Link>
+                <Link to="/cuenta" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-ink">
+                  Mi cuenta
                 </Link>
               </>
             ) : (

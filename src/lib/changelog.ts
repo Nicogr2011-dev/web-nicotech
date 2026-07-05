@@ -220,6 +220,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "El número del contador se queda en azul y el resto del texto en negro. Además, ahora hay el mismo espacio debajo del contador que el que hay justo encima, respecto a los botones de la cabecera.",
   },
+  {
+    date: "05.07.26",
+    major: 10,
+    minor: 0,
+    type: "MAJOR",
+    title: "Mi cuenta",
+    description:
+      "Nueva página \"Mi cuenta\" para subir una foto de perfil, cambiar tu nombre, tu email y tu contraseña, y eliminar la cuenta (pide tu contraseña, y el cuadro no aparece hasta pulsar el botón rojo de eliminar).",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

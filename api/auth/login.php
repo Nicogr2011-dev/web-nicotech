@@ -15,7 +15,7 @@ if (!verify_recaptcha($recaptchaToken, 'login')) {
     json_error('Verificación de seguridad fallida. Recarga la página e inténtalo de nuevo.', 400);
 }
 
-$stmt = $pdo->prepare('SELECT id, name, email, password_hash, tier FROM users WHERE email = ?');
+$stmt = $pdo->prepare('SELECT id, password_hash FROM users WHERE email = ?');
 $stmt->execute([$email]);
 $user = $stmt->fetch();
 
@@ -26,9 +26,4 @@ if (!$user || !password_verify($password, $user['password_hash'])) {
 session_regenerate_id(true);
 $_SESSION['user_id'] = (int) $user['id'];
 
-json_response(['user' => [
-    'id' => (int) $user['id'],
-    'name' => $user['name'],
-    'email' => $user['email'],
-    'tier' => $user['tier'],
-]]);
+json_response(['user' => user_response($pdo, (int) $user['id'])]);

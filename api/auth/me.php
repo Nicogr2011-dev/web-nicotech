@@ -6,17 +6,12 @@ if (empty($_SESSION['user_id'])) {
     json_response(['user' => null]);
 }
 
-$stmt = $pdo->prepare('SELECT id, name, email, tier FROM users WHERE id = ?');
-$stmt->execute([$_SESSION['user_id']]);
-$user = $stmt->fetch();
+$userId = (int) $_SESSION['user_id'];
+$stmt = $pdo->prepare('SELECT id FROM users WHERE id = ?');
+$stmt->execute([$userId]);
 
-if (!$user) {
+if (!$stmt->fetch()) {
     json_response(['user' => null]);
 }
 
-json_response(['user' => [
-    'id' => (int) $user['id'],
-    'name' => $user['name'],
-    'email' => $user['email'],
-    'tier' => $user['tier'],
-]]);
+json_response(['user' => user_response($pdo, $userId)]);

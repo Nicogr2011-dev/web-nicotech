@@ -43,9 +43,4 @@ if (!$isPrivileged && !$isFreeTarget && !$codeValid) {
 $stmt = $pdo->prepare('UPDATE users SET tier = ? WHERE id = ?');
 $stmt->execute([$tier, $userId]);
 
-json_response(['user' => [
-    'id' => (int) $user['id'],
-    'name' => $user['name'],
-    'email' => $user['email'],
-    'tier' => $tier,
-]]);
+json_response(['user' => user_response($pdo, $userId)]);

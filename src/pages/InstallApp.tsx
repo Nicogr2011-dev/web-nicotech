@@ -51,7 +51,7 @@ export default function InstallAppPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-mist">
-      <SiteNav authed={Boolean(user)} userName={user?.name ?? user?.email} tier={user?.tier} />
+      <SiteNav authed={Boolean(user)} userName={user?.name ?? user?.email} tier={user?.tier} avatarUrl={user?.avatarUrl} />
 
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center px-4 py-16 text-center sm:px-6">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-azure/10">

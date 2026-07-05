@@ -35,7 +35,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-mist">
-      <SiteNav authed={Boolean(user)} userName={user?.name ?? user?.email} tier={user?.tier} />
+      <SiteNav authed={Boolean(user)} userName={user?.name ?? user?.email} tier={user?.tier} avatarUrl={user?.avatarUrl} />
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-16 sm:px-6">
         <Link to="/precios" className="text-sm font-medium text-slate hover:text-ink">

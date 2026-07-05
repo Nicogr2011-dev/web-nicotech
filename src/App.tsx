@@ -9,6 +9,7 @@ import DashboardPage from "@/pages/Dashboard";
 import InstallAppPage from "@/pages/InstallApp";
 import PricingPage from "@/pages/Pricing";
 import CheckoutPage from "@/pages/Checkout";
+import AccountPage from "@/pages/Account";
 
 function FullPageSpinner() {
   return <div className="flex min-h-screen items-center justify-center text-slate">Cargando…</div>;
@@ -73,6 +74,14 @@ export default function App() {
           element={
             <RequireAuth>
               <DashboardPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/cuenta"
+          element={
+            <RequireAuth>
+              <AccountPage />
             </RequireAuth>
           }
         />
