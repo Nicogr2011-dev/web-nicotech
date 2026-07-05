@@ -148,6 +148,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     title: "Insignia de reCAPTCHA más discreta",
     description: "El indicador de reCAPTCHA solo se muestra en login/registro; desaparece del resto de la web una vez iniciada la sesión.",
   },
+  {
+    date: "05.07.26",
+    major: 7,
+    minor: 5,
+    type: "MINOR",
+    title: "Enlace \"Precios\"",
+    description:
+      "Nuevo enlace \"Precios\" en la barra de navegación (todavía sin destino). Se está preparando un sistema de planes de pago para el futuro — de momento Nicotech sigue siendo gratis para todo el mundo.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
