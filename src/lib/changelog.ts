@@ -132,6 +132,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     title: "Edición con animación de tarjeta",
     description: "Al pulsar \"Editar\", la propia tarjeta se expande en su sitio para mostrar el formulario, en vez de abrir una ventana aparte.",
   },
+  {
+    date: "05.07.26",
+    major: 7,
+    minor: 3,
+    type: "MINOR",
+    title: "Enlace a la web desde el panel",
+    description: "Nuevo enlace \"Ver la web\" en la barra del área de cliente para volver a la página principal.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

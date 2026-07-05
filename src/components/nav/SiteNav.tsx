@@ -37,7 +37,12 @@ export function SiteNav({
           </Link>
 
           {authed ? (
-            <UserMenu userName={userName} tier={tier} />
+            <>
+              <Link to="/" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
+                Ver la web
+              </Link>
+              <UserMenu userName={userName} tier={tier} />
+            </>
           ) : (
             <>
               <button onClick={scrollToHowItWorks} className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
