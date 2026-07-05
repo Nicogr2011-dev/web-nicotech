@@ -175,6 +175,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "El enlace \"Precios\" ya lleva a una página con los tres planes: Básico (gratis, con publicidad, hasta 20 suscripciones), Premium (sin publicidad, ilimitadas) y Premium Lite (con publicidad, ilimitadas). El cambio de plan todavía no está abierto a todo el mundo — avisaremos cuando el sistema de pagos esté listo.",
   },
+  {
+    date: "05.07.26",
+    major: 8,
+    minor: 1,
+    type: "MINOR",
+    title: "Pago con código de acceso",
+    description:
+      "En la página de Precios, mientras no hay pasarela de pago real, Premium y Premium Lite se pueden desbloquear con un código de acceso.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

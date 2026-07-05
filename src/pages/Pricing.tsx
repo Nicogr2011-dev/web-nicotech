@@ -46,13 +46,19 @@ export default function PricingPage() {
   const { user, setTier } = useAuth();
   const [pendingId, setPendingId] = useState<AuthUser["tier"] | null>(null);
   const [errorId, setErrorId] = useState<AuthUser["tier"] | null>(null);
+  const [codeErrorId, setCodeErrorId] = useState<AuthUser["tier"] | null>(null);
+  const [codeInputs, setCodeInputs] = useState<Partial<Record<AuthUser["tier"], string>>>({});
 
-  async function handleSwitch(planId: AuthUser["tier"]) {
+  async function handleTierChange(planId: AuthUser["tier"], code?: string) {
     setPendingId(planId);
     setErrorId(null);
-    const { error } = await setTier(planId);
+    setCodeErrorId(null);
+    const { error } = await setTier(planId, code);
     setPendingId(null);
-    if (error) setErrorId(planId);
+    if (error) {
+      if (code) setCodeErrorId(planId);
+      else setErrorId(planId);
+    }
   }
 
   const canSwitch = user?.email.toLowerCase() === TIER_SWITCH_ALLOWED_EMAIL;
@@ -66,7 +72,8 @@ export default function PricingPage() {
           <h1 className="font-display text-3xl font-extrabold text-ink sm:text-4xl">Precios</h1>
           <p className="mt-3 text-slate">
             Nicotech es y seguirá siendo gratis. Estamos preparando planes de pago opcionales para quien quiera
-            quitarse la publicidad o pasar del límite de 20 suscripciones — de momento nadie puede pagar todavía.
+            quitarse la publicidad o pasar del límite de 20 suscripciones — de momento, mientras no hay pasarela de
+            pago real, se desbloquean con un código de acceso.
           </p>
         </div>
 
@@ -102,18 +109,41 @@ export default function PricingPage() {
                     <div className="rounded-full bg-ink/5 px-5 py-3 text-center text-sm font-semibold text-ink">
                       Tu plan actual
                     </div>
-                  ) : canSwitch ? (
+                  ) : canSwitch || plan.id === "BASICO" ? (
                     <Button
                       variant="secondary"
                       className="w-full"
                       disabled={isPending}
-                      onClick={() => handleSwitch(plan.id)}
+                      onClick={() => handleTierChange(plan.id)}
                     >
                       {isPending ? "Cambiando…" : "Cambiar a este plan"}
                     </Button>
                   ) : (
-                    <div className="rounded-full border border-black/10 px-5 py-3 text-center text-sm font-medium text-slate">
-                      Disponible próximamente
+                    <div className="rounded-2xl border border-black/10 p-4 text-left">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate/70">Pago</p>
+                      <p className="mt-1 text-xs text-slate">
+                        De momento el único método de pago es un código de acceso.
+                      </p>
+                      <input
+                        type="text"
+                        value={codeInputs[plan.id] ?? ""}
+                        onChange={(e) =>
+                          setCodeInputs((prev) => ({ ...prev, [plan.id]: e.target.value }))
+                        }
+                        placeholder="Código de acceso"
+                        className="mt-3 w-full rounded-full border border-black/10 px-4 py-2 text-sm text-ink focus:border-azure focus:outline-none"
+                      />
+                      <Button
+                        variant="secondary"
+                        className="mt-2 w-full"
+                        disabled={isPending || !(codeInputs[plan.id] ?? "").trim()}
+                        onClick={() => handleTierChange(plan.id, codeInputs[plan.id])}
+                      >
+                        {isPending ? "Comprobando…" : "Canjear código"}
+                      </Button>
+                      {codeErrorId === plan.id ? (
+                        <p className="mt-2 text-xs text-coral">Código no válido.</p>
+                      ) : null}
                     </div>
                   )}
                 </div>
@@ -125,12 +155,6 @@ export default function PricingPage() {
             );
           })}
         </div>
-
-        {user && !canSwitch ? (
-          <p className="mx-auto mt-8 max-w-lg text-center text-sm text-slate">
-            Todavía no puedes cambiar de plan — te avisaremos en cuanto abramos los pagos para todo el mundo.
-          </p>
-        ) : null}
       </main>
     </div>
   );

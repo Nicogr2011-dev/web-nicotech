@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $body = read_json_body();
 $tier = strtoupper(trim((string) ($body['tier'] ?? '')));
+$code = (string) ($body['code'] ?? '');
 $allowedTiers = ['BASICO', 'PREMIUM', 'PREMIUM_LITE'];
 
 if (!in_array($tier, $allowedTiers, true)) {
@@ -24,10 +25,19 @@ if (!$user) {
     json_error('Usuario no encontrado', 404);
 }
 
-// De momento el cambio de plan está reservado a la cuenta interna de pruebas,
-// mientras se prepara el sistema de pagos para el resto de usuarios.
-if (strtolower($user['email']) !== 'nicolas.grana.miguez@gmail.com') {
-    json_error('Todavía no puedes cambiar de plan. Espera a que activemos los pagos.', 403);
+// La cuenta interna de pruebas siempre puede cambiar de plan gratis. Mientras
+// no hay pasarela de pago real, cualquier otra cuenta necesita un código de
+// acceso (canjeable, no ligado a una tarjeta) para desbloquear el cambio.
+$isPrivileged = strtolower($user['email']) === 'nicolas.grana.miguez@gmail.com';
+$isFreeTarget = $tier === 'BASICO';
+$codeHash = $config['plan_redeem_code_hash'] ?? '';
+$codeValid = $code !== '' && $codeHash !== '' && $codeHash !== 'CHANGE_ME' && password_verify($code, $codeHash);
+
+if (!$isPrivileged && !$isFreeTarget && !$codeValid) {
+    if ($code !== '') {
+        json_error('Código no válido', 403);
+    }
+    json_error('Todavía no puedes cambiar de plan. Introduce un código de acceso o espera a que activemos los pagos.', 403);
 }
 
 $stmt = $pdo->prepare('UPDATE users SET tier = ? WHERE id = ?');

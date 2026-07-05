@@ -15,7 +15,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<{ error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ error?: string }>;
   logout: () => Promise<void>;
-  setTier: (tier: AuthUser["tier"]) => Promise<{ error?: string }>;
+  setTier: (tier: AuthUser["tier"], code?: string) => Promise<{ error?: string }>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -65,9 +65,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }
 
-  async function setTier(tier: AuthUser["tier"]) {
+  async function setTier(tier: AuthUser["tier"], code?: string) {
     try {
-      const data = await apiPost<{ user: AuthUser }>("/account/set-tier.php", { tier });
+      const data = await apiPost<{ user: AuthUser }>("/account/set-tier.php", { tier, code });
       setUser(data.user);
       return {};
     } catch (err) {
