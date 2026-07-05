@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { searchServices, type CatalogService, type ServicePlan } from "@/lib/serviceCatalog";
+import { searchServices, getPurchaseUrl, type CatalogService, type ServicePlan } from "@/lib/serviceCatalog";
 import { Input, Label } from "@/components/ui/Input";
 
 export function ServiceSearchCombobox({
@@ -39,7 +39,7 @@ export function ServiceSearchCombobox({
   function choosePlan(service: CatalogService, plan: ServicePlan) {
     const serviceName = service.plans.length > 1 ? `${service.name} (${plan.name})` : service.name;
     onQueryChange(serviceName);
-    onSelectPlan({ serviceName, price: plan.price, currency: plan.currency, website: service.website });
+    onSelectPlan({ serviceName, price: plan.price, currency: plan.currency, website: getPurchaseUrl(service) });
     setOpen(false);
     setPlanPicker(null);
   }

@@ -9,8 +9,20 @@ export type CatalogService = {
   name: string;
   category: string;
   website: string;
+  /**
+   * Enlace de afiliado (red tipo Awin/CJ/Impact/Rakuten Advertising), cuando Nicotech
+   * esté aprobado como afiliado de ese servicio. Si no está definido, el botón
+   * "Comprar" usa `website` a secas. Rellenar aquí cuando se consiga la aprobación
+   * de cada programa — no requiere ningún otro cambio de código.
+   */
+  affiliateUrl?: string;
   plans: ServicePlan[];
 };
+
+/** URL a usar para el botón "Comprar": el enlace de afiliado si existe, si no la web oficial. */
+export function getPurchaseUrl(service: CatalogService): string {
+  return service.affiliateUrl ?? service.website;
+}
 
 const EUR = "EUR";
 
