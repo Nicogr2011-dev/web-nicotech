@@ -30,27 +30,33 @@ const features = [
   },
 ];
 
-function DancingText({ text }: { text: string }) {
+function DancingText({ segments }: { segments: { text: string; color?: string }[] }) {
   let letterIndex = 0;
   return (
     <>
-      {text.split(" ").map((word, wi) => (
-        <span key={wi} className="mr-[0.28em] inline-block whitespace-nowrap last:mr-0">
-          {word.split("").map((char, ci) => {
-            const delay = letterIndex * 0.04;
-            letterIndex += 1;
-            return (
-              <span
-                key={ci}
-                className="inline-block"
-                style={{ animation: "letter-dance 2.4s ease-in-out infinite", animationDelay: `${delay}s` }}
-              >
-                {char}
-              </span>
-            );
-          })}
-        </span>
-      ))}
+      {segments.map((segment, si) =>
+        segment.text.split(" ").map((word, wi) => (
+          <span key={`${si}-${wi}`} className="mr-[0.28em] inline-block whitespace-nowrap last:mr-0">
+            {word.split("").map((char, ci) => {
+              const delay = letterIndex * 0.04;
+              letterIndex += 1;
+              return (
+                <span
+                  key={ci}
+                  className="inline-block"
+                  style={{
+                    animation: "letter-dance 2.4s ease-in-out infinite",
+                    animationDelay: `${delay}s`,
+                    color: segment.color,
+                  }}
+                >
+                  {char}
+                </span>
+              );
+            })}
+          </span>
+        ))
+      )}
     </>
   );
 }
@@ -68,8 +74,14 @@ export function FeatureSwatches() {
     <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <Reveal>
         {userCount !== null && userCount > 0 ? (
-          <p className="mb-4 text-center font-display text-3xl font-extrabold text-azure">
-            <DancingText text={`Ya somos ${userCount} ${userCount === 1 ? "persona" : "personas"}, únete tú`} />
+          <p className="mb-4 text-center font-display text-3xl font-extrabold text-ink">
+            <DancingText
+              segments={[
+                { text: "Ya somos" },
+                { text: `${userCount}`, color: "#3a86ff" },
+                { text: `${userCount === 1 ? "persona" : "personas"}, únete tú` },
+              ]}
+            />
           </p>
         ) : null}
         <h2 className="text-center font-display text-3xl font-extrabold text-ink">
