@@ -16,12 +16,33 @@ export type CatalogService = {
    * de cada programa — no requiere ningún otro cambio de código.
    */
   affiliateUrl?: string;
+  /**
+   * Enlace directo a la página de gestión/cancelación de la suscripción, cuando se
+   * conoce una URL fiable (ej. netflix.com/cancelplan). Si no está definida, se usa
+   * `website` a secas como mejor alternativa disponible.
+   */
+  manageUrl?: string;
   plans: ServicePlan[];
 };
 
 /** URL a usar para el botón "Comprar": el enlace de afiliado si existe, si no la web oficial. */
 export function getPurchaseUrl(service: CatalogService): string {
   return service.affiliateUrl ?? service.website;
+}
+
+/** URL a usar para ir a cancelar/gestionar la suscripción. */
+export function getManageUrl(service: CatalogService): string {
+  return service.manageUrl ?? service.website;
+}
+
+/**
+ * Intenta encontrar en el catálogo el servicio al que pertenece una suscripción ya
+ * guardada, a partir de su `serviceName` tal cual se guardó (ej. "Netflix (Premium)").
+ * Solo funciona para las que se añadieron buscando en el catálogo; las añadidas a
+ * mano no coincidirán con nada, y eso está bien (no hay enlace de cancelación que dar).
+ */
+export function findCatalogServiceByName(serviceName: string): CatalogService | undefined {
+  return SERVICE_CATALOG.find((service) => serviceName.startsWith(service.name));
 }
 
 const EUR = "EUR";
@@ -35,22 +56,22 @@ const EUR = "EUR";
  */
 export const SERVICE_CATALOG: CatalogService[] = [
   // --- Streaming de vídeo ---
-  { id: "netflix", name: "Netflix", category: "Streaming de vídeo", website: "https://www.netflix.com", plans: [
+  { id: "netflix", name: "Netflix", category: "Streaming de vídeo", website: "https://www.netflix.com", manageUrl: "https://www.netflix.com/cancelplan", plans: [
     { name: "Estándar con anuncios", price: 5.99, currency: EUR },
     { name: "Estándar", price: 13.99, currency: EUR },
     { name: "Premium", price: 19.99, currency: EUR },
   ]},
-  { id: "disney-plus", name: "Disney+", category: "Streaming de vídeo", website: "https://www.disneyplus.com", plans: [
+  { id: "disney-plus", name: "Disney+", category: "Streaming de vídeo", website: "https://www.disneyplus.com", manageUrl: "https://www.disneyplus.com/account/subscription", plans: [
     { name: "Estándar con anuncios", price: 5.99, currency: EUR },
     { name: "Estándar", price: 9.99, currency: EUR },
     { name: "Premium", price: 13.99, currency: EUR },
   ]},
-  { id: "hbo-max", name: "Max (HBO Max)", category: "Streaming de vídeo", website: "https://www.max.com", plans: [
+  { id: "hbo-max", name: "Max (HBO Max)", category: "Streaming de vídeo", website: "https://www.max.com", manageUrl: "https://www.max.com/settings/subscription", plans: [
     { name: "Básico con anuncios", price: 5.99, currency: EUR },
     { name: "Estándar", price: 9.99, currency: EUR },
     { name: "Premium", price: 13.99, currency: EUR },
   ]},
-  { id: "amazon-prime-video", name: "Amazon Prime Video", category: "Streaming de vídeo", website: "https://www.primevideo.com", plans: [
+  { id: "amazon-prime-video", name: "Amazon Prime Video", category: "Streaming de vídeo", website: "https://www.primevideo.com", manageUrl: "https://www.amazon.es/manageyourprime", plans: [
     { name: "Con Prime", price: 4.99, currency: EUR },
     { name: "Sin anuncios", price: 7.98, currency: EUR },
   ]},
@@ -65,7 +86,7 @@ export const SERVICE_CATALOG: CatalogService[] = [
     { name: "Con anuncios", price: 3.99, currency: EUR },
     { name: "Sin anuncios", price: 6.99, currency: EUR },
   ]},
-  { id: "apple-tv-plus", name: "Apple TV+", category: "Streaming de vídeo", website: "https://tv.apple.com", plans: [
+  { id: "apple-tv-plus", name: "Apple TV+", category: "Streaming de vídeo", website: "https://tv.apple.com", manageUrl: "https://account.apple.com/account/manage/section/subscriptions", plans: [
     { name: "Mensual", price: 9.99, currency: EUR },
   ]},
   { id: "filmin", name: "Filmin", category: "Streaming de vídeo", website: "https://www.filmin.es", plans: [
@@ -111,7 +132,7 @@ export const SERVICE_CATALOG: CatalogService[] = [
     { name: "Con anuncios", price: 4.99, currency: EUR },
     { name: "Sin anuncios", price: 8.99, currency: EUR },
   ]},
-  { id: "youtube-premium", name: "YouTube Premium", category: "Streaming de vídeo", website: "https://www.youtube.com/premium", plans: [
+  { id: "youtube-premium", name: "YouTube Premium", category: "Streaming de vídeo", website: "https://www.youtube.com/premium", manageUrl: "https://www.youtube.com/paid_memberships", plans: [
     { name: "Individual", price: 12.99, currency: EUR },
     { name: "Familiar", price: 22.99, currency: EUR },
   ]},
@@ -129,16 +150,16 @@ export const SERVICE_CATALOG: CatalogService[] = [
   ]},
 
   // --- Música y audio ---
-  { id: "spotify", name: "Spotify", category: "Música y audio", website: "https://www.spotify.com", plans: [
+  { id: "spotify", name: "Spotify", category: "Música y audio", website: "https://www.spotify.com", manageUrl: "https://www.spotify.com/account/subscription/", plans: [
     { name: "Individual", price: 11.99, currency: EUR },
     { name: "Dúo", price: 16.99, currency: EUR },
     { name: "Familiar", price: 19.99, currency: EUR },
   ]},
-  { id: "apple-music", name: "Apple Music", category: "Música y audio", website: "https://music.apple.com", plans: [
+  { id: "apple-music", name: "Apple Music", category: "Música y audio", website: "https://music.apple.com", manageUrl: "https://account.apple.com/account/manage/section/subscriptions", plans: [
     { name: "Individual", price: 10.99, currency: EUR },
     { name: "Familiar", price: 16.99, currency: EUR },
   ]},
-  { id: "youtube-music", name: "YouTube Music", category: "Música y audio", website: "https://music.youtube.com", plans: [
+  { id: "youtube-music", name: "YouTube Music", category: "Música y audio", website: "https://music.youtube.com", manageUrl: "https://www.youtube.com/paid_memberships", plans: [
     { name: "Individual", price: 10.99, currency: EUR },
   ]},
   { id: "amazon-music-unlimited", name: "Amazon Music Unlimited", category: "Música y audio", website: "https://music.amazon.com", plans: [
@@ -182,17 +203,17 @@ export const SERVICE_CATALOG: CatalogService[] = [
   ]},
 
   // --- Almacenamiento en la nube ---
-  { id: "google-one", name: "Google One", category: "Almacenamiento en la nube", website: "https://one.google.com", plans: [
+  { id: "google-one", name: "Google One", category: "Almacenamiento en la nube", website: "https://one.google.com", manageUrl: "https://myaccount.google.com/subscriptions", plans: [
     { name: "100 GB", price: 1.99, currency: EUR },
     { name: "200 GB", price: 2.99, currency: EUR },
     { name: "2 TB", price: 9.99, currency: EUR },
   ]},
-  { id: "icloud-plus", name: "iCloud+", category: "Almacenamiento en la nube", website: "https://www.icloud.com", plans: [
+  { id: "icloud-plus", name: "iCloud+", category: "Almacenamiento en la nube", website: "https://www.icloud.com", manageUrl: "https://account.apple.com/account/manage/section/subscriptions", plans: [
     { name: "50 GB", price: 0.99, currency: EUR },
     { name: "200 GB", price: 2.99, currency: EUR },
     { name: "2 TB", price: 9.99, currency: EUR },
   ]},
-  { id: "dropbox", name: "Dropbox", category: "Almacenamiento en la nube", website: "https://www.dropbox.com", plans: [
+  { id: "dropbox", name: "Dropbox", category: "Almacenamiento en la nube", website: "https://www.dropbox.com", manageUrl: "https://www.dropbox.com/account/billing", plans: [
     { name: "Plus", price: 11.99, currency: EUR },
     { name: "Professional", price: 19.99, currency: EUR },
   ]},
@@ -220,7 +241,7 @@ export const SERVICE_CATALOG: CatalogService[] = [
   ]},
 
   // --- Productividad y software ---
-  { id: "microsoft-365", name: "Microsoft 365", category: "Productividad y software", website: "https://www.microsoft.com/microsoft-365", plans: [
+  { id: "microsoft-365", name: "Microsoft 365", category: "Productividad y software", website: "https://www.microsoft.com/microsoft-365", manageUrl: "https://account.microsoft.com/services", plans: [
     { name: "Personal", price: 7, currency: EUR },
     { name: "Familiar", price: 10.42, currency: EUR },
   ]},
@@ -247,11 +268,11 @@ export const SERVICE_CATALOG: CatalogService[] = [
   { id: "canva-pro", name: "Canva Pro", category: "Productividad y software", website: "https://www.canva.com", plans: [
     { name: "Individual", price: 11.99, currency: EUR },
   ]},
-  { id: "adobe-creative-cloud", name: "Adobe Creative Cloud", category: "Productividad y software", website: "https://www.adobe.com/creativecloud.html", plans: [
+  { id: "adobe-creative-cloud", name: "Adobe Creative Cloud", category: "Productividad y software", website: "https://www.adobe.com/creativecloud.html", manageUrl: "https://account.adobe.com/plans", plans: [
     { name: "Un solo app", price: 24.19, currency: EUR },
     { name: "Todas las apps", price: 62.11, currency: EUR },
   ]},
-  { id: "adobe-acrobat", name: "Adobe Acrobat Pro", category: "Productividad y software", website: "https://acrobat.adobe.com", plans: [
+  { id: "adobe-acrobat", name: "Adobe Acrobat Pro", category: "Productividad y software", website: "https://acrobat.adobe.com", manageUrl: "https://account.adobe.com/plans", plans: [
     { name: "Mensual", price: 19.61, currency: EUR },
   ]},
   { id: "lastpass", name: "LastPass", category: "Productividad y software", website: "https://www.lastpass.com", plans: [
@@ -331,13 +352,13 @@ export const SERVICE_CATALOG: CatalogService[] = [
   ]},
 
   // --- Gaming ---
-  { id: "xbox-game-pass-ultimate", name: "Xbox Game Pass Ultimate", category: "Gaming", website: "https://www.xbox.com/game-pass", plans: [
+  { id: "xbox-game-pass-ultimate", name: "Xbox Game Pass Ultimate", category: "Gaming", website: "https://www.xbox.com/game-pass", manageUrl: "https://account.microsoft.com/services", plans: [
     { name: "Ultimate", price: 14.99, currency: EUR },
   ]},
   { id: "pc-game-pass", name: "PC Game Pass", category: "Gaming", website: "https://www.xbox.com/game-pass/pc-game-pass", plans: [
     { name: "Mensual", price: 11.99, currency: EUR },
   ]},
-  { id: "playstation-plus", name: "PlayStation Plus", category: "Gaming", website: "https://www.playstation.com/ps-plus", plans: [
+  { id: "playstation-plus", name: "PlayStation Plus", category: "Gaming", website: "https://www.playstation.com/ps-plus", manageUrl: "https://www.playstation.com/account/subscriptions", plans: [
     { name: "Essential", price: 8.99, currency: EUR },
     { name: "Extra", price: 13.99, currency: EUR },
     { name: "Premium", price: 16.99, currency: EUR },
@@ -359,7 +380,7 @@ export const SERVICE_CATALOG: CatalogService[] = [
   { id: "amazon-luna", name: "Amazon Luna+", category: "Gaming", website: "https://luna.amazon.com", plans: [
     { name: "Mensual", price: 9.99, currency: "USD" },
   ]},
-  { id: "discord-nitro", name: "Discord Nitro", category: "Gaming", website: "https://discord.com/nitro", plans: [
+  { id: "discord-nitro", name: "Discord Nitro", category: "Gaming", website: "https://discord.com/nitro", manageUrl: "https://discord.com/settings/billing", plans: [
     { name: "Básico", price: 2.99, currency: EUR },
     { name: "Nitro", price: 9.99, currency: EUR },
   ]},

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Field, Input, Label } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { ACCENT_COLORS } from "@/lib/validation";
@@ -22,6 +22,15 @@ export function SubscriptionForm({
   const [website, setWebsite] = useState<string | null>(null);
   const [cancelEnabled, setCancelEnabled] = useState(Boolean(subscription?.cancelDate));
   const [accentColor, setAccentColor] = useState(subscription?.accentColor ?? ACCENT_COLORS[0]);
+  const [waitingForPurchase, setWaitingForPurchase] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const popupPollRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (popupPollRef.current) window.clearInterval(popupPollRef.current);
+    };
+  }, []);
 
   async function handleSubmit(formData: FormData) {
     setPending(true);
@@ -35,11 +44,37 @@ export function SubscriptionForm({
     } catch {
       setError("No se pudo guardar la suscripción. Revisa los datos.");
       setPending(false);
+      setWaitingForPurchase(false);
     }
   }
 
+  function handleBuyClick() {
+    if (!website || !formRef.current) return;
+
+    const startDateInput = formRef.current.elements.namedItem("startDate") as HTMLInputElement | null;
+    if (startDateInput && !startDateInput.value) {
+      startDateInput.value = new Date().toISOString().slice(0, 10);
+    }
+
+    const popup = window.open(website, "nicotech_purchase", "width=480,height=760");
+    if (!popup) {
+      setError("El navegador bloqueó la ventana emergente. Permite ventanas emergentes para nicotech.es e inténtalo de nuevo.");
+      return;
+    }
+
+    setWaitingForPurchase(true);
+    popupPollRef.current = window.setInterval(() => {
+      if (popup.closed) {
+        if (popupPollRef.current) window.clearInterval(popupPollRef.current);
+        popupPollRef.current = null;
+        setWaitingForPurchase(false);
+        if (formRef.current) handleSubmit(new FormData(formRef.current));
+      }
+    }, 500);
+  }
+
   return (
-    <form action={handleSubmit} className="space-y-4">
+    <form ref={formRef} action={handleSubmit} className="space-y-4">
       <ServiceSearchCombobox
         value={serviceName}
         onQueryChange={setServiceName}
@@ -123,6 +158,12 @@ export function SubscriptionForm({
         </div>
       </div>
 
+      {waitingForPurchase ? (
+        <p className="text-sm text-slate">
+          Esperando a que termines en la ventana emergente… al cerrarla, se añadirá la suscripción sola.
+        </p>
+      ) : null}
+
       {error ? <p className="text-sm text-coral">{error}</p> : null}
 
       <div className="flex justify-end gap-2 pt-2">
@@ -130,15 +171,11 @@ export function SubscriptionForm({
           Cancelar
         </Button>
         {!subscription && website ? (
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => window.open(website, "_blank", "noopener,noreferrer")}
-          >
-            Comprar
+          <Button type="button" variant="secondary" disabled={waitingForPurchase} onClick={handleBuyClick}>
+            {waitingForPurchase ? "Esperando…" : "Comprar"}
           </Button>
         ) : null}
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || waitingForPurchase}>
           {pending ? "Guardando…" : "Aceptar"}
         </Button>
       </div>

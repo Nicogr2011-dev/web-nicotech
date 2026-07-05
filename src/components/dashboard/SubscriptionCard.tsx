@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { findCatalogServiceByName, getManageUrl } from "@/lib/serviceCatalog";
 import type { SubscriptionView } from "./types";
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", year: "numeric" });
@@ -30,6 +31,12 @@ export function SubscriptionCard({
   }
 
   async function handleToggle() {
+    if (subscription.status === "ACTIVE") {
+      const catalogService = findCatalogServiceByName(subscription.serviceName);
+      if (catalogService) {
+        window.open(getManageUrl(catalogService), "_blank", "noopener,noreferrer");
+      }
+    }
     setIsPending(true);
     await onToggle(subscription.id);
     setIsPending(false);
