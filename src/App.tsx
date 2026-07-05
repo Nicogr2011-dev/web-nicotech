@@ -8,6 +8,7 @@ import RegisterPage from "@/pages/Register";
 import DashboardPage from "@/pages/Dashboard";
 import InstallAppPage from "@/pages/InstallApp";
 import PricingPage from "@/pages/Pricing";
+import CheckoutPage from "@/pages/Checkout";
 
 function FullPageSpinner() {
   return <div className="flex min-h-screen items-center justify-center text-slate">Cargando…</div>;
@@ -43,6 +44,14 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/instalar" element={<InstallAppPage />} />
         <Route path="/precios" element={<PricingPage />} />
+        <Route
+          path="/pago/:tier"
+          element={
+            <RequireAuth>
+              <CheckoutPage />
+            </RequireAuth>
+          }
+        />
         <Route
           path="/login"
           element={

@@ -184,6 +184,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "En la página de Precios, mientras no hay pasarela de pago real, Premium y Premium Lite se pueden desbloquear con un código de acceso.",
   },
+  {
+    date: "05.07.26",
+    major: 8,
+    minor: 2,
+    type: "MINOR",
+    title: "Precios reales y página de pago",
+    description:
+      "Premium ya cuesta 10 €/año (1 €/mes) y Premium Lite 5 €/año (0,5 €/mes). Al suscribirte se abre una página de pago con los métodos disponibles — de momento el único activo es el código de acceso, el resto aparecen como \"Próximamente\".",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
