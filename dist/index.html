@@ -2,6 +2,17 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Captura beforeinstallprompt lo antes posible: el navegador puede
+      // dispararlo antes de que React monte y añada su propio listener,
+      // y ese evento no se puede "reintentar" después si te lo pierdes.
+      window.__pwaPrompt = null;
+      window.addEventListener("beforeinstallprompt", function (e) {
+        e.preventDefault();
+        window.__pwaPrompt = e;
+        window.dispatchEvent(new CustomEvent("pwa-install-available"));
+      });
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -18,7 +29,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-DtUBQUVi.js"></script>
+    <script type="module" crossorigin src="/assets/index-C-ayWCJ5.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-AbJvlIuS.css">
   </head>
   <body>
