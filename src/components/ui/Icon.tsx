@@ -114,3 +114,13 @@ export function EyeOffIcon({ size = 17, className, color = "currentColor" }: Ico
     </svg>
   );
 }
+
+export function DownloadIcon({ size = 18, className, color = "currentColor" }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" stroke={color} className={className} {...base}>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  );
+}

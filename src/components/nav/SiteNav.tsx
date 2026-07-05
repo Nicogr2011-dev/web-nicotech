@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ButtonLink } from "@/components/ui/Button";
 import { PaletteDots } from "@/components/ui/PaletteDots";
+import { DownloadIcon } from "@/components/ui/Icon";
 import { UserMenu } from "@/components/nav/UserMenu";
 
 function scrollToHowItWorks() {
@@ -26,24 +27,31 @@ export function SiteNav({
           <PaletteDots />
         </Link>
 
-        {authed ? (
-          <UserMenu userName={userName} tier={tier} />
-        ) : (
-          <div className="flex items-center gap-2 sm:gap-4">
-            <button
-              onClick={scrollToHowItWorks}
-              className="hidden text-sm font-medium text-slate hover:text-ink sm:inline"
-            >
-              Cómo funciona
-            </button>
-            <Link to="/login" className="text-sm font-medium text-slate hover:text-ink">
-              Iniciar sesión
-            </Link>
-            <ButtonLink href="/register" className="px-5 py-2.5 text-sm">
-              Crear cuenta gratis
-            </ButtonLink>
-          </div>
-        )}
+        <div className="flex items-center gap-2 sm:gap-4">
+          <Link
+            to="/instalar"
+            className="hidden items-center gap-1 text-sm font-medium text-slate hover:text-ink sm:flex"
+          >
+            <DownloadIcon size={15} />
+            ¡Descárgalo!
+          </Link>
+
+          {authed ? (
+            <UserMenu userName={userName} tier={tier} />
+          ) : (
+            <>
+              <button onClick={scrollToHowItWorks} className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
+                Cómo funciona
+              </button>
+              <Link to="/login" className="text-sm font-medium text-slate hover:text-ink">
+                Iniciar sesión
+              </Link>
+              <ButtonLink href="/register" className="px-5 py-2.5 text-sm">
+                Crear cuenta gratis
+              </ButtonLink>
+            </>
+          )}
+        </div>
       </nav>
     </header>
   );
