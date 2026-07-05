@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { CookieConsent } from "@/components/CookieConsent";
 import LandingPage from "@/pages/Landing";
 import LoginPage from "@/pages/Login";
 import RegisterPage from "@/pages/Register";
@@ -35,33 +36,36 @@ function RedirectIfAuthed({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route
-        path="/login"
-        element={
-          <RedirectIfAuthed>
-            <LoginPage />
-          </RedirectIfAuthed>
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          <RedirectIfAuthed>
-            <RegisterPage />
-          </RedirectIfAuthed>
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <RequireAuth>
-            <DashboardPage />
-          </RequireAuth>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route
+          path="/login"
+          element={
+            <RedirectIfAuthed>
+              <LoginPage />
+            </RedirectIfAuthed>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <RedirectIfAuthed>
+              <RegisterPage />
+            </RedirectIfAuthed>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <RequireAuth>
+              <DashboardPage />
+            </RequireAuth>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <CookieConsent />
+    </>
   );
 }

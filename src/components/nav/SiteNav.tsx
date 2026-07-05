@@ -7,7 +7,15 @@ function scrollToHowItWorks() {
   document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" });
 }
 
-export function SiteNav({ authed = false, userName }: { authed?: boolean; userName?: string }) {
+export function SiteNav({
+  authed = false,
+  userName,
+  tier,
+}: {
+  authed?: boolean;
+  userName?: string;
+  tier?: "BASICO" | "PREMIUM";
+}) {
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/80 backdrop-blur-md">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
@@ -19,7 +27,7 @@ export function SiteNav({ authed = false, userName }: { authed?: boolean; userNa
         </Link>
 
         {authed ? (
-          <UserMenu userName={userName} />
+          <UserMenu userName={userName} tier={tier} />
         ) : (
           <div className="flex items-center gap-2 sm:gap-4">
             <button

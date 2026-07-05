@@ -4,6 +4,7 @@ import { Hero } from "@/components/landing/Hero";
 import { FeatureSwatches } from "@/components/landing/FeatureSwatches";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { CtaSection } from "@/components/landing/CtaSection";
+import { AdSlot } from "@/components/ads/AdSlot";
 
 export default function LandingPage() {
   return (
@@ -16,6 +17,9 @@ export default function LandingPage() {
         <CtaSection />
       </main>
       <footer className="border-t border-black/5 bg-white px-4 py-8 text-center text-sm text-slate sm:px-6">
+        <div className="mb-6">
+          <AdSlot />
+        </div>
         <p>
           © {new Date().getFullYear()} Nicotech ·{" "}
           <Link to="/login" className="font-medium text-azure">

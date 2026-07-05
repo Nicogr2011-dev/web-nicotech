@@ -6,6 +6,7 @@ export type AuthUser = {
   id: number;
   name: string;
   email: string;
+  tier: "BASICO" | "PREMIUM";
 };
 
 type AuthContextValue = {
