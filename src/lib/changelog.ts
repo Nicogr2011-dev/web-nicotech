@@ -193,6 +193,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Premium ya cuesta 10 €/año (1 €/mes) y Premium Lite 5 €/año (0,5 €/mes). Al suscribirte se abre una página de pago con los métodos disponibles — de momento el único activo es el código de acceso, el resto aparecen como \"Próximamente\".",
   },
+  {
+    date: "05.07.26",
+    major: 9,
+    minor: 0,
+    type: "MAJOR",
+    title: "Quitamos la publicidad",
+    description:
+      "Hemos eliminado todo lo relacionado con anuncios (incluida la integración con Google AdSense que estábamos preparando): nos parecía poco ético y queremos una web limpia. Premium Lite pasa a diferenciarse por un límite de 50 suscripciones en vez de por los anuncios. La landing también muestra ahora cuánta gente ya se ha registrado.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

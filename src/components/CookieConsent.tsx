@@ -20,8 +20,7 @@ export function CookieConsent() {
     <div className="fixed inset-x-0 bottom-0 z-50 border-t border-black/10 bg-white/95 px-4 py-4 shadow-soft-lg backdrop-blur-sm sm:px-6">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <p className="text-center text-sm text-slate sm:text-left">
-          Usamos cookies necesarias para que Nicotech funcione y, para las cuentas Básico, cookies de publicidad que
-          ayudan a mantener el servicio gratuito. Las cuentas Premium no tienen anuncios ni esas cookies.
+          Usamos únicamente cookies necesarias para que Nicotech funcione — nada de publicidad ni rastreo.
         </p>
         <button
           onClick={accept}

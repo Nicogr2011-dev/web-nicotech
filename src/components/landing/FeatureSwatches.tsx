@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Reveal } from "@/components/ui/Reveal";
 import { BoltIcon, CalendarIcon, HourglassIcon, ChartIcon } from "@/components/ui/Icon";
+import { apiGet } from "@/lib/api";
 
 const features = [
   {
@@ -29,9 +31,22 @@ const features = [
 ];
 
 export function FeatureSwatches() {
+  const [userCount, setUserCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    apiGet<{ count: number }>("/stats/user-count.php")
+      .then((data) => setUserCount(data.count))
+      .catch(() => {});
+  }, []);
+
   return (
     <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <Reveal>
+        {userCount !== null && userCount > 0 ? (
+          <p className="mb-3 text-center text-sm font-semibold text-azure">
+            Ya somos {userCount} {userCount === 1 ? "persona" : "personas"}, únete tú
+          </p>
+        ) : null}
         <h2 className="text-center font-display text-3xl font-extrabold text-ink">
           Todo lo que necesitas para no perder de vista un solo cobro
         </h2>

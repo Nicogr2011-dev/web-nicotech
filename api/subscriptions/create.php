@@ -18,11 +18,14 @@ $stmt = $pdo->prepare('SELECT tier FROM users WHERE id = ?');
 $stmt->execute([$userId]);
 $tier = $stmt->fetchColumn();
 
-if ($tier === 'BASICO') {
+$tierLimits = ['BASICO' => 20, 'PREMIUM_LITE' => 50];
+
+if (isset($tierLimits[$tier])) {
+    $limit = $tierLimits[$tier];
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM subscriptions WHERE user_id = ? AND status = 'ACTIVE'");
     $stmt->execute([$userId]);
-    if ((int) $stmt->fetchColumn() >= 20) {
-        json_error('Has alcanzado el límite de 20 suscripciones del plan Básico. Pásate a Premium para añadir más.', 403);
+    if ((int) $stmt->fetchColumn() >= $limit) {
+        json_error("Has alcanzado el límite de {$limit} suscripciones de tu plan. Pásate a un plan superior para añadir más.", 403);
     }
 }
 

@@ -30,8 +30,9 @@ export default function PricingPage() {
         <div className="mx-auto max-w-2xl text-center">
           <h1 className="font-display text-3xl font-extrabold text-ink sm:text-4xl">Precios</h1>
           <p className="mt-3 text-slate">
-            Nicotech es y seguirá siendo gratis en su plan Básico. Premium y Premium Lite quitan la publicidad y/o el
-            límite de 20 suscripciones — al elegirlos te llevamos a una página de pago con los métodos disponibles.
+            Nicotech es y seguirá siendo gratis en su plan Básico, sin publicidad en ningún plan. Premium y Premium
+            Lite amplían el límite de suscripciones — al elegirlos te llevamos a una página de pago con los métodos
+            disponibles.
           </p>
         </div>
 
