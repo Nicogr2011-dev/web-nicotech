@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { ClockIcon } from "@/components/ui/Icon";
 import { SummaryStats } from "@/components/dashboard/SummaryStats";
-import { SubscriptionCard } from "@/components/dashboard/SubscriptionCard";
+import { ExpandableSubscriptionCard } from "@/components/dashboard/ExpandableSubscriptionCard";
 import { SubscriptionModal } from "@/components/dashboard/SubscriptionModal";
 import { SubscriptionForm } from "@/components/dashboard/SubscriptionForm";
 import { EmptyState } from "@/components/dashboard/EmptyState";
@@ -33,7 +33,8 @@ function formDataToPayload(formData: FormData) {
 
 export function SubscriptionsSection() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionView[] | null>(null);
-  const [modal, setModal] = useState<null | "add" | { edit: SubscriptionView }>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const data = await apiGet<{ subscriptions: RawSubscription[] }>("/subscriptions/list.php");
@@ -46,13 +47,13 @@ export function SubscriptionsSection() {
 
   async function handleAdd(formData: FormData) {
     await apiPost("/subscriptions/create.php", formDataToPayload(formData));
-    setModal(null);
+    setShowAddModal(false);
     await load();
   }
 
   async function handleEdit(id: string, formData: FormData) {
     await apiPost("/subscriptions/update.php", { id, ...formDataToPayload(formData) });
-    setModal(null);
+    setEditingId(null);
     await load();
   }
 
@@ -96,7 +97,7 @@ export function SubscriptionsSection() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-ink">Tus suscripciones</h1>
-        <Button onClick={() => setModal("add")}>+ Añadir suscripción</Button>
+        <Button onClick={() => setShowAddModal(true)}>+ Añadir suscripción</Button>
       </div>
 
       {dueTomorrow.length > 0 ? (
@@ -117,14 +118,17 @@ export function SubscriptionsSection() {
       />
 
       {subscriptions.length === 0 ? (
-        <EmptyState onAdd={() => setModal("add")} />
+        <EmptyState onAdd={() => setShowAddModal(true)} />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {subscriptions.map((subscription, i) => (
             <Reveal key={subscription.id} style={{ transitionDelay: `${Math.min(i, 8) * 60}ms` }}>
-              <SubscriptionCard
+              <ExpandableSubscriptionCard
                 subscription={subscription}
-                onEdit={() => setModal({ edit: subscription })}
+                isEditing={editingId === subscription.id}
+                onStartEdit={() => setEditingId(subscription.id)}
+                onCancelEdit={() => setEditingId(null)}
+                onSubmitEdit={(formData) => handleEdit(subscription.id, formData)}
                 onDelete={handleDelete}
                 onToggle={handleToggle}
               />
@@ -133,19 +137,9 @@ export function SubscriptionsSection() {
         </div>
       )}
 
-      {modal === "add" ? (
-        <SubscriptionModal title="Añadir suscripción" onClose={() => setModal(null)}>
-          <SubscriptionForm onSubmit={handleAdd} onCancel={() => setModal(null)} />
-        </SubscriptionModal>
-      ) : null}
-
-      {modal && typeof modal === "object" ? (
-        <SubscriptionModal title="Editar suscripción" onClose={() => setModal(null)}>
-          <SubscriptionForm
-            subscription={modal.edit}
-            onSubmit={(formData) => handleEdit(modal.edit.id, formData)}
-            onCancel={() => setModal(null)}
-          />
+      {showAddModal ? (
+        <SubscriptionModal title="Añadir suscripción" onClose={() => setShowAddModal(false)}>
+          <SubscriptionForm onSubmit={handleAdd} onCancel={() => setShowAddModal(false)} />
         </SubscriptionModal>
       ) : null}
     </div>

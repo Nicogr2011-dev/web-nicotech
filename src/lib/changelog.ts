@@ -124,6 +124,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     title: "Mejor detección de instalación",
     description: "Se detecta correctamente cuándo el navegador permite instalar la app.",
   },
+  {
+    date: "05.07.26",
+    major: 7,
+    minor: 2,
+    type: "MINOR",
+    title: "Edición con animación de tarjeta",
+    description: "Al pulsar \"Editar\", la propia tarjeta se expande en su sitio para mostrar el formulario, en vez de abrir una ventana aparte.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
