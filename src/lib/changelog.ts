@@ -157,6 +157,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Nuevo enlace \"Precios\" en la barra de navegación (todavía sin destino). Se está preparando un sistema de planes de pago para el futuro — de momento Nicotech sigue siendo gratis para todo el mundo.",
   },
+  {
+    date: "05.07.26",
+    major: 7,
+    minor: 6,
+    type: "MINOR",
+    title: "Menú móvil",
+    description:
+      "En pantallas estrechas, todos los enlaces de la barra de navegación (antes ocultos) ahora se ven en un menú desplegable con el icono de las tres rayas.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ButtonLink } from "@/components/ui/Button";
 import { PaletteDots } from "@/components/ui/PaletteDots";
-import { DownloadIcon } from "@/components/ui/Icon";
+import { DownloadIcon, MenuIcon, CloseIcon } from "@/components/ui/Icon";
 import { UserMenu } from "@/components/nav/UserMenu";
+import { TierBadge } from "@/components/nav/TierBadge";
 
 function scrollToHowItWorks() {
   document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" });
@@ -17,6 +19,8 @@ export function SiteNav({
   userName?: string;
   tier?: "BASICO" | "PREMIUM";
 }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/80 backdrop-blur-md">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
@@ -54,16 +58,75 @@ export function SiteNav({
               <button type="button" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
                 Precios
               </button>
-              <Link to="/login" className="text-sm font-medium text-slate hover:text-ink">
+              <Link to="/login" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
                 Iniciar sesión
               </Link>
-              <ButtonLink href="/register" className="px-5 py-2.5 text-sm">
+              <ButtonLink href="/register" className="!hidden px-5 py-2.5 text-sm sm:!inline-flex">
                 Crear cuenta gratis
               </ButtonLink>
             </>
           )}
+
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+            className="flex items-center justify-center rounded-full p-2 text-ink hover:bg-ink/5 sm:hidden"
+          >
+            {mobileOpen ? <CloseIcon size={22} /> : <MenuIcon size={22} />}
+          </button>
         </div>
       </nav>
+
+      {mobileOpen ? (
+        <div className="border-t border-black/5 bg-white px-4 py-3 sm:hidden">
+          <div className="flex flex-col divide-y divide-black/5">
+            {authed ? (
+              <>
+                {userName ? (
+                  <div className="flex items-center justify-between py-3">
+                    <span className="text-sm font-medium text-slate">{userName}</span>
+                    {tier ? <TierBadge tier={tier} /> : null}
+                  </div>
+                ) : null}
+                <Link to="/" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-ink">
+                  Ver la web
+                </Link>
+                <Link to="/instalar" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-ink">
+                  ¡Descárgalo!
+                </Link>
+                <button type="button" onClick={() => setMobileOpen(false)} className="py-3 text-left text-sm font-medium text-ink">
+                  Precios
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => {
+                    scrollToHowItWorks();
+                    setMobileOpen(false);
+                  }}
+                  className="py-3 text-left text-sm font-medium text-ink"
+                >
+                  Cómo funciona
+                </button>
+                <button type="button" onClick={() => setMobileOpen(false)} className="py-3 text-left text-sm font-medium text-ink">
+                  Precios
+                </button>
+                <Link to="/instalar" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-ink">
+                  ¡Descárgalo!
+                </Link>
+                <Link to="/login" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-ink">
+                  Iniciar sesión
+                </Link>
+                <Link to="/register" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-semibold text-azure">
+                  Crear cuenta gratis
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }
