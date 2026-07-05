@@ -1,7 +1,15 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PaletteDots } from "@/components/ui/PaletteDots";
 
 export function AuthLayout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // El badge de reCAPTCHA solo tiene sentido mientras estás en login/registro
+    // (que es donde realmente se usa) — se oculta en el resto de la web.
+    document.body.classList.add("show-recaptcha-badge");
+    return () => document.body.classList.remove("show-recaptcha-badge");
+  }, []);
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-mist px-4 py-12">
       <Link to="/" className="mb-2 font-display text-2xl font-extrabold text-ink">

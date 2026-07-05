@@ -140,6 +140,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     title: "Enlace a la web desde el panel",
     description: "Nuevo enlace \"Ver la web\" en la barra del área de cliente para volver a la página principal.",
   },
+  {
+    date: "05.07.26",
+    major: 7,
+    minor: 4,
+    type: "MINOR",
+    title: "Insignia de reCAPTCHA más discreta",
+    description: "El indicador de reCAPTCHA solo se muestra en login/registro; desaparece del resto de la web una vez iniciada la sesión.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
