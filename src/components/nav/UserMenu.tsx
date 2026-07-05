@@ -2,7 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { TierBadge } from "@/components/nav/TierBadge";
 
-export function UserMenu({ userName, tier }: { userName?: string; tier?: "BASICO" | "PREMIUM" }) {
+export function UserMenu({
+  userName,
+  tier,
+}: {
+  userName?: string;
+  tier?: "BASICO" | "PREMIUM" | "PREMIUM_LITE";
+}) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 

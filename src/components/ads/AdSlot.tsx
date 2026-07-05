@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
  *
  * Las cuentas Premium no ven nada de esto (ni el hueco ni el aviso).
  */
-export function AdSlot({ tier }: { tier?: "BASICO" | "PREMIUM" }) {
+export function AdSlot({ tier }: { tier?: "BASICO" | "PREMIUM" | "PREMIUM_LITE" }) {
   const [blocked, setBlocked] = useState(false);
   const baitRef = useRef<HTMLDivElement>(null);
 

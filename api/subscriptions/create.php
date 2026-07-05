@@ -14,6 +14,18 @@ if ($err !== null) {
     json_error($err);
 }
 
+$stmt = $pdo->prepare('SELECT tier FROM users WHERE id = ?');
+$stmt->execute([$userId]);
+$tier = $stmt->fetchColumn();
+
+if ($tier === 'BASICO') {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM subscriptions WHERE user_id = ? AND status = 'ACTIVE'");
+    $stmt->execute([$userId]);
+    if ((int) $stmt->fetchColumn() >= 20) {
+        json_error('Has alcanzado el límite de 20 suscripciones del plan Básico. Pásate a Premium para añadir más.', 403);
+    }
+}
+
 $stmt = $pdo->prepare(
     'INSERT INTO subscriptions (user_id, service_name, price, currency, start_date, cancel_date, accent_color)
      VALUES (?, ?, ?, ?, ?, ?, ?)'

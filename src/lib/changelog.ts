@@ -166,6 +166,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "En pantallas estrechas, todos los enlaces de la barra de navegación (antes ocultos) ahora se ven en un menú desplegable con el icono de las tres rayas.",
   },
+  {
+    date: "05.07.26",
+    major: 8,
+    minor: 0,
+    type: "MAJOR",
+    title: "Página de precios",
+    description:
+      "El enlace \"Precios\" ya lleva a una página con los tres planes: Básico (gratis, con publicidad, hasta 20 suscripciones), Premium (sin publicidad, ilimitadas) y Premium Lite (con publicidad, ilimitadas). El cambio de plan todavía no está abierto a todo el mundo — avisaremos cuando el sistema de pagos esté listo.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

@@ -6,7 +6,7 @@ export type AuthUser = {
   id: number;
   name: string;
   email: string;
-  tier: "BASICO" | "PREMIUM";
+  tier: "BASICO" | "PREMIUM" | "PREMIUM_LITE";
 };
 
 type AuthContextValue = {
@@ -15,6 +15,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<{ error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ error?: string }>;
   logout: () => Promise<void>;
+  setTier: (tier: AuthUser["tier"]) => Promise<{ error?: string }>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -64,8 +65,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }
 
+  async function setTier(tier: AuthUser["tier"]) {
+    try {
+      const data = await apiPost<{ user: AuthUser }>("/account/set-tier.php", { tier });
+      setUser(data.user);
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo cambiar de plan" };
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, setTier }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

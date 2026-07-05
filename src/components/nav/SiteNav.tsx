@@ -17,7 +17,7 @@ export function SiteNav({
 }: {
   authed?: boolean;
   userName?: string;
-  tier?: "BASICO" | "PREMIUM";
+  tier?: "BASICO" | "PREMIUM" | "PREMIUM_LITE";
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -42,9 +42,9 @@ export function SiteNav({
 
           {authed ? (
             <>
-              <button type="button" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
+              <Link to="/precios" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
                 Precios
-              </button>
+              </Link>
               <Link to="/" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
                 Ver la web
               </Link>
@@ -55,9 +55,9 @@ export function SiteNav({
               <button onClick={scrollToHowItWorks} className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
                 Cómo funciona
               </button>
-              <button type="button" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
+              <Link to="/precios" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
                 Precios
-              </button>
+              </Link>
               <Link to="/login" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
                 Iniciar sesión
               </Link>
@@ -95,9 +95,9 @@ export function SiteNav({
                 <Link to="/instalar" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-ink">
                   ¡Descárgalo!
                 </Link>
-                <button type="button" onClick={() => setMobileOpen(false)} className="py-3 text-left text-sm font-medium text-ink">
+                <Link to="/precios" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-ink">
                   Precios
-                </button>
+                </Link>
               </>
             ) : (
               <>
@@ -110,9 +110,9 @@ export function SiteNav({
                 >
                   Cómo funciona
                 </button>
-                <button type="button" onClick={() => setMobileOpen(false)} className="py-3 text-left text-sm font-medium text-ink">
+                <Link to="/precios" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-ink">
                   Precios
-                </button>
+                </Link>
                 <Link to="/instalar" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-ink">
                   ¡Descárgalo!
                 </Link>
