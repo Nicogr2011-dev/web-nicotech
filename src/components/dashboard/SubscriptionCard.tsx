@@ -21,13 +21,16 @@ export function SubscriptionCard({
   onDelete: (id: string) => Promise<void>;
   onToggle: (id: string) => Promise<void>;
 }) {
-  const [isPending, setIsPending] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const isPendingPurchase = subscription.status === "ACTIVE" && subscription.startDate.slice(0, 10) > todayIso;
 
   async function handleDelete() {
     if (!confirm(`¿Eliminar la suscripción a ${subscription.serviceName}?`)) return;
-    setIsPending(true);
+    setIsSaving(true);
     await onDelete(subscription.id);
-    setIsPending(false);
+    setIsSaving(false);
   }
 
   async function handleToggle() {
@@ -37,9 +40,9 @@ export function SubscriptionCard({
         window.open(getManageUrl(catalogService), "_blank", "noopener,noreferrer");
       }
     }
-    setIsPending(true);
+    setIsSaving(true);
     await onToggle(subscription.id);
-    setIsPending(false);
+    setIsSaving(false);
   }
 
   return (
@@ -55,8 +58,8 @@ export function SubscriptionCard({
             <span className="text-sm font-normal text-slate">/mes</span>
           </p>
         </div>
-        <Badge tone={subscription.status === "ACTIVE" ? "active" : "cancelled"}>
-          {subscription.status === "ACTIVE" ? "Activa" : "Cancelada"}
+        <Badge tone={isPendingPurchase ? "pending" : subscription.status === "ACTIVE" ? "active" : "cancelled"}>
+          {isPendingPurchase ? "Pendiente" : subscription.status === "ACTIVE" ? "Activa" : "Cancelada"}
         </Badge>
       </div>
 
@@ -70,13 +73,13 @@ export function SubscriptionCard({
       ) : null}
 
       <div className="mt-2 flex gap-2 border-t border-black/5 pt-3 text-sm font-semibold">
-        <button onClick={onEdit} className="text-azure hover:underline" disabled={isPending}>
+        <button onClick={onEdit} className="text-azure hover:underline" disabled={isSaving}>
           Editar
         </button>
-        <button onClick={handleToggle} className="text-slate hover:underline" disabled={isPending}>
+        <button onClick={handleToggle} className="text-slate hover:underline" disabled={isSaving}>
           {subscription.status === "ACTIVE" ? "Cancelar" : "Reactivar"}
         </button>
-        <button onClick={handleDelete} className="ml-auto text-coral hover:underline" disabled={isPending}>
+        <button onClick={handleDelete} className="ml-auto text-coral hover:underline" disabled={isSaving}>
           Eliminar
         </button>
       </div>

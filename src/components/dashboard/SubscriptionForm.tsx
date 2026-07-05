@@ -117,10 +117,16 @@ export function SubscriptionForm({
           id="startDate"
           name="startDate"
           type="date"
-          defaultValue={subscription?.startDate?.slice(0, 10)}
+          defaultValue={subscription?.startDate?.slice(0, 10) ?? new Date().toISOString().slice(0, 10)}
           required
         />
       </Field>
+      {!subscription ? (
+        <p className="-mt-2 text-xs text-slate">
+          Por defecto es hoy. Si la pones en el futuro, la suscripción queda como "Pendiente" y te avisaremos un día
+          antes para que la compres.
+        </p>
+      ) : null}
 
       <div>
         <label className="flex items-center gap-2 text-sm font-semibold text-ink">

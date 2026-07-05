@@ -85,12 +85,28 @@ export function SubscriptionsSection() {
       }
     : null;
 
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowIso = tomorrow.toISOString().slice(0, 10);
+  const dueTomorrow = activeSubs.filter((s) => s.startDate.slice(0, 10) === tomorrowIso);
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-ink">Tus suscripciones</h1>
         <Button onClick={() => setModal("add")}>+ Añadir suscripción</Button>
       </div>
+
+      {dueTomorrow.length > 0 ? (
+        <div className="rounded-2xl border border-sunflower/40 bg-sunflower/10 px-5 py-4 text-sm text-ink">
+          <p className="font-semibold">⏰ Recuerda comprarlas mañana:</p>
+          <ul className="mt-1 list-disc pl-5">
+            {dueTomorrow.map((s) => (
+              <li key={s.id}>{s.serviceName}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <SummaryStats
         monthlyTotal={monthlyTotal}
