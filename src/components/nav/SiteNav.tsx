@@ -28,13 +28,6 @@ export function SiteNav({
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <button
-            type="button"
-            className="hidden text-sm font-medium text-slate hover:text-ink sm:inline"
-          >
-            Precios
-          </button>
-
           <Link
             to="/instalar"
             className="hidden items-center gap-1 text-sm font-medium text-slate hover:text-ink sm:flex"
@@ -45,6 +38,9 @@ export function SiteNav({
 
           {authed ? (
             <>
+              <button type="button" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
+                Precios
+              </button>
               <Link to="/" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
                 Ver la web
               </Link>
@@ -54,6 +50,9 @@ export function SiteNav({
             <>
               <button onClick={scrollToHowItWorks} className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
                 Cómo funciona
+              </button>
+              <button type="button" className="hidden text-sm font-medium text-slate hover:text-ink sm:inline">
+                Precios
               </button>
               <Link to="/login" className="text-sm font-medium text-slate hover:text-ink">
                 Iniciar sesión
