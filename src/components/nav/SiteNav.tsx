@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ButtonLink } from "@/components/ui/Button";
+import { PaletteDots } from "@/components/ui/PaletteDots";
 import { UserMenu } from "@/components/nav/UserMenu";
 
 function scrollToHowItWorks() {
@@ -10,8 +11,11 @@ export function SiteNav({ authed = false, userName }: { authed?: boolean; userNa
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/80 backdrop-blur-md">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link to={authed ? "/dashboard" : "/"} className="font-display text-xl font-extrabold tracking-tight text-ink">
-          Nico<span className="text-azure">tech</span>
+        <Link to={authed ? "/dashboard" : "/"} className="flex flex-col items-center">
+          <span className="font-display text-xl font-extrabold tracking-tight text-ink">
+            Nico<span className="text-azure">tech</span>
+          </span>
+          <PaletteDots />
         </Link>
 
         {authed ? (

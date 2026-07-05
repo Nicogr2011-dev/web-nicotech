@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { apiGet, apiPost } from "@/lib/api";
 import { computeNextChargeDate } from "@/lib/subscriptions";
 import { Button } from "@/components/ui/Button";
+import { Reveal } from "@/components/ui/Reveal";
+import { ClockIcon } from "@/components/ui/Icon";
 import { SummaryStats } from "@/components/dashboard/SummaryStats";
 import { SubscriptionCard } from "@/components/dashboard/SubscriptionCard";
 import { SubscriptionModal } from "@/components/dashboard/SubscriptionModal";
@@ -98,13 +100,12 @@ export function SubscriptionsSection() {
       </div>
 
       {dueTomorrow.length > 0 ? (
-        <div className="rounded-2xl border border-sunflower/40 bg-sunflower/10 px-5 py-4 text-sm text-ink">
-          <p className="font-semibold">⏰ Recuerda comprarlas mañana:</p>
-          <ul className="mt-1 list-disc pl-5">
-            {dueTomorrow.map((s) => (
-              <li key={s.id}>{s.serviceName}</li>
-            ))}
-          </ul>
+        <div className="flex items-start gap-3 rounded-2xl border border-sunflower/40 bg-sunflower/10 px-5 py-4">
+          <ClockIcon size={20} color="#a8790a" className="mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-bold text-ink">Recuerda comprarlas mañana</p>
+            <p className="mt-1 text-sm text-slate">{dueTomorrow.map((s) => s.serviceName).join(", ")}</p>
+          </div>
         </div>
       ) : null}
 
@@ -119,14 +120,15 @@ export function SubscriptionsSection() {
         <EmptyState onAdd={() => setModal("add")} />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {subscriptions.map((subscription) => (
-            <SubscriptionCard
-              key={subscription.id}
-              subscription={subscription}
-              onEdit={() => setModal({ edit: subscription })}
-              onDelete={handleDelete}
-              onToggle={handleToggle}
-            />
+          {subscriptions.map((subscription, i) => (
+            <Reveal key={subscription.id} style={{ transitionDelay: `${Math.min(i, 8) * 60}ms` }}>
+              <SubscriptionCard
+                subscription={subscription}
+                onEdit={() => setModal({ edit: subscription })}
+                onDelete={handleDelete}
+                onToggle={handleToggle}
+              />
+            </Reveal>
           ))}
         </div>
       )}

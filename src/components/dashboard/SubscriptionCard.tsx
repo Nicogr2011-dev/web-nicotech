@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { findCatalogServiceByName, getManageUrl } from "@/lib/serviceCatalog";
@@ -22,6 +22,7 @@ export function SubscriptionCard({
   onToggle: (id: string) => Promise<void>;
 }) {
   const [isSaving, setIsSaving] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const todayIso = new Date().toISOString().slice(0, 10);
   const isPendingPurchase = subscription.status === "ACTIVE" && subscription.startDate.slice(0, 10) > todayIso;
@@ -45,8 +46,17 @@ export function SubscriptionCard({
     setIsSaving(false);
   }
 
+  function handleCancelHoverStart() {
+    cardRef.current?.classList.add("animate-scared-shake");
+  }
+
+  function handleCancelHoverEnd() {
+    cardRef.current?.classList.remove("animate-scared-shake");
+  }
+
   return (
     <Card
+      ref={cardRef}
       className="flex flex-col gap-3 border-l-4 p-5 transition-transform hover:-translate-y-1"
       style={{ borderLeftColor: subscription.accentColor }}
     >
@@ -76,7 +86,13 @@ export function SubscriptionCard({
         <button onClick={onEdit} className="text-azure hover:underline" disabled={isSaving}>
           Editar
         </button>
-        <button onClick={handleToggle} className="text-slate hover:underline" disabled={isSaving}>
+        <button
+          onClick={handleToggle}
+          onMouseEnter={subscription.status === "ACTIVE" ? handleCancelHoverStart : undefined}
+          onMouseLeave={subscription.status === "ACTIVE" ? handleCancelHoverEnd : undefined}
+          className="text-slate hover:underline"
+          disabled={isSaving}
+        >
           {subscription.status === "ACTIVE" ? "Cancelar" : "Reactivar"}
         </button>
         <button onClick={handleDelete} className="ml-auto text-coral hover:underline" disabled={isSaving}>
