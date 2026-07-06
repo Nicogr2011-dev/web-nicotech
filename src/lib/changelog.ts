@@ -276,6 +276,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Hemos revisado los precios de los planes de pago para que tengan más sentido dentro de la web y reflejen mejor lo que te ofrece cada uno. Premium Lite pasa de 5 €/año a 8 €/año (0,7 €/mes) — con la diferencia de solo 2 €/año respecto a Premium (10 €/año, 1 €/mes), queda mucho más claro que por muy poco más te llevas las suscripciones ilimitadas sin ningún límite, así que la mayoría sale ganando dando el salto. Premium no cambia de precio. Como siempre, Básico sigue siendo gratis para todo el mundo.",
   },
+  {
+    date: "06.07.26",
+    major: 10,
+    minor: 6,
+    type: "MINOR",
+    title: "Plan Enterprise",
+    description:
+      "Nuevo plan Enterprise en la página de Precios, separado del resto: pensado para dar Premium o Premium Lite a tu equipo (20 €/año base sobre Premium o 18 €/año sobre Premium Lite, más 5 €/año o 4 €/año por cada cuenta de empleado). Todavía no se puede comprar desde la web ni contactar para activarlo — eso llega pronto.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

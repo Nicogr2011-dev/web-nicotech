@@ -93,6 +93,40 @@ export default function PricingPage() {
             );
           })}
         </div>
+
+        <hr className="mx-auto mt-16 max-w-2xl border-black/10" />
+
+        <div className="mt-10">
+          <Card className="mx-auto max-w-2xl p-6">
+            <div className="h-1.5 w-12 rounded-full bg-ink" />
+            <h2 className="mt-4 font-display text-xl font-extrabold text-ink">Enterprise</h2>
+            <p className="mt-1 text-sm text-slate">Para equipos que quieren dar Premium o Premium Lite a sus empleados</p>
+
+            <ul className="mt-5 space-y-2 text-sm text-slate">
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 font-bold text-ink">✓</span>
+                20 €/año base sobre Premium, o 18 €/año sobre Premium Lite
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 font-bold text-ink">✓</span>
+                5 €/año por cada cuenta de empleado en Premium, o 4 €/año en Premium Lite
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 font-bold text-ink">✓</span>
+                A partir de 4 cuentas, sale más a cuenta que pagarlas por separado
+              </li>
+            </ul>
+
+            <div className="mt-6">
+              <Button variant="secondary" className="w-full" disabled>
+                Contactar
+              </Button>
+              <p className="mt-2 text-center text-xs text-slate">
+                Este plan no se compra desde la web. Muy pronto podrás contactar con nosotros para activarlo.
+              </p>
+            </div>
+          </Card>
+        </div>
       </main>
     </div>
   );
