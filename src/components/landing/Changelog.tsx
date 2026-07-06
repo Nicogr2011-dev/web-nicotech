@@ -18,7 +18,9 @@ export function Changelog() {
             <h3 className="font-display font-bold text-ink">{CURRENT_VERSION.title}</h3>
             <p className="mt-1 text-sm text-slate">{CURRENT_VERSION.description}</p>
           </div>
-          <Badge tone={CURRENT_VERSION.type === "MAJOR" ? "active" : "pending"}>
+          <Badge
+            tone={CURRENT_VERSION.confidential ? "danger" : CURRENT_VERSION.type === "MAJOR" ? "active" : "pending"}
+          >
             {formatVersion(CURRENT_VERSION)}
           </Badge>
         </div>
@@ -42,7 +44,9 @@ export function Changelog() {
                   <h4 className="font-display text-sm font-bold text-ink">{entry.title}</h4>
                   <p className="mt-1 text-sm text-slate">{entry.description}</p>
                 </div>
-                <Badge tone={entry.type === "MAJOR" ? "active" : "pending"}>{formatVersion(entry)}</Badge>
+                <Badge tone={entry.confidential ? "danger" : entry.type === "MAJOR" ? "active" : "pending"}>
+                  {formatVersion(entry)}
+                </Badge>
               </div>
             </Card>
           ))}

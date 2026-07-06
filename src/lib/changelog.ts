@@ -8,6 +8,8 @@ export type ChangelogEntry = {
   type: ChangeType;
   title: string;
   description: string;
+  /** Cambio interno/confidencial: version con sufijo ".c" y etiqueta en rojo. */
+  confidential?: boolean;
 };
 
 /**
@@ -247,10 +249,19 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "En el contador de \"Ya somos X personas\", el \"únete tú\" ahora es un enlace directo a crear cuenta, sin cambiar de aspecto.",
   },
+  {
+    date: "06.07.26",
+    major: 10,
+    minor: 3,
+    type: "MINOR",
+    title: "Mejoras internas",
+    description: "Ajustes para mejorar la experiencia de usuario.",
+    confidential: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
-  return `${entry.date}.${entry.major}.${entry.minor}`;
+  return `${entry.date}.${entry.major}.${entry.minor}${entry.confidential ? ".c" : ""}`;
 }
 
 export const CURRENT_VERSION = CHANGELOG[CHANGELOG.length - 1];

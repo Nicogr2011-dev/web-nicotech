@@ -5,6 +5,7 @@ const toneClasses = {
   cancelled: "bg-slate/15 text-slate",
   scheduled: "bg-grape/15 text-grape",
   pending: "bg-black/10 text-ink/60",
+  danger: "bg-coral/15 text-coral",
 } as const;
 
 export function Badge({
