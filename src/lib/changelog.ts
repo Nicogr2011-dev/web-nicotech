@@ -258,6 +258,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description: "Ajustes para mejorar la experiencia de usuario.",
     confidential: true,
   },
+  {
+    date: "06.07.26",
+    major: 10,
+    minor: 4,
+    type: "MINOR",
+    title: "Nueva etiqueta \"c\" en el historial",
+    description:
+      "Cuando una versión lleva una \"c\" y su etiqueta se ve en rojo, es un cambio confidencial por seguridad de la web — no se detalla en qué consiste.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
