@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Reveal } from "@/components/ui/Reveal";
 import { BoltIcon, CalendarIcon, HourglassIcon, ChartIcon } from "@/components/ui/Icon";
 import { apiGet } from "@/lib/api";
@@ -30,12 +31,12 @@ const features = [
   },
 ];
 
-function DancingText({ segments }: { segments: { text: string; color?: string }[] }) {
+function DancingText({ segments }: { segments: { text: string; color?: string; href?: string }[] }) {
   let letterIndex = 0;
   return (
     <>
-      {segments.map((segment, si) =>
-        segment.text.split(" ").map((word, wi) => (
+      {segments.map((segment, si) => {
+        const words = segment.text.split(" ").map((word, wi) => (
           <span key={`${si}-${wi}`} className="mr-[0.28em] inline-block whitespace-nowrap last:mr-0">
             {word.split("").map((char, ci) => {
               const delay = letterIndex * 0.04;
@@ -55,8 +56,17 @@ function DancingText({ segments }: { segments: { text: string; color?: string }[
               );
             })}
           </span>
-        ))
-      )}
+        ));
+
+        if (segment.href) {
+          return (
+            <Link key={si} to={segment.href} className="no-underline" style={{ color: "inherit" }}>
+              {words}
+            </Link>
+          );
+        }
+        return words;
+      })}
     </>
   );
 }
@@ -79,7 +89,8 @@ export function FeatureSwatches() {
               segments={[
                 { text: "Ya somos" },
                 { text: `${userCount}`, color: "#3a86ff" },
-                { text: `${userCount === 1 ? "persona" : "personas"}, únete tú` },
+                { text: `${userCount === 1 ? "persona," : "personas,"}` },
+                { text: "únete tú", href: "/register" },
               ]}
             />
           </p>

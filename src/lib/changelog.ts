@@ -238,6 +238,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Ahora se explica que puedes poner la fecha de cobro que quieras y te avisaremos para comprarlo, y que te avisaremos cuando tengas que cancelar una suscripción.",
   },
+  {
+    date: "06.07.26",
+    major: 10,
+    minor: 2,
+    type: "MINOR",
+    title: "\"Únete tú\" ya lleva al registro",
+    description:
+      "En el contador de \"Ya somos X personas\", el \"únete tú\" ahora es un enlace directo a crear cuenta, sin cambiar de aspecto.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
