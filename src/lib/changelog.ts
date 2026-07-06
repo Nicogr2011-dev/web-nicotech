@@ -229,6 +229,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Nueva página \"Mi cuenta\" para subir una foto de perfil, cambiar tu nombre, tu email y tu contraseña, y eliminar la cuenta (pide tu contraseña, y el cuadro no aparece hasta pulsar el botón rojo de eliminar).",
   },
+  {
+    date: "06.07.26",
+    major: 10,
+    minor: 1,
+    type: "MINOR",
+    title: "Textos más claros en \"Cómo funciona\"",
+    description:
+      "Ahora se explica que puedes poner la fecha de cobro que quieras y te avisaremos para comprarlo, y que te avisaremos cuando tengas que cancelar una suscripción.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

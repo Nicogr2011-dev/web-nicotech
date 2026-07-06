@@ -13,13 +13,13 @@ const features = [
   {
     icon: <CalendarIcon color="#ffc93c" />,
     title: "Elige el día exacto de cobro",
-    text: "Nosotros calculamos solos la fecha del próximo cargo, cada mes.",
+    text: "Pon la fecha que quieras y te avisaremos para comprarlo.",
     bg: "bg-sunflower/10",
   },
   {
     icon: <HourglassIcon color="#2ec4b6" />,
     title: "Programa la cancelación",
-    text: "Marca el día en que quieres cancelar una suscripción. Sin recordatorios que se te olviden.",
+    text: "Marca el día y te avisaremos cuando lo tengas que cancelar.",
     bg: "bg-mint/10",
   },
   {
