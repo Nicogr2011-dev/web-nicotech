@@ -4,7 +4,7 @@ import { SiteNav } from "@/components/nav/SiteNav";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/AuthContext";
-import { getPlanBySlug } from "@/lib/pricingPlans";
+import { getPlanBySlug, formatPrice } from "@/lib/pricingPlans";
 
 export default function CheckoutPage() {
   const { tier: slug } = useParams<{ tier: string }>();
@@ -44,8 +44,8 @@ export default function CheckoutPage() {
 
         <h1 className="mt-4 font-display text-2xl font-extrabold text-ink">Suscripción a {plan.name}</h1>
         <p className="mt-2 text-slate">
-          {plan.priceYearly}
-          {plan.priceMonthly ? ` · o ${plan.priceMonthly}` : ""}
+          {plan.priceYearly !== null ? `${formatPrice(plan.priceYearly)}/año` : ""}
+          {plan.priceMonthly !== null ? ` · o ${formatPrice(plan.priceMonthly)}/mes` : ""}
         </p>
 
         <Card className="mt-8 p-6">

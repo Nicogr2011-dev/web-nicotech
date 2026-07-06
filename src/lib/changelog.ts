@@ -294,6 +294,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "El plan Básico pasa a un máximo de 3 suscripciones a la vez, y Premium Lite a un máximo de 7. Premium sigue sin ningún límite.",
   },
+  {
+    date: "06.07.26",
+    major: 10,
+    minor: 8,
+    type: "MINOR",
+    title: "Precios anual y mensual, uno al lado del otro",
+    description:
+      "En Precios ya puedes cambiar entre pago mensual y anual con un interruptor arriba de los planes (anual viene marcado por defecto). El anual muestra a cuánto equivale al mes y cuánto te ahorras frente a pagar mes a mes.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

@@ -1,16 +1,19 @@
 import { useState } from "react";
+import { clsx } from "clsx";
 import { SiteNav } from "@/components/nav/SiteNav";
 import { Card } from "@/components/ui/Card";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { useAuth, type AuthUser } from "@/lib/AuthContext";
-import { PLANS } from "@/lib/pricingPlans";
+import { PLANS, formatPrice, getYearlySavingsPercent } from "@/lib/pricingPlans";
 
 const TIER_SWITCH_ALLOWED_EMAIL = "nicolas.grana.miguez@gmail.com";
+const MAX_SAVINGS_PERCENT = Math.max(...PLANS.map((plan) => getYearlySavingsPercent(plan) ?? 0));
 
 export default function PricingPage() {
   const { user, setTier } = useAuth();
   const [pendingId, setPendingId] = useState<AuthUser["tier"] | null>(null);
   const [errorId, setErrorId] = useState<AuthUser["tier"] | null>(null);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
 
   async function handleTierChange(planId: AuthUser["tier"]) {
     setPendingId(planId);
@@ -36,19 +39,81 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-3">
+        <div className="mx-auto mt-8 flex w-fit items-center gap-1 rounded-full bg-white p-1 shadow-soft">
+          <button
+            type="button"
+            onClick={() => setBillingCycle("monthly")}
+            className={clsx(
+              "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+              billingCycle === "monthly" ? "bg-ink text-white" : "text-slate hover:text-ink"
+            )}
+          >
+            Mensual
+          </button>
+          <button
+            type="button"
+            onClick={() => setBillingCycle("yearly")}
+            className={clsx(
+              "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+              billingCycle === "yearly" ? "bg-ink text-white" : "text-slate hover:text-ink"
+            )}
+          >
+            Anual
+            <span
+              className={clsx(
+                "rounded-full px-2 py-0.5 text-xs font-bold",
+                billingCycle === "yearly" ? "bg-mint text-ink" : "bg-mint/20 text-mint"
+              )}
+            >
+              Ahorra hasta {MAX_SAVINGS_PERCENT}%
+            </span>
+          </button>
+        </div>
+
+        <div className="mt-8 grid gap-6 sm:grid-cols-3">
           {PLANS.map((plan) => {
             const isCurrent = user?.tier === plan.id;
             const isPending = pendingId === plan.id;
             const canInstantSwitch = canSwitch || plan.id === "BASICO";
+            const savings = getYearlySavingsPercent(plan);
 
             return (
               <Card key={plan.id} className="flex flex-col p-6">
                 <div className="h-1.5 w-12 rounded-full" style={{ backgroundColor: plan.accent }} />
                 <h2 className="mt-4 font-display text-xl font-extrabold text-ink">{plan.name}</h2>
                 <p className="mt-1 text-sm text-slate">{plan.tagline}</p>
-                <p className="mt-4 font-display text-2xl font-extrabold text-ink">{plan.priceYearly}</p>
-                {plan.priceMonthly ? <p className="text-xs text-slate">o {plan.priceMonthly}</p> : null}
+
+                {plan.priceYearly === null ? (
+                  <p className="mt-4 font-display text-2xl font-extrabold text-ink">Gratis</p>
+                ) : billingCycle === "yearly" ? (
+                  <>
+                    <p className="mt-4 font-display text-2xl font-extrabold text-ink">
+                      {formatPrice(plan.priceYearly)}/año
+                    </p>
+                    <p className="text-xs text-slate">
+                      Equivale a {formatPrice(plan.priceYearly / 12)}/mes
+                      {savings ? <span className="ml-1 font-semibold text-mint">· ahorras {savings}%</span> : null}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="mt-4 font-display text-2xl font-extrabold text-ink">
+                      {formatPrice(plan.priceMonthly!)}/mes
+                    </p>
+                    {savings ? (
+                      <p className="text-xs text-slate">
+                        O paga anual y{" "}
+                        <button
+                          type="button"
+                          onClick={() => setBillingCycle("yearly")}
+                          className="font-semibold text-mint underline-offset-2 hover:underline"
+                        >
+                          ahorra {savings}%
+                        </button>
+                      </p>
+                    ) : null}
+                  </>
+                )}
 
                 <ul className="mt-5 flex-1 space-y-2 text-sm text-slate">
                   {plan.features.map((feature) => (
