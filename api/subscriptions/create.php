@@ -18,7 +18,7 @@ $stmt = $pdo->prepare('SELECT tier FROM users WHERE id = ?');
 $stmt->execute([$userId]);
 $tier = $stmt->fetchColumn();
 
-$tierLimits = ['BASICO' => 20, 'PREMIUM_LITE' => 50];
+$tierLimits = ['BASICO' => 3, 'PREMIUM_LITE' => 7];
 
 if (isset($tierLimits[$tier])) {
     $limit = $tierLimits[$tier];

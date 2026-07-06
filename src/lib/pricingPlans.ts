@@ -21,7 +21,7 @@ export const PLANS: Plan[] = [
     accent: "#2ec4b6",
     tagline: "Para empezar a organizarte",
     priceYearly: "Gratis",
-    features: ["Todas las funciones de Nicotech", "Hasta 20 suscripciones a la vez"],
+    features: ["Todas las funciones de Nicotech", "Hasta 3 suscripciones a la vez"],
   },
   {
     id: "PREMIUM",
@@ -41,7 +41,7 @@ export const PLANS: Plan[] = [
     tagline: "Un punto intermedio, más barato",
     priceYearly: "8 €/año",
     priceMonthly: "0,7 €/mes",
-    features: ["Todas las funciones de Nicotech", "Hasta 50 suscripciones a la vez"],
+    features: ["Todas las funciones de Nicotech", "Hasta 7 suscripciones a la vez"],
   },
 ];
 
