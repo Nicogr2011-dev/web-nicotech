@@ -303,6 +303,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "En Precios ya puedes cambiar entre pago mensual y anual con un interruptor arriba de los planes (anual viene marcado por defecto). El anual muestra a cuánto equivale al mes y cuánto te ahorras frente a pagar mes a mes.",
   },
+  {
+    date: "06.07.26",
+    major: 11,
+    minor: 0,
+    type: "MAJOR",
+    title: "Mejora de diseño al dashboard",
+    description:
+      "El panel se reorganiza: tus suscripciones ahora se agrupan en Activas, Pendientes y Canceladas, con su recuento. Nuevas gráficas de gasto mensual (barras o línea) y de gasto por categoría (barra o tarta), que se cambian con un clic en el título. Las tarjetas quedan más limpias, sin etiquetas repetidas.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

@@ -1,22 +1,13 @@
 import { Card } from "@/components/ui/Card";
 
 export function SummaryStats({
-  monthlyTotal,
-  currency,
   nextCharge,
   scheduledCancellations,
 }: {
-  monthlyTotal: number;
-  currency: string;
   nextCharge: { serviceName: string; date: string } | null;
   scheduledCancellations: number;
 }) {
   const stats = [
-    {
-      label: "Gasto mensual total",
-      value: monthlyTotal.toLocaleString("es-ES", { style: "currency", currency }),
-      accent: "text-azure",
-    },
     {
       label: "Próximo cobro",
       value: nextCharge ? `${nextCharge.serviceName} · ${nextCharge.date}` : "—",
@@ -30,7 +21,7 @@ export function SummaryStats({
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {stats.map((stat) => (
         <Card key={stat.label} className="p-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate">{stat.label}</p>

@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiGet, apiPost } from "@/lib/api";
-import { computeNextChargeDate } from "@/lib/subscriptions";
+import { computeNextChargeDate, isPendingPurchase } from "@/lib/subscriptions";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { ClockIcon } from "@/components/ui/Icon";
 import { SummaryStats } from "@/components/dashboard/SummaryStats";
+import { MonthlySpendChart } from "@/components/dashboard/MonthlySpendChart";
+import { CategorySpendChart } from "@/components/dashboard/CategorySpendChart";
 import { ExpandableSubscriptionCard } from "@/components/dashboard/ExpandableSubscriptionCard";
 import { SubscriptionModal } from "@/components/dashboard/SubscriptionModal";
 import { SubscriptionForm } from "@/components/dashboard/SubscriptionForm";
@@ -29,6 +31,16 @@ function formDataToPayload(formData: FormData) {
     cancelDate: formData.get("cancelDate") ? String(formData.get("cancelDate")) : null,
     accentColor: String(formData.get("accentColor") ?? ""),
   };
+}
+
+function SectionHeader({ dotColor, title, count }: { dotColor: string; title: string; count: number }) {
+  return (
+    <div className="mb-3.5 flex items-center gap-2.5">
+      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: dotColor }} />
+      <h2 className="font-display text-sm font-bold text-ink">{title}</h2>
+      <span className="rounded-full bg-slate/10 px-2.5 py-0.5 text-xs font-bold text-slate">{count}</span>
+    </div>
+  );
 }
 
 export function SubscriptionsSection() {
@@ -71,12 +83,13 @@ export function SubscriptionsSection() {
     return <p className="text-slate">Cargando tus suscripciones…</p>;
   }
 
-  const activeSubs = subscriptions.filter((s) => s.status === "ACTIVE");
-  const currency = activeSubs[0]?.currency ?? "EUR";
-  const monthlyTotal = activeSubs.reduce((sum, s) => sum + s.price, 0);
+  const activeSubs = subscriptions.filter((s) => s.status === "ACTIVE" && !isPendingPurchase(s));
+  const pendingSubs = subscriptions.filter((s) => isPendingPurchase(s));
+  const cancelledSubs = subscriptions.filter((s) => s.status === "CANCELLED");
+  const currency = subscriptions[0]?.currency ?? "EUR";
   const scheduledCancellations = subscriptions.filter((s) => s.cancelDate).length;
 
-  const nextChargeSub = [...activeSubs].sort(
+  const nextChargeSub = [...activeSubs, ...pendingSubs].sort(
     (a, b) => new Date(a.nextChargeDate).getTime() - new Date(b.nextChargeDate).getTime()
   )[0];
   const nextCharge = nextChargeSub
@@ -91,7 +104,25 @@ export function SubscriptionsSection() {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowIso = tomorrow.toISOString().slice(0, 10);
-  const dueTomorrow = activeSubs.filter((s) => s.startDate.slice(0, 10) === tomorrowIso);
+  const dueTomorrow = subscriptions.filter(
+    (s) => s.status === "ACTIVE" && s.startDate.slice(0, 10) === tomorrowIso
+  );
+
+  function renderCard(subscription: SubscriptionView, i: number) {
+    return (
+      <Reveal key={subscription.id} style={{ transitionDelay: `${Math.min(i, 8) * 60}ms` }}>
+        <ExpandableSubscriptionCard
+          subscription={subscription}
+          isEditing={editingId === subscription.id}
+          onStartEdit={() => setEditingId(subscription.id)}
+          onCancelEdit={() => setEditingId(null)}
+          onSubmitEdit={(formData) => handleEdit(subscription.id, formData)}
+          onDelete={handleDelete}
+          onToggle={handleToggle}
+        />
+      </Reveal>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -103,39 +134,48 @@ export function SubscriptionsSection() {
       {dueTomorrow.length > 0 ? (
         <div className="flex items-start gap-3 rounded-2xl border border-sunflower/40 bg-sunflower/10 px-5 py-4">
           <ClockIcon size={20} color="#a8790a" className="mt-0.5 shrink-0" />
-          <div>
-            <p className="text-sm font-bold text-ink">Recuerda comprarlas mañana</p>
-            <p className="mt-1 text-sm text-slate">{dueTomorrow.map((s) => s.serviceName).join(", ")}</p>
+          <p className="text-sm font-bold text-ink">
+            Recuerda comprarlas mañana:{" "}
+            <span className="font-medium text-slate">{dueTomorrow.map((s) => s.serviceName).join(", ")}</span>
+          </p>
+        </div>
+      ) : null}
+
+      <SummaryStats nextCharge={nextCharge} scheduledCancellations={scheduledCancellations} />
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <MonthlySpendChart subscriptions={subscriptions} currency={currency} />
+        <CategorySpendChart subscriptions={subscriptions} currency={currency} />
+      </div>
+
+      {subscriptions.length === 0 ? <EmptyState onAdd={() => setShowAddModal(true)} /> : null}
+
+      {activeSubs.length > 0 ? (
+        <div>
+          <SectionHeader dotColor="#2ec4b6" title="Activas" count={activeSubs.length} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {activeSubs.map((s, i) => renderCard(s, i))}
           </div>
         </div>
       ) : null}
 
-      <SummaryStats
-        monthlyTotal={monthlyTotal}
-        currency={currency}
-        nextCharge={nextCharge}
-        scheduledCancellations={scheduledCancellations}
-      />
-
-      {subscriptions.length === 0 ? (
-        <EmptyState onAdd={() => setShowAddModal(true)} />
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {subscriptions.map((subscription, i) => (
-            <Reveal key={subscription.id} style={{ transitionDelay: `${Math.min(i, 8) * 60}ms` }}>
-              <ExpandableSubscriptionCard
-                subscription={subscription}
-                isEditing={editingId === subscription.id}
-                onStartEdit={() => setEditingId(subscription.id)}
-                onCancelEdit={() => setEditingId(null)}
-                onSubmitEdit={(formData) => handleEdit(subscription.id, formData)}
-                onDelete={handleDelete}
-                onToggle={handleToggle}
-              />
-            </Reveal>
-          ))}
+      {pendingSubs.length > 0 ? (
+        <div>
+          <SectionHeader dotColor="#ffc93c" title="Pendientes" count={pendingSubs.length} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {pendingSubs.map((s, i) => renderCard(s, i))}
+          </div>
         </div>
-      )}
+      ) : null}
+
+      {cancelledSubs.length > 0 ? (
+        <div>
+          <SectionHeader dotColor="#5b6472" title="Canceladas" count={cancelledSubs.length} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {cancelledSubs.map((s, i) => renderCard(s, i))}
+          </div>
+        </div>
+      ) : null}
 
       {showAddModal ? (
         <SubscriptionModal title="Añadir suscripción" onClose={() => setShowAddModal(false)}>

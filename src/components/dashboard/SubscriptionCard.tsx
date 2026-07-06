@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
+import { clsx } from "clsx";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { findCatalogServiceByName, getManageUrl } from "@/lib/serviceCatalog";
+import { isPendingPurchase } from "@/lib/subscriptions";
 import type { SubscriptionView } from "./types";
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", year: "numeric" });
@@ -24,8 +26,8 @@ export function SubscriptionCard({
   const [isSaving, setIsSaving] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const todayIso = new Date().toISOString().slice(0, 10);
-  const isPendingPurchase = subscription.status === "ACTIVE" && subscription.startDate.slice(0, 10) > todayIso;
+  const isPending = isPendingPurchase(subscription);
+  const isCancelled = subscription.status === "CANCELLED";
 
   async function handleDelete() {
     if (!confirm(`¿Eliminar la suscripción a ${subscription.serviceName}?`)) return;
@@ -57,7 +59,10 @@ export function SubscriptionCard({
   return (
     <Card
       ref={cardRef}
-      className="flex flex-col gap-3 border-l-4 p-5 transition-transform hover:-translate-y-1"
+      className={clsx(
+        "flex flex-col gap-3 border-l-4 p-5 transition-[transform,opacity] hover:-translate-y-1",
+        isCancelled && "opacity-60 hover:opacity-100"
+      )}
       style={{ borderLeftColor: subscription.accentColor }}
     >
       <div className="flex items-start justify-between gap-2">
@@ -68,17 +73,15 @@ export function SubscriptionCard({
             <span className="text-sm font-normal text-slate">/mes</span>
           </p>
         </div>
-        <Badge tone={isPendingPurchase ? "pending" : subscription.status === "ACTIVE" ? "active" : "cancelled"}>
-          {isPendingPurchase ? "Pendiente" : subscription.status === "ACTIVE" ? "Activa" : "Cancelada"}
-        </Badge>
+        {isPending ? <Badge tone="pending">Empieza {formatDate(subscription.nextChargeDate)}</Badge> : null}
       </div>
 
       <div className="space-y-1 text-sm text-slate">
-        <p>Cobra el día {new Date(subscription.startDate).getDate()}</p>
-        <p>Próximo cobro: {formatDate(subscription.nextChargeDate)}</p>
+        <p>{isCancelled ? "Cobraba" : "Cobra"} el día {new Date(subscription.startDate).getDate()}</p>
+        {!isPending && !isCancelled ? <p>Próximo cobro: {formatDate(subscription.nextChargeDate)}</p> : null}
       </div>
 
-      {subscription.cancelDate ? (
+      {subscription.cancelDate && !isCancelled ? (
         <Badge tone="scheduled">Se cancela el {formatDate(subscription.cancelDate)}</Badge>
       ) : null}
 

@@ -1,5 +1,11 @@
 import { addMonths, setDate, isBefore, startOfDay } from "date-fns";
 
+/** Una suscripción activa cuya fecha de cobro todavía no ha llegado (aún no se ha comprado). */
+export function isPendingPurchase(subscription: { status: string; startDate: string }): boolean {
+  const todayIso = new Date().toISOString().slice(0, 10);
+  return subscription.status === "ACTIVE" && subscription.startDate.slice(0, 10) > todayIso;
+}
+
 /** Próxima fecha de cobro a partir de la fecha de cobro (se usa su día del mes) y una fecha de referencia. */
 export function computeNextChargeDate(startDate: Date, referenceDate: Date = new Date()): Date {
   const billingDay = startDate.getDate();
