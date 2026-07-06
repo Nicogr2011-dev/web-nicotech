@@ -267,6 +267,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Cuando una versión lleva una \"c\" y su etiqueta se ve en rojo, es un cambio confidencial por seguridad de la web — no se detalla en qué consiste.",
   },
+  {
+    date: "06.07.26",
+    major: 10,
+    minor: 5,
+    type: "MINOR",
+    title: "Precios de Premium Lite actualizados",
+    description:
+      "Hemos revisado los precios de los planes de pago para que tengan más sentido dentro de la web y reflejen mejor lo que te ofrece cada uno. Premium Lite pasa de 5 €/año a 8 €/año (0,7 €/mes) — con la diferencia de solo 2 €/año respecto a Premium (10 €/año, 1 €/mes), queda mucho más claro que por muy poco más te llevas las suscripciones ilimitadas sin ningún límite, así que la mayoría sale ganando dando el salto. Premium no cambia de precio. Como siempre, Básico sigue siendo gratis para todo el mundo.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

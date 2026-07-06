@@ -39,8 +39,8 @@ export const PLANS: Plan[] = [
     name: "Premium Lite",
     accent: "#3a86ff",
     tagline: "Un punto intermedio, más barato",
-    priceYearly: "5 €/año",
-    priceMonthly: "0,5 €/mes",
+    priceYearly: "8 €/año",
+    priceMonthly: "0,7 €/mes",
     features: ["Todas las funciones de Nicotech", "Hasta 50 suscripciones a la vez"],
   },
 ];
