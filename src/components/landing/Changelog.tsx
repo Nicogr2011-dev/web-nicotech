@@ -1,7 +1,17 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { CHANGELOG, CURRENT_VERSION, formatVersion } from "@/lib/changelog";
+import { CHANGELOG, CURRENT_VERSION, formatVersion, type ChangelogEntry } from "@/lib/changelog";
+
+function badgeTone(entry: ChangelogEntry) {
+  if (entry.bugfix) return "warning";
+  if (entry.confidential) return "danger";
+  return entry.type === "MAJOR" ? "active" : "pending";
+}
+
+function badgeLabel(entry: ChangelogEntry) {
+  return entry.bugfix ? `${formatVersion(entry)} 🐛` : formatVersion(entry);
+}
 
 export function Changelog() {
   const [open, setOpen] = useState(false);
@@ -18,11 +28,7 @@ export function Changelog() {
             <h3 className="font-display font-bold text-ink">{CURRENT_VERSION.title}</h3>
             <p className="mt-1 text-sm text-slate">{CURRENT_VERSION.description}</p>
           </div>
-          <Badge
-            tone={CURRENT_VERSION.confidential ? "danger" : CURRENT_VERSION.type === "MAJOR" ? "active" : "pending"}
-          >
-            {formatVersion(CURRENT_VERSION)}
-          </Badge>
+          <Badge tone={badgeTone(CURRENT_VERSION)}>{badgeLabel(CURRENT_VERSION)}</Badge>
         </div>
       </Card>
 
@@ -44,9 +50,7 @@ export function Changelog() {
                   <h4 className="font-display text-sm font-bold text-ink">{entry.title}</h4>
                   <p className="mt-1 text-sm text-slate">{entry.description}</p>
                 </div>
-                <Badge tone={entry.confidential ? "danger" : entry.type === "MAJOR" ? "active" : "pending"}>
-                  {formatVersion(entry)}
-                </Badge>
+                <Badge tone={badgeTone(entry)}>{badgeLabel(entry)}</Badge>
               </div>
             </Card>
           ))}

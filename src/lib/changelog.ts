@@ -10,6 +10,12 @@ export type ChangelogEntry = {
   description: string;
   /** Cambio interno/confidencial: version con sufijo ".c" y etiqueta en rojo. */
   confidential?: boolean;
+  /**
+   * Arreglo de un bug de la version anterior (no de una version nueva): no sube
+   * el numero de version, se queda en la misma pero con sufijo ".b", etiqueta en
+   * amarillo y el emoji de bug al final.
+   */
+  bugfix?: boolean;
 };
 
 /**
@@ -356,10 +362,21 @@ export const CHANGELOG: ChangelogEntry[] = [
     title: "Verificación más rápida",
     description: "El correo reenviado a verifica@nicotech.es se revisa ahora cada 15 segundos en vez de cada 5 minutos.",
   },
+  {
+    date: "07.07.26",
+    major: 13,
+    minor: 1,
+    type: "MINOR",
+    title: "Arreglo en la revisión del correo de verificación",
+    description:
+      "La revisión periódica del buzón de verificación no se estaba ejecutando correctamente por una incompatibilidad interna — ya funciona.",
+    bugfix: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
-  return `${entry.date}.${entry.major}.${entry.minor}${entry.confidential ? ".c" : ""}`;
+  const suffix = entry.confidential ? ".c" : entry.bugfix ? ".b" : "";
+  return `${entry.date}.${entry.major}.${entry.minor}${suffix}`;
 }
 
 export const CURRENT_VERSION = CHANGELOG[CHANGELOG.length - 1];
