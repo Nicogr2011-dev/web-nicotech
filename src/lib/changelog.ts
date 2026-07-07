@@ -330,6 +330,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description: "Ajustes para mejorar la experiencia de usuario.",
     confidential: true,
   },
+  {
+    date: "07.07.26",
+    major: 12,
+    minor: 2,
+    type: "MINOR",
+    title: "Arreglo en la gráfica de gasto mensual",
+    description:
+      "Al eliminar una suscripción, el gasto de los meses en los que sí estuvo activa ya no desaparecía de la gráfica de \"Gasto mensual\" — ahora ese histórico se mantiene correcto, tanto al eliminar como al cancelar.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

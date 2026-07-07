@@ -6,6 +6,8 @@ export type SubscriptionView = {
   startDate: string;
   cancelDate: string | null;
   status: "ACTIVE" | "CANCELLED";
+  cancelledAt: string | null;
+  deletedAt: string | null;
   accentColor: string;
   nextChargeDate: string;
 };

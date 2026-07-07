@@ -18,7 +18,8 @@ export function CategorySpendChart({
   currency: string;
 }) {
   const [mode, setMode] = useState<"bar" | "pie">("bar");
-  const nonCancelled = subscriptions.filter((s) => s.status !== "CANCELLED");
+  // Foto del gasto actual, no histórico: fuera las canceladas y las eliminadas.
+  const nonCancelled = subscriptions.filter((s) => s.status !== "CANCELLED" && !s.deletedAt);
 
   const catMap = new Map<string, number>();
   nonCancelled.forEach((s) => {

@@ -83,11 +83,16 @@ export function SubscriptionsSection() {
     return <p className="text-slate">Cargando tus suscripciones…</p>;
   }
 
-  const activeSubs = subscriptions.filter((s) => s.status === "ACTIVE" && !isPendingPurchase(s));
-  const pendingSubs = subscriptions.filter((s) => isPendingPurchase(s));
-  const cancelledSubs = subscriptions.filter((s) => s.status === "CANCELLED");
-  const currency = subscriptions[0]?.currency ?? "EUR";
-  const scheduledCancellations = subscriptions.filter((s) => s.cancelDate).length;
+  // Las eliminadas (deletedAt) se quedan fuera de todo lo "visible" — pero se siguen
+  // mandando a las gráficas (subscriptions, sin filtrar) para que el gasto de los
+  // meses en los que sí estuvieron activas no desaparezca del histórico.
+  const visibleSubscriptions = subscriptions.filter((s) => !s.deletedAt);
+
+  const activeSubs = visibleSubscriptions.filter((s) => s.status === "ACTIVE" && !isPendingPurchase(s));
+  const pendingSubs = visibleSubscriptions.filter((s) => isPendingPurchase(s));
+  const cancelledSubs = visibleSubscriptions.filter((s) => s.status === "CANCELLED");
+  const currency = visibleSubscriptions[0]?.currency ?? "EUR";
+  const scheduledCancellations = visibleSubscriptions.filter((s) => s.cancelDate).length;
 
   const nextChargeSub = [...activeSubs, ...pendingSubs].sort(
     (a, b) => new Date(a.nextChargeDate).getTime() - new Date(b.nextChargeDate).getTime()
@@ -104,7 +109,7 @@ export function SubscriptionsSection() {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowIso = tomorrow.toISOString().slice(0, 10);
-  const dueTomorrow = subscriptions.filter(
+  const dueTomorrow = visibleSubscriptions.filter(
     (s) => s.status === "ACTIVE" && s.startDate.slice(0, 10) === tomorrowIso
   );
 
@@ -148,7 +153,7 @@ export function SubscriptionsSection() {
         <CategorySpendChart subscriptions={subscriptions} currency={currency} />
       </div>
 
-      {subscriptions.length === 0 ? <EmptyState onAdd={() => setShowAddModal(true)} /> : null}
+      {visibleSubscriptions.length === 0 ? <EmptyState onAdd={() => setShowAddModal(true)} /> : null}
 
       {activeSubs.length > 0 ? (
         <div>

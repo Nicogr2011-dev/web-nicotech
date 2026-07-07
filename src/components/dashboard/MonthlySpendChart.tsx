@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { clsx } from "clsx";
 import { Card } from "@/components/ui/Card";
+import { effectiveEndDate } from "@/lib/subscriptions";
 import type { SubscriptionView } from "./types";
 
 function lastNMonths(n: number): Date[] {
@@ -19,16 +20,18 @@ export function MonthlySpendChart({
   currency: string;
 }) {
   const [mode, setMode] = useState<"bar" | "line">("bar");
-  const nonCancelled = subscriptions.filter((s) => s.status !== "CANCELLED");
 
   const months = lastNMonths(6);
-  const monthTotals = months.map((d) => {
-    const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-    const total = nonCancelled.reduce((sum, s) => {
+  const monthTotals = months.map((monthStart) => {
+    const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+    const total = subscriptions.reduce((sum, s) => {
       const start = new Date(s.startDate);
-      return start <= monthEnd ? sum + s.price : sum;
+      if (start > monthEnd) return sum; // todavía no había empezado
+      const endBoundary = effectiveEndDate(s);
+      if (endBoundary && endBoundary < monthStart) return sum; // ya había terminado antes de este mes
+      return sum + s.price;
     }, 0);
-    return { date: d, total };
+    return { date: monthStart, total };
   });
   const maxTotal = Math.max(...monthTotals.map((m) => m.total), 1);
   const trend = monthTotals.map((m, i) => ({

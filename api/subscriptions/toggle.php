@@ -22,7 +22,10 @@ if (!$row) {
 }
 
 $newStatus = $row['status'] === 'ACTIVE' ? 'CANCELLED' : 'ACTIVE';
-$stmt = $pdo->prepare('UPDATE subscriptions SET status = ? WHERE id = ? AND user_id = ?');
-$stmt->execute([$newStatus, $id, $userId]);
+// cancelled_at marca desde cuándo deja de contar en el gasto histórico; se limpia
+// si se reactiva (vuelve a contar como si nunca se hubiera cancelado).
+$cancelledAt = $newStatus === 'CANCELLED' ? date('Y-m-d H:i:s') : null;
+$stmt = $pdo->prepare('UPDATE subscriptions SET status = ?, cancelled_at = ? WHERE id = ? AND user_id = ?');
+$stmt->execute([$newStatus, $cancelledAt, $id, $userId]);
 
 json_response(['success' => true]);
