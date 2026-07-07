@@ -348,6 +348,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Al añadir una suscripción te enviamos un email de confirmación con un código: reenvíalo a verifica@nicotech.es y tu suscripción quedará marcada como verificada en el panel. Además, \"¿La olvidaste?\" en el inicio de sesión ya funciona de verdad: te llega un enlace por email para restablecer tu contraseña.",
   },
+  {
+    date: "07.07.26",
+    major: 13,
+    minor: 1,
+    type: "MINOR",
+    title: "Verificación más rápida",
+    description: "El correo reenviado a verifica@nicotech.es se revisa ahora cada 15 segundos en vez de cada 5 minutos.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
