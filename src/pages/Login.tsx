@@ -27,7 +27,6 @@ export default function LoginPage() {
   const [shake, setShake] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
-  const [forgotMessage, setForgotMessage] = useState<string | null>(null);
 
   function triggerShake() {
     setShake(true);
@@ -89,11 +88,6 @@ export default function LoginPage() {
     onSuccess();
   }
 
-  function handleForgotPassword(e: React.MouseEvent) {
-    e.preventDefault();
-    setForgotMessage("Muy pronto podrás recuperar tu contraseña desde aquí.");
-  }
-
   return (
     <div
       className="flex min-h-screen items-center justify-center px-4 py-12"
@@ -147,13 +141,9 @@ export default function LoginPage() {
                 <label htmlFor="password" className="text-sm font-semibold text-ink">
                   Contraseña
                 </label>
-                <button
-                  type="button"
-                  onClick={handleForgotPassword}
-                  className="text-xs font-semibold text-azure hover:underline"
-                >
+                <Link to="/recuperar" className="text-xs font-semibold text-azure hover:underline">
                   ¿La olvidaste?
-                </button>
+                </Link>
               </div>
               <IconInput
                 id="password"
@@ -186,7 +176,6 @@ export default function LoginPage() {
               Mantener sesión iniciada
             </label>
 
-            {forgotMessage ? <p className="text-sm text-slate">{forgotMessage}</p> : null}
             {error ? <p className="text-sm text-coral">{error}</p> : null}
             {success ? <p className="text-sm text-mint">{success}</p> : null}
 

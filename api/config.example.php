@@ -22,4 +22,17 @@ return [
     // Requiere cuenta de pago de Apple Developer Program. Mientras quede en
     // 'CHANGE_ME', el botón de Apple se muestra pero avisa de que no está listo.
     'apple_client_id' => 'CHANGE_ME',
+    // Cuenta de correo usada para enviar (confirmaciones de suscripción, recuperación
+    // de contraseña). SMTPS con AUTH LOGIN, sin librerías (proyecto sin Composer).
+    'smtp_host' => 'CHANGE_ME',
+    'smtp_port' => 465,
+    'smtp_user' => 'CHANGE_ME',
+    'smtp_pass' => 'CHANGE_ME',
+    'smtp_from' => 'CHANGE_ME',
+    // Buzón al que los usuarios reenvían el email de confirmación para verificar
+    // que de verdad se han suscrito; un cron revisa este buzón por IMAP.
+    'imap_host' => 'CHANGE_ME',
+    'imap_port' => 993,
+    'imap_user' => 'CHANGE_ME',
+    'imap_pass' => 'CHANGE_ME',
 ];

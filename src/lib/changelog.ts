@@ -339,6 +339,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Al eliminar una suscripción, el gasto de los meses en los que sí estuvo activa ya no desaparecía de la gráfica de \"Gasto mensual\" — ahora ese histórico se mantiene correcto, tanto al eliminar como al cancelar.",
   },
+  {
+    date: "07.07.26",
+    major: 13,
+    minor: 0,
+    type: "MAJOR",
+    title: "Verificación por email y recuperación de contraseña",
+    description:
+      "Al añadir una suscripción te enviamos un email de confirmación con un código: reenvíalo a verifica@nicotech.es y tu suscripción quedará marcada como verificada en el panel. Además, \"¿La olvidaste?\" en el inicio de sesión ya funciona de verdad: te llega un enlace por email para restablecer tu contraseña.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

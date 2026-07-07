@@ -629,6 +629,11 @@ export const SERVICE_CATALOG: CatalogService[] = [
   { id: "onlyoffice", name: "ONLYOFFICE", category: "Telco y otros", website: "https://www.onlyoffice.com", plans: [
     { name: "Cloud", price: 5, currency: "USD" },
   ]},
+
+  // --- Servicio de prueba (para comprobar el circuito de verificación por email) ---
+  { id: "prueba", name: "Prueba", category: "Telco y otros", website: "https://nicotech.es", plans: [
+    { name: "Prueba", price: 8, currency: EUR },
+  ]},
 ];
 
 /** Búsqueda simple por substring sobre nombre y categoría. */

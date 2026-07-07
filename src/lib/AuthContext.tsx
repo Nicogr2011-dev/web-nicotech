@@ -25,6 +25,8 @@ type AuthContextValue = {
   updatePassword: (currentPassword: string, newPassword: string) => Promise<{ error?: string }>;
   uploadAvatar: (file: File) => Promise<{ error?: string }>;
   deleteAccount: (password: string) => Promise<{ error?: string }>;
+  forgotPassword: (email: string) => Promise<{ error?: string }>;
+  resetPassword: (token: string, password: string) => Promise<{ error?: string }>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -161,6 +163,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  async function forgotPassword(email: string) {
+    try {
+      await apiPost("/auth/forgot-password.php", { email });
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo procesar la solicitud" };
+    }
+  }
+
+  async function resetPassword(token: string, password: string) {
+    try {
+      await apiPost("/auth/reset-password.php", { token, password });
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo restablecer la contraseña" };
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -177,6 +197,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updatePassword,
         uploadAvatar,
         deleteAccount,
+        forgotPassword,
+        resetPassword,
       }}
     >
       {children}

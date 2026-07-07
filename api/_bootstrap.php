@@ -28,6 +28,23 @@ function json_error(string $message, int $status = 400): void
     json_response(['error' => $message], $status);
 }
 
+/**
+ * Envía la respuesta JSON ya mismo y, si el SAPI lo permite (PHP-FPM en producción),
+ * cierra la conexión con el cliente ahí — el código que siga ejecutándose (ej. mandar
+ * un email por SMTP, que puede tardar varios segundos) ya no le hace esperar.
+ */
+function respond_and_continue(array $data): void
+{
+    http_response_code(200);
+    echo json_encode($data);
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    } else {
+        ignore_user_abort(true);
+        flush();
+    }
+}
+
 function read_json_body(): array
 {
     $raw = file_get_contents('php://input');

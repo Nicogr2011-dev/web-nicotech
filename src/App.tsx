@@ -5,6 +5,8 @@ import { CookieConsent } from "@/components/CookieConsent";
 import LandingPage from "@/pages/Landing";
 import LoginPage from "@/pages/Login";
 import RegisterPage from "@/pages/Register";
+import ForgotPasswordPage from "@/pages/ForgotPassword";
+import ResetPasswordPage from "@/pages/ResetPassword";
 import DashboardPage from "@/pages/Dashboard";
 import InstallAppPage from "@/pages/InstallApp";
 import PricingPage from "@/pages/Pricing";
@@ -69,6 +71,15 @@ export default function App() {
             </RedirectIfAuthed>
           }
         />
+        <Route
+          path="/recuperar"
+          element={
+            <RedirectIfAuthed>
+              <ForgotPasswordPage />
+            </RedirectIfAuthed>
+          }
+        />
+        <Route path="/restablecer-contrasena" element={<ResetPasswordPage />} />
         <Route
           path="/dashboard"
           element={

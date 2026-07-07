@@ -7,7 +7,8 @@ $userId = require_auth();
 // Se incluyen también las eliminadas (deleted_at): el frontend las usa para que el
 // gasto histórico de las gráficas no desaparezca, pero no las muestra como tarjetas.
 $stmt = $pdo->prepare(
-    'SELECT id, service_name, price, currency, start_date, cancel_date, status, cancelled_at, deleted_at, accent_color
+    'SELECT id, service_name, price, currency, start_date, cancel_date, status, cancelled_at, deleted_at,
+            accent_color, verification_code, verified_at
      FROM subscriptions WHERE user_id = ? ORDER BY start_date ASC'
 );
 $stmt->execute([$userId]);
@@ -25,6 +26,8 @@ $subscriptions = array_map(function ($row) {
         'cancelledAt' => $row['cancelled_at'],
         'deletedAt' => $row['deleted_at'],
         'accentColor' => $row['accent_color'],
+        'verificationCode' => $row['verification_code'],
+        'verifiedAt' => $row['verified_at'],
     ];
 }, $rows);
 
