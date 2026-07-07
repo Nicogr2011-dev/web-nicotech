@@ -104,6 +104,94 @@ function verify_recaptcha(?string $token, string $expectedAction): bool
     return (float) ($data['score'] ?? 0) >= 0.5;
 }
 
+function base64url_decode(string $data): string
+{
+    return (string) base64_decode(strtr($data, '-_', '+/') . str_repeat('=', (4 - strlen($data) % 4) % 4));
+}
+
+function asn1_length(int $len): string
+{
+    if ($len < 0x80) {
+        return chr($len);
+    }
+    $bytes = ltrim(pack('N', $len), "\x00");
+    return chr(0x80 | strlen($bytes)) . $bytes;
+}
+
+function asn1_wrap(string $tag, string $bin): string
+{
+    return $tag . asn1_length(strlen($bin)) . $bin;
+}
+
+/** Convierte los componentes RSA (n, e) de un JWK a una clave pública PEM, para poder
+ * usarla con openssl_verify. No hay librería JWT instalada (proyecto sin Composer),
+ * así que esto sustituye a esa conversión. */
+function jwk_rsa_to_pem(string $n64, string $e64): string
+{
+    $n = "\x00" . base64url_decode($n64);
+    $e = base64url_decode($e64);
+
+    $rsaKey = asn1_wrap("\x30", asn1_wrap("\x02", $n) . asn1_wrap("\x02", $e));
+    $rsaOid = pack('H*', '300d06092a864886f70d0101010500');
+    $bitString = asn1_wrap("\x03", "\x00" . $rsaKey);
+    $spki = asn1_wrap("\x30", $rsaOid . $bitString);
+
+    return "-----BEGIN PUBLIC KEY-----\n" . chunk_split(base64_encode($spki), 64, "\n") . "-----END PUBLIC KEY-----\n";
+}
+
+/**
+ * Verifica un JWT RS256 contra el JWKS de una URL (Apple/Google publican ahí sus claves
+ * públicas). Comprueba firma, emisor, destinatario y caducidad.
+ * @return array|null Los claims del token si es válido, null si no.
+ */
+function verify_jwt_rs256(string $jwt, string $jwksUrl, string $expectedIss, string $expectedAud): ?array
+{
+    $parts = explode('.', $jwt);
+    if (count($parts) !== 3) {
+        return null;
+    }
+    [$headerB64, $payloadB64, $sigB64] = $parts;
+
+    $header = json_decode(base64url_decode($headerB64), true);
+    $payload = json_decode(base64url_decode($payloadB64), true);
+    $signature = base64url_decode($sigB64);
+    if (!is_array($header) || !is_array($payload) || ($header['alg'] ?? '') !== 'RS256') {
+        return null;
+    }
+
+    $raw = @file_get_contents($jwksUrl);
+    $jwks = $raw !== false ? json_decode($raw, true) : null;
+    $keys = is_array($jwks) ? ($jwks['keys'] ?? []) : [];
+
+    $pem = null;
+    foreach ($keys as $key) {
+        if (($key['kid'] ?? null) === ($header['kid'] ?? null)) {
+            $pem = jwk_rsa_to_pem($key['n'], $key['e']);
+            break;
+        }
+    }
+    if ($pem === null) {
+        return null;
+    }
+
+    $verified = openssl_verify("{$headerB64}.{$payloadB64}", $signature, $pem, OPENSSL_ALGO_SHA256);
+    if ($verified !== 1) {
+        return null;
+    }
+
+    if (($payload['iss'] ?? null) !== $expectedIss) {
+        return null;
+    }
+    if (($payload['aud'] ?? null) !== $expectedAud) {
+        return null;
+    }
+    if (($payload['exp'] ?? 0) < time()) {
+        return null;
+    }
+
+    return $payload;
+}
+
 /**
  * @return array{0: array|null, 1: string|null}
  */

@@ -312,6 +312,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "El panel se reorganiza: tus suscripciones ahora se agrupan en Activas, Pendientes y Canceladas, con su recuento. Nuevas gráficas de gasto mensual (barras o línea) y de gasto por categoría (barra o tarta), que se cambian con un clic en el título. Las tarjetas quedan más limpias, sin etiquetas repetidas.",
   },
+  {
+    date: "07.07.26",
+    major: 12,
+    minor: 0,
+    type: "MAJOR",
+    title: "Nuevo diseño de registro e inicio de sesión, con Google y Apple",
+    description:
+      "La página de crear cuenta estrena un diseño a dos columnas con vista previa de suscripciones, y la de iniciar sesión una tarjeta centrada con la opción de mantener la sesión iniciada. Además, ya puedes registrarte o entrar con Google o con Apple (el de Apple se activará en cuanto tengamos las claves).",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

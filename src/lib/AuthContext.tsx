@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { apiGet, apiPost, apiUpload, ApiError } from "@/lib/api";
 import { getRecaptchaToken } from "@/lib/recaptcha";
+import { signInWithGoogle, signInWithApple } from "@/lib/socialAuth";
 
 export type AuthUser = {
   id: number;
@@ -13,8 +14,10 @@ export type AuthUser = {
 type AuthContextValue = {
   user: AuthUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ error?: string }>;
+  login: (email: string, password: string, remember?: boolean) => Promise<{ error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ error?: string }>;
+  loginWithGoogle: () => Promise<{ error?: string }>;
+  loginWithApple: () => Promise<{ error?: string }>;
   logout: () => Promise<void>;
   setTier: (tier: AuthUser["tier"], code?: string) => Promise<{ error?: string }>;
   updateName: (name: string) => Promise<{ error?: string }>;
@@ -45,10 +48,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refresh();
   }, [refresh]);
 
-  async function login(email: string, password: string) {
+  async function login(email: string, password: string, remember = true) {
     try {
       const recaptchaToken = await getRecaptchaToken("login").catch(() => null);
-      const data = await apiPost<{ user: AuthUser }>("/auth/login.php", { email, password, recaptchaToken });
+      const data = await apiPost<{ user: AuthUser }>("/auth/login.php", {
+        email,
+        password,
+        recaptchaToken,
+        remember,
+      });
       setUser(data.user);
       return {};
     } catch (err) {
@@ -63,6 +71,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return login(email, password);
     } catch (err) {
       return { error: err instanceof ApiError ? err.message : "No se pudo crear la cuenta" };
+    }
+  }
+
+  async function loginWithGoogle() {
+    try {
+      const accessToken = await signInWithGoogle();
+      const data = await apiPost<{ user: AuthUser }>("/auth/google.php", { accessToken });
+      setUser(data.user);
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError || err instanceof Error ? err.message : "No se pudo iniciar sesión con Google" };
+    }
+  }
+
+  async function loginWithApple() {
+    try {
+      const { idToken, user: appleUser } = await signInWithApple();
+      const data = await apiPost<{ user: AuthUser }>("/auth/apple.php", { idToken, user: appleUser });
+      setUser(data.user);
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError || err instanceof Error ? err.message : "No se pudo iniciar sesión con Apple" };
     }
   }
 
@@ -138,6 +168,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         login,
         register,
+        loginWithGoogle,
+        loginWithApple,
         logout,
         setTier,
         updateName,

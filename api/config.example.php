@@ -11,4 +11,12 @@ return [
     // pago mientras no hay pasarela real. Generarlo con:
     // php -r 'echo password_hash("EL_CODIGO", PASSWORD_DEFAULT), PHP_EOL;'
     'plan_redeem_code_hash' => 'CHANGE_ME',
+    // Client ID de OAuth de Google (console.cloud.google.com/apis/credentials),
+    // tipo "Aplicación web". Mientras quede en 'CHANGE_ME', el botón de Google
+    // se muestra pero avisa de que no está listo.
+    'google_client_id' => 'CHANGE_ME',
+    // Services ID de "Sign in with Apple" (developer.apple.com/account/resources/identifiers).
+    // Requiere cuenta de pago de Apple Developer Program. Mientras quede en
+    // 'CHANGE_ME', el botón de Apple se muestra pero avisa de que no está listo.
+    'apple_client_id' => 'CHANGE_ME',
 ];

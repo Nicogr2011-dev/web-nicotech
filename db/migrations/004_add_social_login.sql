@@ -1,0 +1,4 @@
+ALTER TABLE users
+  MODIFY COLUMN password_hash VARCHAR(255) NULL,
+  ADD COLUMN google_id VARCHAR(255) NULL UNIQUE AFTER password_hash,
+  ADD COLUMN apple_id VARCHAR(255) NULL UNIQUE AFTER google_id;
