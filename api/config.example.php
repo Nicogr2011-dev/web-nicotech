@@ -15,6 +15,9 @@ return [
     // tipo "Aplicación web". Mientras quede en 'CHANGE_ME', el botón de Google
     // se muestra pero avisa de que no está listo.
     'google_client_id' => 'CHANGE_ME',
+    // No lo usa el flujo actual (solo hace falta el Client ID) — de reserva por si
+    // algún día hace falta el intercambio de código servidor a servidor.
+    'google_client_secret' => 'CHANGE_ME',
     // Services ID de "Sign in with Apple" (developer.apple.com/account/resources/identifiers).
     // Requiere cuenta de pago de Apple Developer Program. Mientras quede en
     // 'CHANGE_ME', el botón de Apple se muestra pero avisa de que no está listo.

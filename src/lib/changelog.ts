@@ -321,6 +321,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "La página de crear cuenta estrena un diseño a dos columnas con vista previa de suscripciones, y la de iniciar sesión una tarjeta centrada con la opción de mantener la sesión iniciada. Además, ya puedes registrarte o entrar con Google o con Apple (el de Apple se activará en cuanto tengamos las claves).",
   },
+  {
+    date: "07.07.26",
+    major: 12,
+    minor: 1,
+    type: "MINOR",
+    title: "Mejoras internas",
+    description: "Ajustes para mejorar la experiencia de usuario.",
+    confidential: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
