@@ -6,6 +6,7 @@ import { PhoneIcon, MailIcon } from "@/components/ui/Icon";
 import { useAuth } from "@/lib/AuthContext";
 import { apiPost } from "@/lib/api";
 import {
+  attachDebugTracking,
   createIceForwarder,
   createPeerConnection,
   describeCallDebugState,
@@ -13,7 +14,7 @@ import {
   monitorCallStatus,
   pollRemoteIce,
 } from "@/lib/webrtcCall";
-import type { CallRole } from "@/lib/webrtcCall";
+import type { CallDebugTracker, CallRole } from "@/lib/webrtcCall";
 
 type CallPhase = "idle" | "connecting" | "ringing" | "in-call" | "ended" | "error";
 
@@ -35,13 +36,14 @@ export default function ContactPage() {
   const ringTimeoutRef = useRef<number | null>(null);
   const answeredRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const debugTrackerRef = useRef<CallDebugTracker | null>(null);
 
   useEffect(() => cleanup, []);
 
   useEffect(() => {
     if (phase !== "ringing" && phase !== "in-call") return;
     const interval = window.setInterval(() => {
-      setDebugInfo(describeCallDebugState(pcRef.current, audioRef.current));
+      setDebugInfo(describeCallDebugState(pcRef.current, audioRef.current, debugTrackerRef.current));
     }, 500);
     return () => window.clearInterval(interval);
   }, [phase]);
@@ -59,6 +61,7 @@ export default function ContactPage() {
     streamRef.current = null;
     roleRef.current = null;
     answeredRef.current = false;
+    debugTrackerRef.current = null;
   }
 
   async function handleCall() {
@@ -72,6 +75,7 @@ export default function ContactPage() {
 
       const pc = createPeerConnection();
       pcRef.current = pc;
+      debugTrackerRef.current = attachDebugTracking(pc);
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
       pc.ontrack = (event) => {
         if (!audioRef.current) return;

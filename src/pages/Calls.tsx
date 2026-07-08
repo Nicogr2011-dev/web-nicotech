@@ -6,6 +6,7 @@ import { PhoneIcon } from "@/components/ui/Icon";
 import { useAuth } from "@/lib/AuthContext";
 import { apiGet, apiPost } from "@/lib/api";
 import {
+  attachDebugTracking,
   createIceForwarder,
   createPeerConnection,
   describeCallDebugState,
@@ -13,7 +14,7 @@ import {
   monitorCallStatus,
   pollRemoteIce,
 } from "@/lib/webrtcCall";
-import type { CallRole } from "@/lib/webrtcCall";
+import type { CallDebugTracker, CallRole } from "@/lib/webrtcCall";
 
 type Phase = "listening" | "ringing" | "answering" | "in-call" | "ended";
 
@@ -59,6 +60,7 @@ export default function CallsPage() {
   const stopRingtoneRef = useRef<(() => void) | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const phaseRef = useRef<Phase>("listening");
+  const debugTrackerRef = useRef<CallDebugTracker | null>(null);
 
   useEffect(() => {
     phaseRef.current = phase;
@@ -97,7 +99,7 @@ export default function CallsPage() {
   useEffect(() => {
     if (phase !== "answering" && phase !== "in-call") return;
     const interval = window.setInterval(() => {
-      setDebugInfo(describeCallDebugState(pcRef.current, audioRef.current));
+      setDebugInfo(describeCallDebugState(pcRef.current, audioRef.current, debugTrackerRef.current));
     }, 500);
     return () => window.clearInterval(interval);
   }, [phase]);
@@ -114,6 +116,7 @@ export default function CallsPage() {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
     roleRef.current = null;
+    debugTrackerRef.current = null;
   }
 
   function backToListening() {
@@ -138,6 +141,7 @@ export default function CallsPage() {
 
       const pc = createPeerConnection();
       pcRef.current = pc;
+      debugTrackerRef.current = attachDebugTracking(pc);
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
       pc.ontrack = (event) => {
         if (!audioRef.current) return;

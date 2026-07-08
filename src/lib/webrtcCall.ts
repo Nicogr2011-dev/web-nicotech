@@ -22,6 +22,32 @@ export function createPeerConnection(): RTCPeerConnection {
   return new RTCPeerConnection({ iceServers: ICE_SERVERS });
 }
 
+export type CallDebugTracker = {
+  candidateTypes: Set<string>;
+  lastError: string | null;
+};
+
+/**
+ * Engancha listeners de solo-diagnóstico (no de negocio) para saber, sin acceso al
+ * dispositivo real, qué tipo de candidatos ICE se llegan a reunir (host/srflx/relay —
+ * "relay" confirma que el TURN responde) y si el navegador reporta un fallo concreto
+ * al intentar conectar con alguno de los servidores STUN/TURN configurados.
+ */
+export function attachDebugTracking(pc: RTCPeerConnection): CallDebugTracker {
+  const tracker: CallDebugTracker = { candidateTypes: new Set(), lastError: null };
+
+  pc.addEventListener("icecandidate", (event) => {
+    if (event.candidate?.type) tracker.candidateTypes.add(event.candidate.type);
+  });
+
+  pc.addEventListener("icecandidateerror", (event) => {
+    const e = event as RTCPeerConnectionIceErrorEvent;
+    tracker.lastError = `${e.url ?? "?"} (${e.errorCode ?? "?"}) ${e.errorText ?? ""}`.trim();
+  });
+
+  return tracker;
+}
+
 /**
  * Manda cada candidato ICE local al backend en cuanto el navegador lo descubre.
  *
@@ -131,17 +157,24 @@ export function endCall(role: CallRole): void {
 }
 
 /** Resumen legible del estado de la conexión y el audio, para diagnosticar "no se oye nada" sin acceso al dispositivo. */
-export function describeCallDebugState(pc: RTCPeerConnection | null, audio: HTMLAudioElement | null): string {
+export function describeCallDebugState(
+  pc: RTCPeerConnection | null,
+  audio: HTMLAudioElement | null,
+  tracker?: CallDebugTracker | null
+): string {
   if (!pc) return "sin conexión";
   const stream = audio?.srcObject instanceof MediaStream ? audio.srcObject : null;
   const track = stream?.getAudioTracks()[0] ?? null;
   return [
     `ICE: ${pc.iceConnectionState}`,
     `conexión: ${pc.connectionState}`,
+    `recolección: ${pc.iceGatheringState}`,
+    `candidatos: ${tracker && tracker.candidateTypes.size ? [...tracker.candidateTypes].join(",") : "ninguno"}`,
     `pistas remotas: ${stream ? stream.getAudioTracks().length : 0}`,
     track ? `pista: ${track.readyState}/${track.muted ? "muted" : "activa"}` : "pista: ninguna",
     `audio.paused: ${audio ? audio.paused : "?"}`,
     `audio.muted: ${audio ? audio.muted : "?"}`,
     `volumen: ${audio ? audio.volume : "?"}`,
+    `error ICE: ${tracker?.lastError ?? "ninguno"}`,
   ].join(" · ");
 }

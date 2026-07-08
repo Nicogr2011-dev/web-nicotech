@@ -420,7 +420,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "08.07.26",
     major: 16,
-    minor: 0,
+    minor: 1,
     type: "MAJOR",
     title: "Arreglo de audio en las llamadas",
     description:
@@ -430,7 +430,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "08.07.26",
     major: 16,
-    minor: 0,
+    minor: 2,
     type: "MAJOR",
     title: "Arreglo real de conexión en las llamadas",
     description:
@@ -440,7 +440,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "08.07.26",
     major: 16,
-    minor: 0,
+    minor: 3,
     type: "MAJOR",
     title: "Arreglo de audio en móvil",
     description:
@@ -450,7 +450,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "08.07.26",
     major: 16,
-    minor: 0,
+    minor: 4,
     type: "MAJOR",
     title: "Diagnóstico de audio en la llamada",
     description:
@@ -460,11 +460,21 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "08.07.26",
     major: 16,
-    minor: 0,
+    minor: 5,
     type: "MAJOR",
     title: "Conexión de respaldo para redes restrictivas",
     description:
       "En algunas combinaciones de redes (por ejemplo datos móviles + wifi) la llamada se quedaba sin poder conectar en ningún sentido. Se añade un servidor de respaldo que retransmite el audio cuando la conexión directa no es posible.",
+    bugfix: true,
+  },
+  {
+    date: "08.07.26",
+    major: 16,
+    minor: 6,
+    type: "MAJOR",
+    title: "Más detalle en el diagnóstico de llamadas",
+    description:
+      "El detalle técnico de la llamada ahora muestra también qué tipo de conexión se ha conseguido y si el servidor de respaldo ha fallado, para poder afinar el arreglo si el problema persiste.",
     bugfix: true,
   },
 ];
