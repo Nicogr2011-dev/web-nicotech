@@ -21,7 +21,10 @@ export function Badge({
   return (
     <span
       title={title}
-      className={clsx("inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold", toneClasses[tone])}
+      className={clsx(
+        "inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold",
+        toneClasses[tone]
+      )}
     >
       {children}
     </span>
