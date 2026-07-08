@@ -1,6 +1,8 @@
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { useKonamiCode } from "@/lib/useKonamiCode";
+import { Confetti } from "@/components/Confetti";
 import { CookieConsent } from "@/components/CookieConsent";
 import LandingPage from "@/pages/Landing";
 import LoginPage from "@/pages/Login";
@@ -41,8 +43,17 @@ function RedirectIfAuthed({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  const handleKonami = useCallback(() => {
+    setShowConfetti(true);
+    window.dispatchEvent(new Event("nicotech:party"));
+  }, []);
+  useKonamiCode(handleKonami);
+
   return (
     <>
+      {showConfetti ? <Confetti onDone={() => setShowConfetti(false)} /> : null}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/instalar" element={<InstallAppPage />} />

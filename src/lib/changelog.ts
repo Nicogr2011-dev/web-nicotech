@@ -372,6 +372,15 @@ export const CHANGELOG: ChangelogEntry[] = [
       "La revisión periódica del buzón de verificación no se estaba ejecutando correctamente por una incompatibilidad interna — ya funciona.",
     bugfix: true,
   },
+  {
+    date: "08.07.26",
+    major: 13,
+    minor: 2,
+    type: "MINOR",
+    title: "Mejoras internas",
+    description: "Ajustes para mejorar la experiencia de usuario.",
+    confidential: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

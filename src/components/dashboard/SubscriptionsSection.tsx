@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { clsx } from "clsx";
 import { apiGet, apiPost } from "@/lib/api";
 import { computeNextChargeDate, isPendingPurchase } from "@/lib/subscriptions";
 import { Button } from "@/components/ui/Button";
@@ -47,6 +48,16 @@ export function SubscriptionsSection() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionView[] | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [partying, setPartying] = useState(false);
+
+  useEffect(() => {
+    function handleParty() {
+      setPartying(true);
+      window.setTimeout(() => setPartying(false), 900);
+    }
+    window.addEventListener("nicotech:party", handleParty);
+    return () => window.removeEventListener("nicotech:party", handleParty);
+  }, []);
 
   const load = useCallback(async () => {
     const data = await apiGet<{ subscriptions: RawSubscription[] }>("/subscriptions/list.php");
@@ -158,7 +169,7 @@ export function SubscriptionsSection() {
       {activeSubs.length > 0 ? (
         <div>
           <SectionHeader dotColor="#2ec4b6" title="Activas" count={activeSubs.length} />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={clsx("grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3", partying && "animate-card-party")}>
             {activeSubs.map((s, i) => renderCard(s, i))}
           </div>
         </div>
@@ -167,7 +178,7 @@ export function SubscriptionsSection() {
       {pendingSubs.length > 0 ? (
         <div>
           <SectionHeader dotColor="#ffc93c" title="Pendientes" count={pendingSubs.length} />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={clsx("grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3", partying && "animate-card-party")}>
             {pendingSubs.map((s, i) => renderCard(s, i))}
           </div>
         </div>
@@ -176,7 +187,7 @@ export function SubscriptionsSection() {
       {cancelledSubs.length > 0 ? (
         <div>
           <SectionHeader dotColor="#5b6472" title="Canceladas" count={cancelledSubs.length} />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={clsx("grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3", partying && "animate-card-party")}>
             {cancelledSubs.map((s, i) => renderCard(s, i))}
           </div>
         </div>

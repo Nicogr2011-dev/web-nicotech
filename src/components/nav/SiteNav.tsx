@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ButtonLink } from "@/components/ui/Button";
 import { PaletteDots } from "@/components/ui/PaletteDots";
@@ -9,6 +9,37 @@ import { Avatar } from "@/components/ui/Avatar";
 
 function scrollToHowItWorks() {
   document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" });
+}
+
+const LOGO_TEXT = "Nicotech".split("");
+const LOGO_PALETTE = ["#ff5c5c", "#ffc93c", "#2ec4b6", "#3a86ff", "#8338ec", "#ff6fb5"];
+const LOGO_CLICKS_NEEDED = 10;
+const LOGO_CLICK_WINDOW_MS = 1200;
+
+function LogoMark({ dancing }: { dancing: boolean }) {
+  if (!dancing) {
+    return (
+      <span className="font-display text-xl font-extrabold tracking-tight text-ink">
+        Nico<span className="text-azure">tech</span>
+      </span>
+    );
+  }
+  return (
+    <span className="font-display text-xl font-extrabold tracking-tight text-ink">
+      {LOGO_TEXT.map((char, i) => (
+        <span
+          key={i}
+          className="inline-block"
+          style={{
+            color: LOGO_PALETTE[i % LOGO_PALETTE.length],
+            animation: `letter-dance 0.6s ease-in-out ${i * 0.05}s 3`,
+          }}
+        >
+          {char}
+        </span>
+      ))}
+    </span>
+  );
 }
 
 export function SiteNav({
@@ -23,14 +54,30 @@ export function SiteNav({
   avatarUrl?: string | null;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [logoDancing, setLogoDancing] = useState(false);
+  const logoClicksRef = useRef(0);
+  const lastLogoClickRef = useRef(0);
+
+  function handleLogoClick() {
+    const now = Date.now();
+    if (now - lastLogoClickRef.current > LOGO_CLICK_WINDOW_MS) {
+      logoClicksRef.current = 0;
+    }
+    lastLogoClickRef.current = now;
+    logoClicksRef.current += 1;
+
+    if (logoClicksRef.current >= LOGO_CLICKS_NEEDED) {
+      logoClicksRef.current = 0;
+      setLogoDancing(true);
+      window.setTimeout(() => setLogoDancing(false), 2000);
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/80 backdrop-blur-md">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link to={authed ? "/dashboard" : "/"} className="flex flex-col items-center">
-          <span className="font-display text-xl font-extrabold tracking-tight text-ink">
-            Nico<span className="text-azure">tech</span>
-          </span>
+        <Link to={authed ? "/dashboard" : "/"} className="flex flex-col items-center" onClick={handleLogoClick}>
+          <LogoMark dancing={logoDancing} />
           <PaletteDots />
         </Link>
 

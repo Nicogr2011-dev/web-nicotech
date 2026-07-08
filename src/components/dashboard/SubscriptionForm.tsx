@@ -5,6 +5,10 @@ import { ACCENT_COLORS } from "@/lib/validation";
 import { ServiceSearchCombobox } from "@/components/dashboard/ServiceSearchCombobox";
 import type { SubscriptionView } from "./types";
 
+const MAGIC_NAMES = new Set(["skynet", "hal9000", "hal 9000"]);
+const MAGIC_NAME_JOKE =
+  "🤖 Buen intento. Nicotech no gestiona suscripciones a inteligencias artificiales con planes de dominación mundial. Prueba con Netflix.";
+
 export function SubscriptionForm({
   subscription,
   onSubmit,
@@ -16,6 +20,7 @@ export function SubscriptionForm({
 }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [joke, setJoke] = useState<string | null>(null);
   const [serviceName, setServiceName] = useState(subscription?.serviceName ?? "");
   const [price, setPrice] = useState(subscription?.price?.toString() ?? "");
   const [currency, setCurrency] = useState(subscription?.currency ?? "EUR");
@@ -33,8 +38,15 @@ export function SubscriptionForm({
   }, []);
 
   async function handleSubmit(formData: FormData) {
-    setPending(true);
     setError(null);
+    setJoke(null);
+
+    if (MAGIC_NAMES.has(serviceName.trim().toLowerCase())) {
+      setJoke(MAGIC_NAME_JOKE);
+      return;
+    }
+
+    setPending(true);
     formData.set("serviceName", serviceName);
     formData.set("accentColor", accentColor);
     if (!cancelEnabled) formData.set("cancelDate", "");
@@ -170,6 +182,7 @@ export function SubscriptionForm({
         </p>
       ) : null}
 
+      {joke ? <p className="text-sm font-semibold text-grape">{joke}</p> : null}
       {error ? <p className="text-sm text-coral">{error}</p> : null}
 
       <div className="flex justify-end gap-2 pt-2">
