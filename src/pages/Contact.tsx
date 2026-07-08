@@ -56,7 +56,17 @@ export default function ContactPage() {
       pcRef.current = pc;
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
       pc.ontrack = (event) => {
-        if (audioRef.current) audioRef.current.srcObject = event.streams[0];
+        if (!audioRef.current) return;
+        audioRef.current.srcObject = event.streams[0];
+        audioRef.current.play().catch(() => {});
+      };
+      pc.oniceconnectionstatechange = () => {
+        if (pc.iceConnectionState === "failed" || pc.iceConnectionState === "disconnected") {
+          setCallError("Se perdió la conexión de audio — puede ser cosa de la red. Prueba a llamar otra vez.");
+          if (roleRef.current) endCall(roleRef.current);
+          cleanup();
+          setPhase("ended");
+        }
       };
 
       const offer = await pc.createOffer();

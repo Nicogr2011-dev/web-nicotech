@@ -417,6 +417,16 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "El botón \"Llamar\" de /contacto ya hace una llamada de voz de verdad, directa por el navegador (sin dar ningún número). Se contesta desde /llamadas, con timbre y aviso push incluido.",
   },
+  {
+    date: "08.07.26",
+    major: 16,
+    minor: 0,
+    type: "MAJOR",
+    title: "Arreglo de audio en las llamadas",
+    description:
+      "El audio de las llamadas de /contacto y /llamadas no se reproducía en algunos navegadores aunque la llamada conectase — ya suena. También se avisa si la conexión de audio se pierde por la red.",
+    bugfix: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

@@ -121,7 +121,16 @@ export default function CallsPage() {
       pcRef.current = pc;
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
       pc.ontrack = (event) => {
-        if (audioRef.current) audioRef.current.srcObject = event.streams[0];
+        if (!audioRef.current) return;
+        audioRef.current.srcObject = event.streams[0];
+        audioRef.current.play().catch(() => {});
+      };
+      pc.oniceconnectionstatechange = () => {
+        if (pc.iceConnectionState === "failed" || pc.iceConnectionState === "disconnected") {
+          setError("Se perdió la conexión de audio — puede ser cosa de la red.");
+          if (roleRef.current) endCall(roleRef.current);
+          backToListening();
+        }
       };
 
       await pc.setRemoteDescription({ type: "offer", sdp: pending.offerSdp });
