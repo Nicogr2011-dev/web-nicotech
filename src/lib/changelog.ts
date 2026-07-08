@@ -399,6 +399,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Nueva página de contacto (enlazada desde el pie de la landing y desde el menú), y el botón \"Contactar\" del plan Enterprise ya funciona.",
   },
+  {
+    date: "08.07.26",
+    major: 15,
+    minor: 0,
+    type: "MAJOR",
+    title: "Aviso de llamada por notificación",
+    description:
+      "El botón \"Llamar\" de /contacto ya manda un aviso de verdad: llega como notificación push al dispositivo donde lo hayas activado (Mi cuenta → Notificaciones de llamada). Primer paso hacia la futura centralita web.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

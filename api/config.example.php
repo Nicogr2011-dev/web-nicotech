@@ -35,4 +35,13 @@ return [
     'imap_port' => 993,
     'imap_user' => 'CHANGE_ME',
     'imap_pass' => 'CHANGE_ME',
+    // Par de claves VAPID para Web Push (aviso de "Llamar" en /contacto a la cuenta
+    // admin). Generar una vez con:
+    //   openssl ecparam -genkey -name prime256v1 -noout -out vapid_private.pem
+    //   openssl ec -in vapid_private.pem -pubout -out vapid_public.pem
+    // y sacar 'vapid_public_key' (punto EC sin comprimir, base64url) con un script
+    // que llame a openssl_pkey_get_details() sobre vapid_public.pem.
+    'vapid_public_key' => 'CHANGE_ME',
+    'vapid_private_key_pem' => 'CHANGE_ME',
+    'vapid_subject' => 'mailto:hola@nicotech.es',
 ];

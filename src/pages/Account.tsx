@@ -7,6 +7,8 @@ import { Avatar } from "@/components/ui/Avatar";
 import { PersonIcon, MailIcon, LockIcon } from "@/components/ui/Icon";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useAuth } from "@/lib/AuthContext";
+import { ADMIN_EMAIL } from "@/lib/admin";
+import { subscribeToCallPush } from "@/lib/webpush";
 
 type Message = { type: "ok" | "error"; text: string };
 
@@ -38,6 +40,19 @@ export default function AccountPage() {
   const [deletePassword, setDeletePassword] = useState("");
   const [deletePending, setDeletePending] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const [pushPending, setPushPending] = useState(false);
+  const [pushMsg, setPushMsg] = useState<Message | null>(null);
+
+  async function handleActivatePush() {
+    setPushPending(true);
+    setPushMsg(null);
+    const { error } = await subscribeToCallPush();
+    setPushPending(false);
+    setPushMsg(
+      error ? { type: "error", text: error } : { type: "ok", text: "Listo — este dispositivo recibirá el aviso." }
+    );
+  }
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -121,6 +136,21 @@ export default function AccountPage() {
             <ThemeToggle />
           </div>
         </Card>
+
+        {user?.email.toLowerCase() === ADMIN_EMAIL ? (
+          <Card className="mt-6 p-6">
+            <h2 className="font-display text-lg font-bold text-body">Notificaciones de llamada</h2>
+            <p className="mt-1 text-sm text-muted">
+              Activa los avisos en este dispositivo para enterarte cuando alguien pulse "Llamar" en /contacto.
+            </p>
+            <Button variant="secondary" className="mt-4" disabled={pushPending} onClick={handleActivatePush}>
+              {pushPending ? "Activando…" : "Activar avisos en este dispositivo"}
+            </Button>
+            <div className="mt-3">
+              <InlineMessage message={pushMsg} />
+            </div>
+          </Card>
+        ) : null}
 
         <Card className="mt-6 p-6">
           <h2 className="font-display text-lg font-bold text-body">Foto de perfil</h2>

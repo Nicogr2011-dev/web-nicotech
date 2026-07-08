@@ -1,11 +1,22 @@
+import { useState } from "react";
 import { SiteNav } from "@/components/nav/SiteNav";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { PhoneIcon, MailIcon } from "@/components/ui/Icon";
 import { useAuth } from "@/lib/AuthContext";
+import { apiPost } from "@/lib/api";
 
 export default function ContactPage() {
   const { user } = useAuth();
+  const [calling, setCalling] = useState(false);
+  const [called, setCalled] = useState(false);
+
+  async function handleCall() {
+    setCalling(true);
+    await apiPost("/push/call.php").catch(() => {});
+    setCalling(false);
+    setCalled(true);
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-page">
@@ -27,9 +38,18 @@ export default function ContactPage() {
               <p className="text-sm text-muted">Sin dar tu número ni el nuestro, directo desde el navegador.</p>
             </div>
           </div>
-          <Button disabled className="mt-4 w-full">
-            Muy pronto
-          </Button>
+          {called ? (
+            <p className="mt-4 text-sm font-semibold text-mint">
+              Aviso enviado — te contactaremos en cuanto lo veamos.
+            </p>
+          ) : (
+            <Button className="mt-4 w-full" disabled={calling} onClick={handleCall}>
+              {calling ? "Avisando…" : "Llamar"}
+            </Button>
+          )}
+          <p className="mt-2 text-xs text-muted">
+            De momento esto solo nos avisa — la llamada de verdad por la web llegará más adelante.
+          </p>
         </Card>
 
         <Card className="mt-4 w-full p-6">

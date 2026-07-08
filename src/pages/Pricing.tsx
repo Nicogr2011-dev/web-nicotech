@@ -5,8 +5,8 @@ import { Card } from "@/components/ui/Card";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { useAuth, type AuthUser } from "@/lib/AuthContext";
 import { PLANS, formatPrice, getYearlySavingsPercent } from "@/lib/pricingPlans";
+import { ADMIN_EMAIL } from "@/lib/admin";
 
-const TIER_SWITCH_ALLOWED_EMAIL = "nicolas.grana.miguez@gmail.com";
 const MAX_SAVINGS_PERCENT = Math.max(...PLANS.map((plan) => getYearlySavingsPercent(plan) ?? 0));
 
 export default function PricingPage() {
@@ -23,7 +23,7 @@ export default function PricingPage() {
     if (error) setErrorId(planId);
   }
 
-  const canSwitch = user?.email.toLowerCase() === TIER_SWITCH_ALLOWED_EMAIL;
+  const canSwitch = user?.email.toLowerCase() === ADMIN_EMAIL;
 
   return (
     <div className="flex min-h-screen flex-col bg-page">
