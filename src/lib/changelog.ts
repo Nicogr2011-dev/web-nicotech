@@ -457,6 +457,16 @@ export const CHANGELOG: ChangelogEntry[] = [
       "Mientras dura la llamada se muestra ahora un detalle técnico (estado de la conexión, pistas de audio, volumen) para poder detectar exactamente dónde falla el sonido cuando no se oye.",
     bugfix: true,
   },
+  {
+    date: "08.07.26",
+    major: 16,
+    minor: 0,
+    type: "MAJOR",
+    title: "Conexión de respaldo para redes restrictivas",
+    description:
+      "En algunas combinaciones de redes (por ejemplo datos móviles + wifi) la llamada se quedaba sin poder conectar en ningún sentido. Se añade un servidor de respaldo que retransmite el audio cuando la conexión directa no es posible.",
+    bugfix: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

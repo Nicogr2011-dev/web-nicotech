@@ -1,6 +1,20 @@
 import { apiGet, apiPost } from "@/lib/api";
 
-const ICE_SERVERS: RTCIceServer[] = [{ urls: "stun:stun.l.google.com:19302" }];
+// STUN solo no basta cuando las dos redes son restrictivas (NAT de operador móvil,
+// redes corporativas, doble NAT...) — con eso, ICE se queda parado en "new" y nunca
+// llega a conectar. Añadimos de respaldo el TURN gratuito de Open Relay Project
+// (relay real de los paquetes de audio cuando la conexión directa no es posible).
+const ICE_SERVERS: RTCIceServer[] = [
+  { urls: "stun:stun.l.google.com:19302" },
+  { urls: "stun:stun.relay.metered.ca:80" },
+  { urls: "turn:global.relay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
+  { urls: "turn:global.relay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
+  {
+    urls: "turn:global.relay.metered.ca:443?transport=tcp",
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
+];
 
 export type CallRole = { callId: number; callToken?: string };
 
