@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/Button";
 import { PhoneIcon } from "@/components/ui/Icon";
 import { useAuth } from "@/lib/AuthContext";
 import { apiGet, apiPost } from "@/lib/api";
-import { createIceForwarder, createPeerConnection, endCall, monitorCallStatus, pollRemoteIce } from "@/lib/webrtcCall";
+import {
+  createIceForwarder,
+  createPeerConnection,
+  describeCallDebugState,
+  endCall,
+  monitorCallStatus,
+  pollRemoteIce,
+} from "@/lib/webrtcCall";
 import type { CallRole } from "@/lib/webrtcCall";
 
 type Phase = "listening" | "ringing" | "answering" | "in-call" | "ended";
@@ -41,6 +48,7 @@ export default function CallsPage() {
   const [muted, setMuted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsAudioUnlock, setNeedsAudioUnlock] = useState(false);
+  const [debugInfo, setDebugInfo] = useState("");
 
   const pendingCallRef = useRef<{ id: number; offerSdp: string } | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -85,6 +93,14 @@ export default function CallsPage() {
   }, []);
 
   useEffect(() => cleanup, []);
+
+  useEffect(() => {
+    if (phase !== "answering" && phase !== "in-call") return;
+    const interval = window.setInterval(() => {
+      setDebugInfo(describeCallDebugState(pcRef.current, audioRef.current));
+    }, 500);
+    return () => window.clearInterval(interval);
+  }, [phase]);
 
   function cleanup() {
     stopRingtoneRef.current?.();
@@ -239,6 +255,7 @@ export default function CallsPage() {
                   Colgar
                 </Button>
               </div>
+              {debugInfo ? <p className="break-words text-[10px] text-muted">{debugInfo}</p> : null}
             </div>
           ) : null}
 

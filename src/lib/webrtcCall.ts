@@ -115,3 +115,19 @@ export function monitorCallStatus(
 export function endCall(role: CallRole): void {
   apiPost("/calls/end.php", { callId: role.callId, callToken: role.callToken }).catch(() => {});
 }
+
+/** Resumen legible del estado de la conexión y el audio, para diagnosticar "no se oye nada" sin acceso al dispositivo. */
+export function describeCallDebugState(pc: RTCPeerConnection | null, audio: HTMLAudioElement | null): string {
+  if (!pc) return "sin conexión";
+  const stream = audio?.srcObject instanceof MediaStream ? audio.srcObject : null;
+  const track = stream?.getAudioTracks()[0] ?? null;
+  return [
+    `ICE: ${pc.iceConnectionState}`,
+    `conexión: ${pc.connectionState}`,
+    `pistas remotas: ${stream ? stream.getAudioTracks().length : 0}`,
+    track ? `pista: ${track.readyState}/${track.muted ? "muted" : "activa"}` : "pista: ninguna",
+    `audio.paused: ${audio ? audio.paused : "?"}`,
+    `audio.muted: ${audio ? audio.muted : "?"}`,
+    `volumen: ${audio ? audio.volume : "?"}`,
+  ].join(" · ");
+}

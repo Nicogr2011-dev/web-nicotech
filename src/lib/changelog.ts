@@ -447,6 +447,16 @@ export const CHANGELOG: ChangelogEntry[] = [
       "En el móvil, la voz de la otra persona a veces no se oía (aunque tu voz sí les llegaba a ellos) — algunos navegadores móviles bloquean la reproducción automática. Ahora, si pasa, aparece un botón para activar el audio con un toque.",
     bugfix: true,
   },
+  {
+    date: "08.07.26",
+    major: 16,
+    minor: 0,
+    type: "MAJOR",
+    title: "Diagnóstico de audio en la llamada",
+    description:
+      "Mientras dura la llamada se muestra ahora un detalle técnico (estado de la conexión, pistas de audio, volumen) para poder detectar exactamente dónde falla el sonido cuando no se oye.",
+    bugfix: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

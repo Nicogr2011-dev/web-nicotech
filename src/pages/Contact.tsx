@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/Button";
 import { PhoneIcon, MailIcon } from "@/components/ui/Icon";
 import { useAuth } from "@/lib/AuthContext";
 import { apiPost } from "@/lib/api";
-import { createIceForwarder, createPeerConnection, endCall, monitorCallStatus, pollRemoteIce } from "@/lib/webrtcCall";
+import {
+  createIceForwarder,
+  createPeerConnection,
+  describeCallDebugState,
+  endCall,
+  monitorCallStatus,
+  pollRemoteIce,
+} from "@/lib/webrtcCall";
 import type { CallRole } from "@/lib/webrtcCall";
 
 type CallPhase = "idle" | "connecting" | "ringing" | "in-call" | "ended" | "error";
@@ -18,6 +25,7 @@ export default function ContactPage() {
   const [callError, setCallError] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
   const [needsAudioUnlock, setNeedsAudioUnlock] = useState(false);
+  const [debugInfo, setDebugInfo] = useState("");
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -29,6 +37,14 @@ export default function ContactPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => cleanup, []);
+
+  useEffect(() => {
+    if (phase !== "ringing" && phase !== "in-call") return;
+    const interval = window.setInterval(() => {
+      setDebugInfo(describeCallDebugState(pcRef.current, audioRef.current));
+    }, 500);
+    return () => window.clearInterval(interval);
+  }, [phase]);
 
   function cleanup() {
     stopIcePollRef.current?.();
@@ -190,6 +206,7 @@ export default function ContactPage() {
                   Colgar
                 </Button>
               </div>
+              {debugInfo ? <p className="break-words text-[10px] text-muted">{debugInfo}</p> : null}
             </div>
           ) : null}
           {phase === "ended" ? (
