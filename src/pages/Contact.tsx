@@ -1,21 +1,116 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SiteNav } from "@/components/nav/SiteNav";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { PhoneIcon, MailIcon } from "@/components/ui/Icon";
 import { useAuth } from "@/lib/AuthContext";
 import { apiPost } from "@/lib/api";
+import { createPeerConnection, endCall, forwardLocalIce, monitorCallStatus, pollRemoteIce } from "@/lib/webrtcCall";
+import type { CallRole } from "@/lib/webrtcCall";
+
+type CallPhase = "idle" | "connecting" | "ringing" | "in-call" | "ended" | "error";
+
+const RING_TIMEOUT_MS = 45000;
 
 export default function ContactPage() {
   const { user } = useAuth();
-  const [calling, setCalling] = useState(false);
-  const [called, setCalled] = useState(false);
+  const [phase, setPhase] = useState<CallPhase>("idle");
+  const [callError, setCallError] = useState<string | null>(null);
+  const [muted, setMuted] = useState(false);
+
+  const pcRef = useRef<RTCPeerConnection | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const roleRef = useRef<CallRole | null>(null);
+  const stopIcePollRef = useRef<(() => void) | null>(null);
+  const stopStatusPollRef = useRef<(() => void) | null>(null);
+  const ringTimeoutRef = useRef<number | null>(null);
+  const answeredRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => cleanup, []);
+
+  function cleanup() {
+    stopIcePollRef.current?.();
+    stopIcePollRef.current = null;
+    stopStatusPollRef.current?.();
+    stopStatusPollRef.current = null;
+    if (ringTimeoutRef.current) window.clearTimeout(ringTimeoutRef.current);
+    ringTimeoutRef.current = null;
+    pcRef.current?.close();
+    pcRef.current = null;
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    roleRef.current = null;
+    answeredRef.current = false;
+  }
 
   async function handleCall() {
-    setCalling(true);
-    await apiPost("/push/call.php").catch(() => {});
-    setCalling(false);
-    setCalled(true);
+    setCallError(null);
+    setPhase("connecting");
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const pc = createPeerConnection();
+      pcRef.current = pc;
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+      pc.ontrack = (event) => {
+        if (audioRef.current) audioRef.current.srcObject = event.streams[0];
+      };
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      const { callId, callToken } = await apiPost<{ callId: number; callToken: string }>("/calls/start.php", {
+        offerSdp: offer.sdp,
+      });
+      const role: CallRole = { callId, callToken };
+      roleRef.current = role;
+
+      forwardLocalIce(pc, role);
+      stopIcePollRef.current = pollRemoteIce(pc, role);
+      setPhase("ringing");
+
+      ringTimeoutRef.current = window.setTimeout(() => {
+        if (!answeredRef.current) {
+          setCallError("No hemos podido contactarte a tiempo — prueba a escribirnos por email.");
+          if (roleRef.current) endCall(roleRef.current);
+          cleanup();
+          setPhase("ended");
+        }
+      }, RING_TIMEOUT_MS);
+
+      stopStatusPollRef.current = monitorCallStatus(role, async (status, answerSdp) => {
+        if (status === "answered" && !answeredRef.current && answerSdp) {
+          answeredRef.current = true;
+          if (ringTimeoutRef.current) window.clearTimeout(ringTimeoutRef.current);
+          await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
+          setPhase("in-call");
+        } else if (status === "ended") {
+          cleanup();
+          setPhase("ended");
+        }
+      });
+    } catch (err) {
+      cleanup();
+      setPhase("error");
+      setCallError(err instanceof Error ? err.message : "No se pudo iniciar la llamada.");
+    }
+  }
+
+  function handleHangup() {
+    if (roleRef.current) endCall(roleRef.current);
+    cleanup();
+    setPhase("ended");
+  }
+
+  function toggleMute() {
+    const stream = streamRef.current;
+    if (!stream) return;
+    const next = !muted;
+    stream.getAudioTracks().forEach((t) => (t.enabled = !next));
+    setMuted(next);
   }
 
   return (
@@ -38,17 +133,49 @@ export default function ContactPage() {
               <p className="text-sm text-muted">Sin dar tu número ni el nuestro, directo desde el navegador.</p>
             </div>
           </div>
-          {called ? (
-            <p className="mt-4 text-sm font-semibold text-mint">
-              Aviso enviado — te contactaremos en cuanto lo veamos.
-            </p>
-          ) : (
-            <Button className="mt-4 w-full" disabled={calling} onClick={handleCall}>
-              {calling ? "Avisando…" : "Llamar"}
+
+          <audio ref={audioRef} autoPlay className="hidden" />
+
+          {phase === "idle" || phase === "error" ? (
+            <Button className="mt-4 w-full" onClick={handleCall}>
+              Llamar
             </Button>
-          )}
+          ) : null}
+          {phase === "connecting" ? (
+            <Button className="mt-4 w-full" disabled>
+              Conectando…
+            </Button>
+          ) : null}
+          {phase === "ringing" ? (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm font-semibold text-azure">Llamando… puede tardar unos segundos en contestar.</p>
+              <Button variant="secondary" className="w-full" onClick={handleHangup}>
+                Cancelar
+              </Button>
+            </div>
+          ) : null}
+          {phase === "in-call" ? (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm font-semibold text-mint">En llamada</p>
+              <div className="flex gap-2">
+                <Button variant="secondary" className="flex-1" onClick={toggleMute}>
+                  {muted ? "Activar micro" : "Silenciar"}
+                </Button>
+                <Button variant="danger" className="flex-1" onClick={handleHangup}>
+                  Colgar
+                </Button>
+              </div>
+            </div>
+          ) : null}
+          {phase === "ended" ? (
+            <Button className="mt-4 w-full" onClick={handleCall}>
+              Volver a llamar
+            </Button>
+          ) : null}
+
+          {callError ? <p className="mt-3 text-sm text-coral">{callError}</p> : null}
           <p className="mt-2 text-xs text-muted">
-            De momento esto solo nos avisa — la llamada de verdad por la web llegará más adelante.
+            La llamada es de audio, directa por el navegador — no necesitas dar ni recibir ningún número.
           </p>
         </Card>
 

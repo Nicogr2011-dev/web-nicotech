@@ -408,6 +408,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "El botón \"Llamar\" de /contacto ya manda un aviso de verdad: llega como notificación push al dispositivo donde lo hayas activado (Mi cuenta → Notificaciones de llamada). Primer paso hacia la futura centralita web.",
   },
+  {
+    date: "08.07.26",
+    major: 16,
+    minor: 0,
+    type: "MAJOR",
+    title: "Llamadas de voz por la web",
+    description:
+      "El botón \"Llamar\" de /contacto ya hace una llamada de voz de verdad, directa por el navegador (sin dar ningún número). Se contesta desde /llamadas, con timbre y aviso push incluido.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

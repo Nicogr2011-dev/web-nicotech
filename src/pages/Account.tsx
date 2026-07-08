@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { SiteNav } from "@/components/nav/SiteNav";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -141,7 +142,12 @@ export default function AccountPage() {
           <Card className="mt-6 p-6">
             <h2 className="font-display text-lg font-bold text-body">Notificaciones de llamada</h2>
             <p className="mt-1 text-sm text-muted">
-              Activa los avisos en este dispositivo para enterarte cuando alguien pulse "Llamar" en /contacto.
+              Activa los avisos en este dispositivo para enterarte cuando alguien pulse "Llamar" en /contacto — y
+              contesta desde{" "}
+              <Link to="/llamadas" className="font-semibold text-azure">
+                /llamadas
+              </Link>
+              .
             </p>
             <Button variant="secondary" className="mt-4" disabled={pushPending} onClick={handleActivatePush}>
               {pushPending ? "Activando…" : "Activar avisos en este dispositivo"}

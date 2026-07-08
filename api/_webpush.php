@@ -99,3 +99,30 @@ function send_web_push(string $endpoint, string $vapidPublicKey, string $vapidPr
     $statusLine = $http_response_header[0] ?? '';
     return preg_match('/\s(\d{3})\s/', $statusLine, $m) ? (int) $m[1] : 0;
 }
+
+/** Manda el aviso de "Llamar" a todas las suscripciones push de la cuenta admin. */
+function notify_admin_of_call(PDO $pdo, array $config): void
+{
+    $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+    $stmt->execute([ADMIN_EMAIL]);
+    $adminId = $stmt->fetchColumn();
+    if (!$adminId) {
+        return;
+    }
+
+    $stmt = $pdo->prepare('SELECT id, endpoint FROM push_subscriptions WHERE user_id = ?');
+    $stmt->execute([$adminId]);
+
+    foreach ($stmt->fetchAll() as $sub) {
+        $status = send_web_push(
+            $sub['endpoint'],
+            $config['vapid_public_key'],
+            $config['vapid_private_key_pem'],
+            $config['vapid_subject']
+        );
+        if ($status === 404 || $status === 410) {
+            $del = $pdo->prepare('DELETE FROM push_subscriptions WHERE id = ?');
+            $del->execute([$sub['id']]);
+        }
+    }
+}

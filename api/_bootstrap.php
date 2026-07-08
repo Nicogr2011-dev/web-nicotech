@@ -60,6 +60,22 @@ function require_auth(): int
     return (int) $_SESSION['user_id'];
 }
 
+// De momento solo esta cuenta gestiona el plan Enterprise y contesta llamadas de /contacto.
+const ADMIN_EMAIL = 'nicolas.grana.miguez@gmail.com';
+
+function require_admin(): int
+{
+    global $pdo;
+    $userId = require_auth();
+    $stmt = $pdo->prepare('SELECT email FROM users WHERE id = ?');
+    $stmt->execute([$userId]);
+    $email = strtolower((string) $stmt->fetchColumn());
+    if ($email !== ADMIN_EMAIL) {
+        json_error('No autorizado', 403);
+    }
+    return $userId;
+}
+
 /**
  * Carga el usuario y lo formatea para devolverlo en JSON, con los mismos
  * campos siempre (evita repetir el SELECT + mapeo en cada endpoint).

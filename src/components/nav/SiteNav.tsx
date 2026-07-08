@@ -6,6 +6,8 @@ import { DownloadIcon, MenuIcon, CloseIcon } from "@/components/ui/Icon";
 import { UserMenu } from "@/components/nav/UserMenu";
 import { TierBadge } from "@/components/nav/TierBadge";
 import { Avatar } from "@/components/ui/Avatar";
+import { useAuth } from "@/lib/AuthContext";
+import { ADMIN_EMAIL } from "@/lib/admin";
 
 function scrollToHowItWorks() {
   document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" });
@@ -53,6 +55,8 @@ export function SiteNav({
   tier?: "BASICO" | "PREMIUM" | "PREMIUM_LITE";
   avatarUrl?: string | null;
 }) {
+  const { user } = useAuth();
+  const isAdmin = user?.email.toLowerCase() === ADMIN_EMAIL;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [logoDancing, setLogoDancing] = useState(false);
   const logoClicksRef = useRef(0);
@@ -101,6 +105,11 @@ export function SiteNav({
               <Link to="/contacto" className="hidden text-sm font-medium text-muted hover:text-body sm:inline">
                 Contacto
               </Link>
+              {isAdmin ? (
+                <Link to="/llamadas" className="hidden text-sm font-medium text-muted hover:text-body sm:inline">
+                  Llamadas
+                </Link>
+              ) : null}
               <Link to="/" className="hidden text-sm font-medium text-muted hover:text-body sm:inline">
                 Ver la web
               </Link>
@@ -163,6 +172,11 @@ export function SiteNav({
                 <Link to="/contacto" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-body">
                   Contacto
                 </Link>
+                {isAdmin ? (
+                  <Link to="/llamadas" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-body">
+                    Llamadas
+                  </Link>
+                ) : null}
               </>
             ) : (
               <>
