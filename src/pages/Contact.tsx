@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { PhoneIcon, MailIcon } from "@/components/ui/Icon";
 import { useAuth } from "@/lib/AuthContext";
 import { apiPost } from "@/lib/api";
-import { createPeerConnection, endCall, forwardLocalIce, monitorCallStatus, pollRemoteIce } from "@/lib/webrtcCall";
+import { createIceForwarder, createPeerConnection, endCall, monitorCallStatus, pollRemoteIce } from "@/lib/webrtcCall";
 import type { CallRole } from "@/lib/webrtcCall";
 
 type CallPhase = "idle" | "connecting" | "ringing" | "in-call" | "ended" | "error";
@@ -68,6 +68,7 @@ export default function ContactPage() {
           setPhase("ended");
         }
       };
+      const iceForwarder = createIceForwarder(pc);
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
@@ -78,7 +79,7 @@ export default function ContactPage() {
       const role: CallRole = { callId, callToken };
       roleRef.current = role;
 
-      forwardLocalIce(pc, role);
+      iceForwarder.attachRole(role);
       stopIcePollRef.current = pollRemoteIce(pc, role);
       setPhase("ringing");
 

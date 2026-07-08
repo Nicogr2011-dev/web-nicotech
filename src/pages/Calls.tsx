@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { PhoneIcon } from "@/components/ui/Icon";
 import { useAuth } from "@/lib/AuthContext";
 import { apiGet, apiPost } from "@/lib/api";
-import { createPeerConnection, endCall, forwardLocalIce, monitorCallStatus, pollRemoteIce } from "@/lib/webrtcCall";
+import { createIceForwarder, createPeerConnection, endCall, monitorCallStatus, pollRemoteIce } from "@/lib/webrtcCall";
 import type { CallRole } from "@/lib/webrtcCall";
 
 type Phase = "listening" | "ringing" | "answering" | "in-call" | "ended";
@@ -132,6 +132,7 @@ export default function CallsPage() {
           backToListening();
         }
       };
+      const iceForwarder = createIceForwarder(pc);
 
       await pc.setRemoteDescription({ type: "offer", sdp: pending.offerSdp });
       const answer = await pc.createAnswer();
@@ -141,7 +142,7 @@ export default function CallsPage() {
 
       const role: CallRole = { callId: pending.id };
       roleRef.current = role;
-      forwardLocalIce(pc, role);
+      iceForwarder.attachRole(role);
       stopIcePollRef.current = pollRemoteIce(pc, role);
       stopStatusPollRef.current = monitorCallStatus(role, (status) => {
         if (status === "ended") backToListening();

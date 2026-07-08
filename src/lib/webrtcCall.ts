@@ -8,15 +8,42 @@ export function createPeerConnection(): RTCPeerConnection {
   return new RTCPeerConnection({ iceServers: ICE_SERVERS });
 }
 
-/** Manda cada candidato ICE local al backend en cuanto el navegador lo descubre. */
-export function forwardLocalIce(pc: RTCPeerConnection, role: CallRole): void {
-  pc.onicecandidate = (event) => {
-    if (!event.candidate) return;
+/**
+ * Manda cada candidato ICE local al backend en cuanto el navegador lo descubre.
+ *
+ * El descubrimiento de candidatos empieza en cuanto se llama a setLocalDescription
+ * (justo tras createOffer/createAnswer) — antes de saber el callId/callToken, porque
+ * eso llega después de un viaje de ida y vuelta al servidor (start.php/answer.php).
+ * Por eso hay que enganchar `onicecandidate` nada más crear la conexión, y guardar
+ * en un buffer los candidatos que salgan antes de que `attachRole` les dé destino —
+ * si no, esos candidatos (a veces todos) se pierden en silencio y la llamada nunca
+ * llega a conectar el audio, aunque la señalización SDP parezca haber ido bien.
+ */
+export function createIceForwarder(pc: RTCPeerConnection): { attachRole: (role: CallRole) => void } {
+  const buffered: RTCIceCandidate[] = [];
+  let role: CallRole | null = null;
+
+  function send(candidate: RTCIceCandidate) {
+    if (!role) {
+      buffered.push(candidate);
+      return;
+    }
     apiPost("/calls/ice.php", {
       callId: role.callId,
       callToken: role.callToken,
-      candidate: JSON.stringify(event.candidate.toJSON()),
+      candidate: JSON.stringify(candidate.toJSON()),
     }).catch(() => {});
+  }
+
+  pc.onicecandidate = (event) => {
+    if (event.candidate) send(event.candidate);
+  };
+
+  return {
+    attachRole(r: CallRole) {
+      role = r;
+      buffered.splice(0).forEach(send);
+    },
   };
 }
 

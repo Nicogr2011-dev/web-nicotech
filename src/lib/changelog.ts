@@ -427,6 +427,16 @@ export const CHANGELOG: ChangelogEntry[] = [
       "El audio de las llamadas de /contacto y /llamadas no se reproducía en algunos navegadores aunque la llamada conectase — ya suena. También se avisa si la conexión de audio se pierde por la red.",
     bugfix: true,
   },
+  {
+    date: "08.07.26",
+    major: 16,
+    minor: 0,
+    type: "MAJOR",
+    title: "Arreglo real de conexión en las llamadas",
+    description:
+      "El fallo de audio venía de más atrás: se perdían los primeros datos de conexión de la llamada antes de que estuviera lista para recibirlos, así que a veces no llegaba a conectar aunque pareciera que sí. Ya se guardan hasta que están listos — comprobado con la conexión de verdad, no solo con la pantalla.",
+    bugfix: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
