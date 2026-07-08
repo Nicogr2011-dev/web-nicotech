@@ -1,0 +1,54 @@
+import { SiteNav } from "@/components/nav/SiteNav";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { PhoneIcon, MailIcon } from "@/components/ui/Icon";
+import { useAuth } from "@/lib/AuthContext";
+
+export default function ContactPage() {
+  const { user } = useAuth();
+
+  return (
+    <div className="flex min-h-screen flex-col bg-page">
+      <SiteNav authed={Boolean(user)} userName={user?.name ?? user?.email} tier={user?.tier} avatarUrl={user?.avatarUrl} />
+
+      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col items-center px-4 py-16 text-center sm:px-6">
+        <h1 className="font-display text-3xl font-extrabold text-body">Contacta con Nicotech</h1>
+        <p className="mt-3 text-muted">
+          ¿Dudas, un plan Enterprise o algo que arreglar? Elige cómo prefieres hablar con nosotros.
+        </p>
+
+        <Card className="mt-8 w-full p-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-azure/10">
+              <PhoneIcon size={20} color="#3a86ff" />
+            </div>
+            <div className="text-left">
+              <h2 className="font-display font-bold text-body">Llamar desde la web</h2>
+              <p className="text-sm text-muted">Sin dar tu número ni el nuestro, directo desde el navegador.</p>
+            </div>
+          </div>
+          <Button disabled className="mt-4 w-full">
+            Muy pronto
+          </Button>
+        </Card>
+
+        <Card className="mt-4 w-full p-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-mint/10">
+              <MailIcon size={20} color="#2ec4b6" />
+            </div>
+            <div className="text-left">
+              <h2 className="font-display font-bold text-body">Escríbenos</h2>
+              <p className="text-sm text-muted">Te contestamos en cuanto podamos.</p>
+            </div>
+          </div>
+          <a href="mailto:hola@nicotech.es" className="mt-4 block">
+            <Button variant="secondary" className="w-full">
+              hola@nicotech.es
+            </Button>
+          </a>
+        </Card>
+      </main>
+    </div>
+  );
+}

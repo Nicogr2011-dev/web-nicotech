@@ -176,3 +176,11 @@ export function LaptopIcon({ size = 18, className, color = "currentColor" }: Ico
     </svg>
   );
 }
+
+export function PhoneIcon({ size = 18, className, color = "currentColor" }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" stroke={color} className={className} {...base}>
+      <path d="M4.5 3.5h3.2l1.6 4.4-2 1.7a12.5 12.5 0 0 0 5.6 5.6l1.7-2 4.4 1.6v3.2c0 1-.8 1.8-1.8 1.8C9.4 19.8 4.2 14.6 2.7 5.3c-.1-1 .7-1.8 1.8-1.8Z" />
+    </svg>
+  );
+}

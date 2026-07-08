@@ -12,6 +12,7 @@ import ResetPasswordPage from "@/pages/ResetPassword";
 import DashboardPage from "@/pages/Dashboard";
 import InstallAppPage from "@/pages/InstallApp";
 import PricingPage from "@/pages/Pricing";
+import ContactPage from "@/pages/Contact";
 import CheckoutPage from "@/pages/Checkout";
 import AccountPage from "@/pages/Account";
 
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/instalar" element={<InstallAppPage />} />
         <Route path="/precios" element={<PricingPage />} />
+        <Route path="/contacto" element={<ContactPage />} />
         <Route
           path="/pago/:tier"
           element={

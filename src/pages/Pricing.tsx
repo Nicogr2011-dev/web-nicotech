@@ -183,11 +183,11 @@ export default function PricingPage() {
             </ul>
 
             <div className="mt-6">
-              <Button variant="secondary" className="w-full" disabled>
+              <ButtonLink href="/contacto" variant="secondary" className="w-full">
                 Contactar
-              </Button>
+              </ButtonLink>
               <p className="mt-2 text-center text-xs text-muted">
-                Este plan no se compra desde la web. Muy pronto podrás contactar con nosotros para activarlo.
+                Este plan no se compra desde la web — escríbenos o llámanos para activarlo.
               </p>
             </div>
           </Card>

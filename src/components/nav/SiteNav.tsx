@@ -98,6 +98,9 @@ export function SiteNav({
               <Link to="/cuenta" className="hidden text-sm font-medium text-muted hover:text-body sm:inline">
                 Mi cuenta
               </Link>
+              <Link to="/contacto" className="hidden text-sm font-medium text-muted hover:text-body sm:inline">
+                Contacto
+              </Link>
               <Link to="/" className="hidden text-sm font-medium text-muted hover:text-body sm:inline">
                 Ver la web
               </Link>
@@ -156,6 +159,9 @@ export function SiteNav({
                 </Link>
                 <Link to="/cuenta" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-body">
                   Mi cuenta
+                </Link>
+                <Link to="/contacto" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-body">
+                  Contacto
                 </Link>
               </>
             ) : (

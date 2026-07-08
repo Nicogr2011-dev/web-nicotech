@@ -390,6 +390,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Nicotech ahora tiene modo oscuro. Por defecto sigue el ajuste de tu dispositivo (también en la landing sin haber iniciado sesión); para forzarlo, ve a Mi cuenta → Apariencia y elige Claro u Oscuro con los iconos de sol y luna.",
   },
+  {
+    date: "08.07.26",
+    major: 14,
+    minor: 1,
+    type: "MINOR",
+    title: "Página de contacto",
+    description:
+      "Nueva página de contacto (enlazada desde el pie de la landing y desde el menú), y el botón \"Contactar\" del plan Enterprise ya funciona.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
