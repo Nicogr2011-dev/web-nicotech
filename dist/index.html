@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="impact-site-verification" value="c24b2a53-a6f1-4ea9-b072-bd35810b77bd" />
     <script>
+      // Aplica el tema antes de que React monte, para evitar un parpadeo de tema
+      // claro al cargar si el usuario tiene el oscuro activado (a mano o por sistema).
+      (function () {
+        var stored = localStorage.getItem("nicotech-theme");
+        var dark = stored === "dark" || (stored !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (dark) document.documentElement.classList.add("dark");
+      })();
+    </script>
+    <script>
       // Captura beforeinstallprompt lo antes posible: el navegador puede
       // dispararlo antes de que React monte y añada su propio listener,
       // y ese evento no se puede "reintentar" después si te lo pierdes.
@@ -30,8 +39,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-DZe3LT1-.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-De7dRYBH.css">
+    <script type="module" crossorigin src="/assets/index-Bg2FqqLa.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-XpAvODo8.css">
   </head>
   <body>
     <div id="root"></div>

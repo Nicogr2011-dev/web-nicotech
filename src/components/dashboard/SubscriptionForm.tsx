@@ -134,19 +134,19 @@ export function SubscriptionForm({
         />
       </Field>
       {!subscription ? (
-        <p className="-mt-2 text-xs text-slate">
+        <p className="-mt-2 text-xs text-muted">
           Por defecto es hoy. Si la pones en el futuro, la suscripción queda como "Pendiente" y te avisaremos un día
           antes para que la compres.
         </p>
       ) : null}
 
       <div>
-        <label className="flex items-center gap-2 text-sm font-semibold text-ink">
+        <label className="flex items-center gap-2 text-sm font-semibold text-body">
           <input
             type="checkbox"
             checked={cancelEnabled}
             onChange={(e) => setCancelEnabled(e.target.checked)}
-            className="h-4 w-4 rounded border-black/20 text-azure focus:ring-azure/30"
+            className="h-4 w-4 rounded border-hairline text-azure focus:ring-azure/30"
           />
           Cancelar automáticamente en una fecha
         </label>
@@ -177,7 +177,7 @@ export function SubscriptionForm({
       </div>
 
       {waitingForPurchase ? (
-        <p className="text-sm text-slate">
+        <p className="text-sm text-muted">
           Esperando a que termines en la ventana emergente… al cerrarla, se añadirá la suscripción sola.
         </p>
       ) : null}

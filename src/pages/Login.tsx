@@ -89,13 +89,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      className="flex min-h-screen items-center justify-center px-4 py-12"
-      style={{ background: "linear-gradient(160deg, #eef2ff 0%, #f7f8fa 45%, #fef6ea 100%)" }}
-    >
+    <div className="flex min-h-screen items-center justify-center bg-[linear-gradient(160deg,#eef2ff_0%,#f7f8fa_45%,#fef6ea_100%)] px-4 py-12 dark:bg-[linear-gradient(160deg,#141726_0%,#0a0c10_45%,#171310_100%)]">
       <div className="w-full max-w-[400px]">
         <div className="mb-5 text-center">
-          <Link to="/" className="font-display text-2xl font-extrabold text-ink">
+          <Link to="/" className="font-display text-2xl font-extrabold text-body">
             Nico<span className="text-azure">tech</span>
           </Link>
           <div className="mt-2.5 flex justify-center">
@@ -107,8 +104,8 @@ export default function LoginPage() {
           className="p-8"
           style={{ animation: shake ? "shake-error 0.4s ease-in-out" : "card-in 0.35s ease-out" }}
         >
-          <h1 className="text-center font-display text-xl font-extrabold text-ink">Inicia sesión</h1>
-          <p className="mt-1.5 text-center text-sm text-slate">Accede a tu área de cliente.</p>
+          <h1 className="text-center font-display text-xl font-extrabold text-body">Inicia sesión</h1>
+          <p className="mt-1.5 text-center text-sm text-muted">Accede a tu área de cliente.</p>
 
           <div className="mt-6">
             <SocialLoginButtons
@@ -119,9 +116,9 @@ export default function LoginPage() {
           </div>
 
           <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-black/8" />
-            <span className="text-xs font-semibold text-slate">o con email</span>
-            <div className="h-px flex-1 bg-black/8" />
+            <div className="h-px flex-1 bg-hairline" />
+            <span className="text-xs font-semibold text-muted">o con email</span>
+            <div className="h-px flex-1 bg-hairline" />
           </div>
 
           <form action={handleSubmit} className="space-y-4">
@@ -138,7 +135,7 @@ export default function LoginPage() {
             </Field>
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label htmlFor="password" className="text-sm font-semibold text-ink">
+                <label htmlFor="password" className="text-sm font-semibold text-body">
                   Contraseña
                 </label>
                 <Link to="/recuperar" className="text-xs font-semibold text-azure hover:underline">
@@ -157,7 +154,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                    className="flex text-slate"
+                    className="flex text-muted"
                   >
                     {showPassword ? <EyeOffIcon size={17} /> : <EyeIcon size={17} />}
                   </button>
@@ -166,7 +163,7 @@ export default function LoginPage() {
               />
             </div>
 
-            <label className="flex select-none items-center gap-2 text-sm text-slate">
+            <label className="flex select-none items-center gap-2 text-sm text-muted">
               <input
                 type="checkbox"
                 checked={remember}
@@ -184,7 +181,7 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-slate">
+          <p className="mt-6 text-center text-sm text-muted">
             ¿No tienes cuenta?{" "}
             <Link to="/register" className="font-semibold text-azure">
               Regístrate

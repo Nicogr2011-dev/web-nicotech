@@ -65,14 +65,14 @@ export function Hero() {
     <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 px-4 pb-24 pt-16 sm:px-6 lg:grid-cols-2 lg:pt-24">
       <div>
         <h1
-          className="font-display text-4xl font-extrabold text-ink sm:text-5xl"
+          className="font-display text-4xl font-extrabold text-body sm:text-5xl"
           style={{ lineHeight: 1.08 }}
         >
           <AnimatedLine words={line1} letterOffset={0} />
           <br />
           <AnimatedLine words={line2} letterOffset={line1.join("").length} />
         </h1>
-        <p className="mt-5 max-w-md text-lg text-slate">
+        <p className="mt-5 max-w-md text-lg text-muted">
           Busca el servicio, elige el plan con su precio real, fija el día de cobro y programa cuándo quieres
           cancelarla.
         </p>
@@ -80,7 +80,7 @@ export function Hero() {
           <ButtonLink href="/register">Crear cuenta gratis</ButtonLink>
           <button
             onClick={() => document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" })}
-            className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold text-ink transition-all duration-200 hover:-translate-y-0.5 hover:bg-ink/5"
+            className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold text-body transition-all duration-200 hover:-translate-y-0.5 hover:bg-body/5"
           >
             Ver cómo funciona
           </button>
@@ -91,7 +91,7 @@ export function Hero() {
         {heroCards.map((card, i) => (
           <div
             key={card.name}
-            className="absolute w-40 rounded-2xl bg-white p-4 shadow-soft-lg sm:w-[168px]"
+            className="absolute w-40 rounded-2xl bg-surface p-4 shadow-soft-lg sm:w-[168px]"
             style={
               {
                 left: card.left,
@@ -103,8 +103,8 @@ export function Hero() {
             }
           >
             <div className="mb-3 h-2 w-10 rounded-full" style={{ backgroundColor: card.color }} />
-            <p className="font-display font-bold text-ink">{card.name}</p>
-            <p className="text-sm text-slate">{card.price}/mes</p>
+            <p className="font-display font-bold text-body">{card.name}</p>
+            <p className="text-sm text-muted">{card.price}/mes</p>
           </div>
         ))}
         <div

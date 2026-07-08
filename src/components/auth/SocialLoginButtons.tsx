@@ -20,7 +20,7 @@ function GoogleIcon() {
 
 function AppleIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="#0f1115">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-body">
       <path d="M16.365 1.43c0 1.14-.462 2.14-1.213 2.87-.812.8-1.9 1.29-2.94 1.21-.14-1.11.417-2.27 1.19-3.02.79-.78 2.06-1.36 2.96-1.06zM20.68 17.24c-.5 1.15-.74 1.66-1.38 2.68-.9 1.44-2.16 3.23-3.73 3.24-1.4.02-1.76-.9-3.65-.89-1.9.01-2.29.9-3.69.88-1.57-.02-2.76-1.63-3.66-3.07-2.5-3.95-2.77-8.59-1.22-11.06.99-1.58 2.7-2.6 4.44-2.6 1.79 0 2.91 1 4.39 1 1.43 0 2.3-1 4.39-1 1.5 0 3.1.83 4.24 2.24-3.71 2.03-3.11 7.29.87 8.58z" />
     </svg>
   );
@@ -41,7 +41,7 @@ export function SocialLoginButtons({
         type="button"
         onClick={onGoogleClick}
         disabled={disabled}
-        className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-mist disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-hairline bg-surface px-3.5 py-2.5 text-sm font-semibold text-body transition-colors hover:bg-page disabled:opacity-50"
       >
         <GoogleIcon />
         Continuar con Google
@@ -50,7 +50,7 @@ export function SocialLoginButtons({
         type="button"
         onClick={onAppleClick}
         disabled={disabled}
-        className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-mist disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-hairline bg-surface px-3.5 py-2.5 text-sm font-semibold text-body transition-colors hover:bg-page disabled:opacity-50"
       >
         <AppleIcon />
         Continuar con Apple

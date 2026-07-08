@@ -9,8 +9,8 @@ export function EmptyState({ onAdd }: { onAdd: () => void }) {
         <FolderIcon size={26} color="#3a86ff" />
       </div>
       <div>
-        <h3 className="font-display text-xl font-bold text-ink">Aún no tienes suscripciones registradas</h3>
-        <p className="mt-1 text-sm text-slate">Añade la primera para empezar a organizarlas.</p>
+        <h3 className="font-display text-xl font-bold text-body">Aún no tienes suscripciones registradas</h3>
+        <p className="mt-1 text-sm text-muted">Añade la primera para empezar a organizarlas.</p>
       </div>
       <Button onClick={onAdd}>+ Añadir suscripción</Button>
     </Card>

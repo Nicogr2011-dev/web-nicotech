@@ -16,7 +16,7 @@ import CheckoutPage from "@/pages/Checkout";
 import AccountPage from "@/pages/Account";
 
 function FullPageSpinner() {
-  return <div className="flex min-h-screen items-center justify-center text-slate">Cargando…</div>;
+  return <div className="flex min-h-screen items-center justify-center text-muted">Cargando…</div>;
 }
 
 function RequireAuth({ children }: { children: React.ReactNode }) {

@@ -19,14 +19,14 @@ export function Changelog() {
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-20 sm:px-6">
-      <h2 className="text-center font-display text-3xl font-extrabold text-ink">Qué ha cambiado</h2>
-      <p className="mt-2 text-center text-sm text-slate">Versión actual: {formatVersion(CURRENT_VERSION)}</p>
+      <h2 className="text-center font-display text-3xl font-extrabold text-body">Qué ha cambiado</h2>
+      <p className="mt-2 text-center text-sm text-muted">Versión actual: {formatVersion(CURRENT_VERSION)}</p>
 
       <Card className="mt-8 p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="font-display font-bold text-ink">{CURRENT_VERSION.title}</h3>
-            <p className="mt-1 text-sm text-slate">{CURRENT_VERSION.description}</p>
+            <h3 className="font-display font-bold text-body">{CURRENT_VERSION.title}</h3>
+            <p className="mt-1 text-sm text-muted">{CURRENT_VERSION.description}</p>
           </div>
           <Badge tone={badgeTone(CURRENT_VERSION)}>{badgeLabel(CURRENT_VERSION)}</Badge>
         </div>
@@ -47,8 +47,8 @@ export function Changelog() {
             <Card key={formatVersion(entry)} className="p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h4 className="font-display text-sm font-bold text-ink">{entry.title}</h4>
-                  <p className="mt-1 text-sm text-slate">{entry.description}</p>
+                  <h4 className="font-display text-sm font-bold text-body">{entry.title}</h4>
+                  <p className="mt-1 text-sm text-muted">{entry.description}</p>
                 </div>
                 <Badge tone={badgeTone(entry)}>{badgeLabel(entry)}</Badge>
               </div>

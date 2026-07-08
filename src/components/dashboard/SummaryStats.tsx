@@ -24,7 +24,7 @@ export function SummaryStats({
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {stats.map((stat) => (
         <Card key={stat.label} className="p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate">{stat.label}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">{stat.label}</p>
           <p className={`mt-2 truncate font-display text-xl font-bold ${stat.accent}`}>{stat.value}</p>
         </Card>
       ))}

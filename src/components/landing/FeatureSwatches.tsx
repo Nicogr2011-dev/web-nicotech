@@ -84,7 +84,7 @@ export function FeatureSwatches() {
     <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <Reveal>
         {userCount !== null && userCount > 0 ? (
-          <p className="mb-44 text-center font-display text-3xl font-extrabold text-ink">
+          <p className="mb-44 text-center font-display text-3xl font-extrabold text-body">
             <DancingText
               segments={[
                 { text: "Ya somos" },
@@ -95,18 +95,18 @@ export function FeatureSwatches() {
             />
           </p>
         ) : null}
-        <h2 className="text-center font-display text-3xl font-extrabold text-ink">
+        <h2 className="text-center font-display text-3xl font-extrabold text-body">
           Todo lo que necesitas para no perder de vista un solo cobro
         </h2>
       </Reveal>
       <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {features.map((feature, i) => (
           <Reveal key={feature.title} className={`rounded-2xl p-6 ${feature.bg}`} style={{ transitionDelay: `${i * 80}ms` }}>
-            <div className="flex h-[46px] w-[46px] items-center justify-center rounded-[13px] bg-white">
+            <div className="flex h-[46px] w-[46px] items-center justify-center rounded-[13px] bg-surface">
               {feature.icon}
             </div>
-            <h3 className="mt-4 font-display font-bold text-ink">{feature.title}</h3>
-            <p className="mt-2 text-sm text-slate">{feature.text}</p>
+            <h3 className="mt-4 font-display font-bold text-body">{feature.title}</h3>
+            <p className="mt-2 text-sm text-muted">{feature.text}</p>
           </Reveal>
         ))}
       </div>

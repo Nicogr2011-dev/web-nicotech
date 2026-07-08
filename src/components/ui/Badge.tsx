@@ -4,7 +4,7 @@ const toneClasses = {
   active: "bg-mint/15 text-mint",
   cancelled: "bg-slate/15 text-slate",
   scheduled: "bg-grape/15 text-grape",
-  pending: "bg-black/10 text-ink/60",
+  pending: "bg-body/10 text-body/60",
   danger: "bg-coral/15 text-coral",
   warning: "bg-sunflower/15 text-sunflower",
 } as const;

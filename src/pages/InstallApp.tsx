@@ -50,15 +50,15 @@ export default function InstallAppPage() {
   const info = instructionsByDevice[device];
 
   return (
-    <div className="flex min-h-screen flex-col bg-mist">
+    <div className="flex min-h-screen flex-col bg-page">
       <SiteNav authed={Boolean(user)} userName={user?.name ?? user?.email} tier={user?.tier} avatarUrl={user?.avatarUrl} />
 
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center px-4 py-16 text-center sm:px-6">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-azure/10">
           <DownloadIcon size={28} color="#3a86ff" />
         </div>
-        <h1 className="mt-5 font-display text-3xl font-extrabold text-ink">¡Descárgalo!</h1>
-        <p className="mt-3 max-w-md text-slate">
+        <h1 className="mt-5 font-display text-3xl font-extrabold text-body">¡Descárgalo!</h1>
+        <p className="mt-3 max-w-md text-muted">
           No hace falta instalar nada para usar Nicotech — funciona igual desde el navegador. Pero si quieres, puedes
           instalarlo como una app: se abre más rápido, sin barra de direcciones, y tienes su icono a mano en el móvil
           o el escritorio.
@@ -73,15 +73,15 @@ export default function InstallAppPage() {
                 <DownloadIcon size={16} color="#fff" />
                 Instalar Nicotech
               </Button>
-              <p className="mt-4 text-sm text-slate">Un clic y ya la tienes en tu dispositivo.</p>
+              <p className="mt-4 text-sm text-muted">Un clic y ya la tienes en tu dispositivo.</p>
             </>
           ) : (
             <div className="text-left">
-              <p className="mb-4 text-center text-sm text-slate">
+              <p className="mb-4 text-center text-sm text-muted">
                 Tu navegador no nos deja mostrar aquí el botón de instalación directa, pero puedes hacerlo a mano:
               </p>
-              <h2 className="font-display font-bold text-ink">{info.title}</h2>
-              <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm text-slate">
+              <h2 className="font-display font-bold text-body">{info.title}</h2>
+              <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm text-muted">
                 {info.steps.map((step) => (
                   <li key={step}>{step}</li>
                 ))}

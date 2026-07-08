@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Field, IconInput } from "@/components/ui/Input";
 import { Avatar } from "@/components/ui/Avatar";
 import { PersonIcon, MailIcon, LockIcon } from "@/components/ui/Icon";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useAuth } from "@/lib/AuthContext";
 
 type Message = { type: "ok" | "error"; text: string };
@@ -105,14 +106,24 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-mist">
+    <div className="flex min-h-screen flex-col bg-page">
       <SiteNav authed userName={user?.name ?? user?.email} tier={user?.tier} avatarUrl={user?.avatarUrl} />
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-12 sm:px-6">
-        <h1 className="font-display text-3xl font-extrabold text-ink">Mi cuenta</h1>
+        <h1 className="font-display text-3xl font-extrabold text-body">Mi cuenta</h1>
 
         <Card className="mt-8 p-6">
-          <h2 className="font-display text-lg font-bold text-ink">Foto de perfil</h2>
+          <h2 className="font-display text-lg font-bold text-body">Apariencia</h2>
+          <p className="mt-1 text-sm text-muted">
+            "Sistema" sigue el ajuste de tu dispositivo; elige "Claro" u "Oscuro" para forzarlo siempre.
+          </p>
+          <div className="mt-4">
+            <ThemeToggle />
+          </div>
+        </Card>
+
+        <Card className="mt-6 p-6">
+          <h2 className="font-display text-lg font-bold text-body">Foto de perfil</h2>
           <div className="mt-4 flex items-center gap-4">
             <Avatar name={user?.name ?? user?.email} avatarUrl={user?.avatarUrl} size={72} />
             <div>
@@ -131,14 +142,14 @@ export default function AccountPage() {
                 className="hidden"
                 onChange={handleAvatarChange}
               />
-              <p className="mt-2 text-xs text-slate">JPG, PNG o WEBP, máx. 2 MB.</p>
+              <p className="mt-2 text-xs text-muted">JPG, PNG o WEBP, máx. 2 MB.</p>
             </div>
           </div>
           {avatarError ? <p className="mt-3 text-sm text-coral">{avatarError}</p> : null}
         </Card>
 
         <Card className="mt-6 p-6">
-          <h2 className="font-display text-lg font-bold text-ink">Nombre</h2>
+          <h2 className="font-display text-lg font-bold text-body">Nombre</h2>
           <form action={handleNameSubmit} className="mt-4 space-y-3">
             <Field label="Nombre" htmlFor="account-name">
               <IconInput
@@ -157,7 +168,7 @@ export default function AccountPage() {
         </Card>
 
         <Card className="mt-6 p-6">
-          <h2 className="font-display text-lg font-bold text-ink">Email</h2>
+          <h2 className="font-display text-lg font-bold text-body">Email</h2>
           <form action={handleEmailSubmit} className="mt-4 space-y-3">
             <Field label="Nuevo email" htmlFor="account-email">
               <IconInput
@@ -188,7 +199,7 @@ export default function AccountPage() {
         </Card>
 
         <Card className="mt-6 p-6">
-          <h2 className="font-display text-lg font-bold text-ink">Contraseña</h2>
+          <h2 className="font-display text-lg font-bold text-body">Contraseña</h2>
           <form action={handlePasswordSubmit} className="mt-4 space-y-3">
             <Field label="Contraseña actual" htmlFor="account-current-password">
               <IconInput
@@ -221,7 +232,7 @@ export default function AccountPage() {
 
         <Card className="mt-6 border border-coral/30 p-6">
           <h2 className="font-display text-lg font-bold text-coral">Eliminar cuenta</h2>
-          <p className="mt-1 text-sm text-slate">
+          <p className="mt-1 text-sm text-muted">
             Se borrará tu cuenta y todas tus suscripciones registradas. Esta acción no se puede deshacer.
           </p>
 

@@ -51,13 +51,13 @@ export function CategorySpendChart({
         type="button"
         onClick={() => setMode((m) => (m === "bar" ? "pie" : "bar"))}
         title="Pulsa para cambiar de vista"
-        className="mb-4 text-sm font-bold text-ink"
+        className="mb-4 text-sm font-bold text-body"
       >
         Gasto por categoría
       </button>
 
       {mode === "bar" ? (
-        <div className="flex h-2.5 overflow-hidden rounded-full bg-mist">
+        <div className="flex h-2.5 overflow-hidden rounded-full bg-page">
           {breakdown.map((cat) => (
             <div key={cat.name} style={{ width: `${cat.pct}%`, backgroundColor: cat.color }} />
           ))}
@@ -66,9 +66,9 @@ export function CategorySpendChart({
         <div className="flex justify-center py-1 pb-2.5">
           <div className="relative h-[140px] w-[140px]">
             <div className="h-[140px] w-[140px] rounded-full shadow-soft-lg" style={{ background: pieGradient }} />
-            <div className="absolute inset-6 flex flex-col items-center justify-center rounded-full bg-white shadow-soft">
-              <span className="font-display text-[15px] font-extrabold text-ink">{totalLabel}</span>
-              <span className="text-[10px] font-bold uppercase tracking-wide text-slate">al mes</span>
+            <div className="absolute inset-6 flex flex-col items-center justify-center rounded-full bg-surface shadow-soft">
+              <span className="font-display text-[15px] font-extrabold text-body">{totalLabel}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-muted">al mes</span>
             </div>
           </div>
         </div>
@@ -79,9 +79,9 @@ export function CategorySpendChart({
           <div key={cat.name} className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: cat.color }} />
-              <span className="font-medium text-ink">{cat.name}</span>
+              <span className="font-medium text-body">{cat.name}</span>
             </div>
-            <span className="font-semibold text-slate">{cat.totalLabel}</span>
+            <span className="font-semibold text-muted">{cat.totalLabel}</span>
           </div>
         ))}
       </div>

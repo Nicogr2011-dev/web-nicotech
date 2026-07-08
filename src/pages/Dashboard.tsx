@@ -6,7 +6,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
 
   return (
-    <div className="flex min-h-screen flex-col bg-mist">
+    <div className="flex min-h-screen flex-col bg-page">
       <SiteNav authed userName={user?.name ?? user?.email} tier={user?.tier} avatarUrl={user?.avatarUrl} />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
         <SubscriptionsSection />

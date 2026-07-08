@@ -25,13 +25,13 @@ export function UserMenu({
       {userName ? (
         <span className="hidden items-center gap-2 sm:flex">
           <Avatar name={userName} avatarUrl={avatarUrl} size={28} />
-          <span className="text-sm font-medium text-slate">{userName}</span>
+          <span className="text-sm font-medium text-muted">{userName}</span>
           {tier ? <TierBadge tier={tier} /> : null}
         </span>
       ) : null}
       <button
         onClick={handleSignOut}
-        className="rounded-full bg-ink/5 px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-ink/10"
+        className="rounded-full bg-body/5 px-4 py-2 text-sm font-semibold text-body transition-colors hover:bg-body/10"
       >
         Cerrar sesión
       </button>

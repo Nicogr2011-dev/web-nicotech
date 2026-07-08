@@ -34,8 +34,8 @@ export function ExpandableSubscriptionCard({
           style={{ borderLeftColor: subscription.accentColor }}
         >
           <div className="flex items-center justify-between">
-            <h3 className="font-display font-bold text-ink">Editar {subscription.serviceName}</h3>
-            <button onClick={onCancelEdit} className="text-slate hover:text-ink" aria-label="Cerrar edición">
+            <h3 className="font-display font-bold text-body">Editar {subscription.serviceName}</h3>
+            <button onClick={onCancelEdit} className="text-muted hover:text-body" aria-label="Cerrar edición">
               ✕
             </button>
           </div>

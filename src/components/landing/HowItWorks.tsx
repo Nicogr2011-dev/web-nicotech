@@ -10,7 +10,7 @@ export function HowItWorks() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <Reveal>
-        <h2 className="text-center font-display text-3xl font-extrabold text-ink">Cómo funciona</h2>
+        <h2 className="text-center font-display text-3xl font-extrabold text-body">Cómo funciona</h2>
       </Reveal>
       <div className="relative mt-14 grid grid-cols-1 gap-8 sm:grid-cols-3">
         <div
@@ -24,13 +24,13 @@ export function HowItWorks() {
         {steps.map((step, i) => (
           <Reveal key={step.number} className="relative z-10 text-center" style={{ transitionDelay: `${i * 100}ms` }}>
             <div
-              className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border-2 bg-white font-display text-xl font-extrabold"
+              className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border-2 bg-surface font-display text-xl font-extrabold"
               style={{ borderColor: step.color, color: step.color }}
             >
               {step.number}
             </div>
-            <h3 className="mt-5 font-display font-bold text-ink">{step.title}</h3>
-            <p className="mx-auto mt-2 max-w-60 text-sm text-slate">{step.text}</p>
+            <h3 className="mt-5 font-display font-bold text-body">{step.title}</h3>
+            <p className="mx-auto mt-2 max-w-60 text-sm text-muted">{step.text}</p>
           </Reveal>
         ))}
       </div>

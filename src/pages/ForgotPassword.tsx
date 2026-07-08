@@ -34,13 +34,10 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div
-      className="flex min-h-screen items-center justify-center px-4 py-12"
-      style={{ background: "linear-gradient(160deg, #eef2ff 0%, #f7f8fa 45%, #fef6ea 100%)" }}
-    >
+    <div className="flex min-h-screen items-center justify-center bg-[linear-gradient(160deg,#eef2ff_0%,#f7f8fa_45%,#fef6ea_100%)] px-4 py-12 dark:bg-[linear-gradient(160deg,#141726_0%,#0a0c10_45%,#171310_100%)]">
       <div className="w-full max-w-[400px]">
         <div className="mb-5 text-center">
-          <Link to="/" className="font-display text-2xl font-extrabold text-ink">
+          <Link to="/" className="font-display text-2xl font-extrabold text-body">
             Nico<span className="text-azure">tech</span>
           </Link>
           <div className="mt-2.5 flex justify-center">
@@ -49,8 +46,8 @@ export default function ForgotPasswordPage() {
         </div>
 
         <Card className="p-8" style={{ animation: "card-in 0.35s ease-out" }}>
-          <h1 className="text-center font-display text-xl font-extrabold text-ink">Recupera tu contraseña</h1>
-          <p className="mt-1.5 text-center text-sm text-slate">
+          <h1 className="text-center font-display text-xl font-extrabold text-body">Recupera tu contraseña</h1>
+          <p className="mt-1.5 text-center text-sm text-muted">
             Te enviaremos un enlace a tu email para restablecerla.
           </p>
 
@@ -81,7 +78,7 @@ export default function ForgotPasswordPage() {
             </form>
           )}
 
-          <p className="mt-6 text-center text-sm text-slate">
+          <p className="mt-6 text-center text-sm text-muted">
             <Link to="/login" className="font-semibold text-azure">
               Volver a iniciar sesión
             </Link>

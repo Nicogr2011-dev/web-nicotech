@@ -54,7 +54,7 @@ export function MonthlySpendChart({
         type="button"
         onClick={() => setMode((m) => (m === "bar" ? "line" : "bar"))}
         title="Pulsa para cambiar de vista"
-        className="mb-4 text-sm font-bold text-ink"
+        className="mb-4 text-sm font-bold text-body"
       >
         Gasto mensual (últimos 6 meses)
       </button>
@@ -63,14 +63,14 @@ export function MonthlySpendChart({
         <div className="flex items-end gap-2.5">
           {trend.map((m) => (
             <div key={m.label} className="flex flex-1 flex-col items-center gap-1.5">
-              <span className="text-xs font-semibold text-slate">{m.valueLabel}</span>
+              <span className="text-xs font-semibold text-muted">{m.valueLabel}</span>
               <div className="flex h-[100px] w-full max-w-[34px] items-end">
                 <div
                   className={clsx("w-full rounded-t-md rounded-b-sm", m.isLast ? "bg-azure" : "bg-azure/35")}
                   style={{ height: `${m.barHeightPx}px` }}
                 />
               </div>
-              <span className="text-xs font-semibold capitalize text-slate">{m.label}</span>
+              <span className="text-xs font-semibold capitalize text-muted">{m.label}</span>
             </div>
           ))}
         </div>
@@ -91,7 +91,7 @@ export function MonthlySpendChart({
           </svg>
           <div className="mt-2 flex justify-between">
             {trend.map((m) => (
-              <span key={m.label} className="flex-1 text-center text-xs font-semibold capitalize text-slate">
+              <span key={m.label} className="flex-1 text-center text-xs font-semibold capitalize text-muted">
                 {m.label}
               </span>
             ))}

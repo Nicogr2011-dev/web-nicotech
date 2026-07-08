@@ -17,9 +17,9 @@ export function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-black/10 bg-white/95 px-4 py-4 shadow-soft-lg backdrop-blur-sm sm:px-6">
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-hairline bg-surface/95 px-4 py-4 shadow-soft-lg backdrop-blur-sm sm:px-6">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
-        <p className="text-center text-sm text-slate sm:text-left">
+        <p className="text-center text-sm text-muted sm:text-left">
           Usamos únicamente cookies necesarias para que Nicotech funcione — nada de publicidad ni rastreo.
         </p>
         <button

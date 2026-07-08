@@ -64,16 +64,16 @@ export function ServiceSearchCombobox({
       />
 
       {open && !planPicker && results.length > 0 ? (
-        <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-xl border border-black/10 bg-white shadow-soft-lg">
+        <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-xl border border-hairline bg-surface shadow-soft-lg">
           {results.map((service) => (
             <li key={service.id}>
               <button
                 type="button"
                 onClick={() => handlePickService(service)}
-                className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-mist"
+                className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-page"
               >
-                <span className="font-medium text-ink">{service.name}</span>
-                <span className="text-xs text-slate">{service.category}</span>
+                <span className="font-medium text-body">{service.name}</span>
+                <span className="text-xs text-muted">{service.category}</span>
               </button>
             </li>
           ))}
@@ -81,14 +81,14 @@ export function ServiceSearchCombobox({
       ) : null}
 
       {open && !planPicker && value.trim() && results.length === 0 ? (
-        <p className="mt-1 text-xs text-slate">
+        <p className="mt-1 text-xs text-muted">
           No está en el catálogo — se usará &ldquo;{value}&rdquo; tal cual, y podrás poner el precio a mano.
         </p>
       ) : null}
 
       {planPicker ? (
-        <div className="absolute z-10 mt-1 w-full rounded-xl border border-black/10 bg-white p-3 shadow-soft-lg">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate">
+        <div className="absolute z-10 mt-1 w-full rounded-xl border border-hairline bg-surface p-3 shadow-soft-lg">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
             Elige el plan de {planPicker.name}
           </p>
           <div className="flex flex-col gap-1.5">
@@ -97,10 +97,10 @@ export function ServiceSearchCombobox({
                 type="button"
                 key={plan.name}
                 onClick={() => choosePlan(planPicker, plan)}
-                className="flex items-center justify-between rounded-lg px-3 py-2 text-left text-sm hover:bg-mist"
+                className="flex items-center justify-between rounded-lg px-3 py-2 text-left text-sm hover:bg-page"
               >
-                <span className="text-ink">{plan.name}</span>
-                <span className="font-semibold text-ink">
+                <span className="text-body">{plan.name}</span>
+                <span className="font-semibold text-body">
                   {plan.price.toLocaleString("es-ES", { style: "currency", currency: plan.currency })}
                 </span>
               </button>

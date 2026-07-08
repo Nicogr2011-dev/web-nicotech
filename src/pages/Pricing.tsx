@@ -26,26 +26,26 @@ export default function PricingPage() {
   const canSwitch = user?.email.toLowerCase() === TIER_SWITCH_ALLOWED_EMAIL;
 
   return (
-    <div className="flex min-h-screen flex-col bg-mist">
+    <div className="flex min-h-screen flex-col bg-page">
       <SiteNav authed={Boolean(user)} userName={user?.name ?? user?.email} tier={user?.tier} avatarUrl={user?.avatarUrl} />
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-16 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <h1 className="font-display text-3xl font-extrabold text-ink sm:text-4xl">Precios</h1>
-          <p className="mt-3 text-slate">
+          <h1 className="font-display text-3xl font-extrabold text-body sm:text-4xl">Precios</h1>
+          <p className="mt-3 text-muted">
             Nicotech es y seguirá siendo gratis en su plan Básico, sin publicidad en ningún plan. Premium y Premium
             Lite amplían el límite de suscripciones — al elegirlos te llevamos a una página de pago con los métodos
             disponibles.
           </p>
         </div>
 
-        <div className="mx-auto mt-8 flex w-fit items-center gap-1 rounded-full bg-white p-1 shadow-soft">
+        <div className="mx-auto mt-8 flex w-fit items-center gap-1 rounded-full bg-surface p-1 shadow-soft">
           <button
             type="button"
             onClick={() => setBillingCycle("monthly")}
             className={clsx(
               "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-              billingCycle === "monthly" ? "bg-ink text-white" : "text-slate hover:text-ink"
+              billingCycle === "monthly" ? "bg-ink text-white" : "text-muted hover:text-body"
             )}
           >
             Mensual
@@ -55,7 +55,7 @@ export default function PricingPage() {
             onClick={() => setBillingCycle("yearly")}
             className={clsx(
               "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-              billingCycle === "yearly" ? "bg-ink text-white" : "text-slate hover:text-ink"
+              billingCycle === "yearly" ? "bg-ink text-white" : "text-muted hover:text-body"
             )}
           >
             Anual
@@ -80,28 +80,28 @@ export default function PricingPage() {
             return (
               <Card key={plan.id} className="flex flex-col p-6">
                 <div className="h-1.5 w-12 rounded-full" style={{ backgroundColor: plan.accent }} />
-                <h2 className="mt-4 font-display text-xl font-extrabold text-ink">{plan.name}</h2>
-                <p className="mt-1 text-sm text-slate">{plan.tagline}</p>
+                <h2 className="mt-4 font-display text-xl font-extrabold text-body">{plan.name}</h2>
+                <p className="mt-1 text-sm text-muted">{plan.tagline}</p>
 
                 {plan.priceYearly === null ? (
-                  <p className="mt-4 font-display text-2xl font-extrabold text-ink">Gratis</p>
+                  <p className="mt-4 font-display text-2xl font-extrabold text-body">Gratis</p>
                 ) : billingCycle === "yearly" ? (
                   <>
-                    <p className="mt-4 font-display text-2xl font-extrabold text-ink">
+                    <p className="mt-4 font-display text-2xl font-extrabold text-body">
                       {formatPrice(plan.priceYearly)}/año
                     </p>
-                    <p className="text-xs text-slate">
+                    <p className="text-xs text-muted">
                       Equivale a {formatPrice(plan.priceYearly / 12)}/mes
                       {savings ? <span className="ml-1 font-semibold text-mint">· ahorras {savings}%</span> : null}
                     </p>
                   </>
                 ) : (
                   <>
-                    <p className="mt-4 font-display text-2xl font-extrabold text-ink">
+                    <p className="mt-4 font-display text-2xl font-extrabold text-body">
                       {formatPrice(plan.priceMonthly!)}/mes
                     </p>
                     {savings ? (
-                      <p className="text-xs text-slate">
+                      <p className="text-xs text-muted">
                         O paga anual y{" "}
                         <button
                           type="button"
@@ -115,7 +115,7 @@ export default function PricingPage() {
                   </>
                 )}
 
-                <ul className="mt-5 flex-1 space-y-2 text-sm text-slate">
+                <ul className="mt-5 flex-1 space-y-2 text-sm text-muted">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2">
                       <span className="mt-0.5 font-bold" style={{ color: plan.accent }}>
@@ -132,7 +132,7 @@ export default function PricingPage() {
                       Crea tu cuenta gratis
                     </ButtonLink>
                   ) : isCurrent ? (
-                    <div className="rounded-full bg-ink/5 px-5 py-3 text-center text-sm font-semibold text-ink">
+                    <div className="rounded-full bg-body/5 px-5 py-3 text-center text-sm font-semibold text-body">
                       Tu plan actual
                     </div>
                   ) : canInstantSwitch ? (
@@ -159,25 +159,25 @@ export default function PricingPage() {
           })}
         </div>
 
-        <hr className="mx-auto mt-16 max-w-2xl border-black/10" />
+        <hr className="mx-auto mt-16 max-w-2xl border-hairline" />
 
         <div className="mt-10">
           <Card className="mx-auto max-w-2xl p-6">
             <div className="h-1.5 w-12 rounded-full bg-ink" />
-            <h2 className="mt-4 font-display text-xl font-extrabold text-ink">Enterprise</h2>
-            <p className="mt-1 text-sm text-slate">Para equipos que quieren dar Premium o Premium Lite a sus empleados</p>
+            <h2 className="mt-4 font-display text-xl font-extrabold text-body">Enterprise</h2>
+            <p className="mt-1 text-sm text-muted">Para equipos que quieren dar Premium o Premium Lite a sus empleados</p>
 
-            <ul className="mt-5 space-y-2 text-sm text-slate">
+            <ul className="mt-5 space-y-2 text-sm text-muted">
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 font-bold text-ink">✓</span>
+                <span className="mt-0.5 font-bold text-body">✓</span>
                 20 €/año base sobre Premium, o 18 €/año sobre Premium Lite
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 font-bold text-ink">✓</span>
+                <span className="mt-0.5 font-bold text-body">✓</span>
                 5 €/año por cada cuenta de empleado en Premium, o 4 €/año en Premium Lite
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 font-bold text-ink">✓</span>
+                <span className="mt-0.5 font-bold text-body">✓</span>
                 A partir de 4 cuentas, sale más a cuenta que pagarlas por separado
               </li>
             </ul>
@@ -186,7 +186,7 @@ export default function PricingPage() {
               <Button variant="secondary" className="w-full" disabled>
                 Contactar
               </Button>
-              <p className="mt-2 text-center text-xs text-slate">
+              <p className="mt-2 text-center text-xs text-muted">
                 Este plan no se compra desde la web. Muy pronto podrás contactar con nosotros para activarlo.
               </p>
             </div>

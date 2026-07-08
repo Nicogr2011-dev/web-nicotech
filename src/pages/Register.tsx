@@ -150,13 +150,13 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center bg-white px-6 py-12">
+      <div className="flex items-center justify-center bg-surface px-6 py-12">
         <div
           className="w-full max-w-sm"
           style={{ animation: shake ? "shake-error 0.4s ease-in-out" : "card-in 0.35s ease-out" }}
         >
-          <h1 className="font-display text-2xl font-extrabold text-ink">Crea tu cuenta</h1>
-          <p className="mt-1.5 text-sm text-slate">Organiza tus suscripciones en minutos.</p>
+          <h1 className="font-display text-2xl font-extrabold text-body">Crea tu cuenta</h1>
+          <p className="mt-1.5 text-sm text-muted">Organiza tus suscripciones en minutos.</p>
 
           <div className="mt-6">
             <SocialLoginButtons
@@ -167,9 +167,9 @@ export default function RegisterPage() {
           </div>
 
           <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-black/8" />
-            <span className="text-xs font-semibold text-slate">o con email</span>
-            <div className="h-px flex-1 bg-black/8" />
+            <div className="h-px flex-1 bg-hairline" />
+            <span className="text-xs font-semibold text-muted">o con email</span>
+            <div className="h-px flex-1 bg-hairline" />
           </div>
 
           <form action={handleSubmit} className="space-y-4">
@@ -209,7 +209,7 @@ export default function RegisterPage() {
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                    className="flex text-slate"
+                    className="flex text-muted"
                   >
                     {showPassword ? <EyeOffIcon size={17} /> : <EyeIcon size={17} />}
                   </button>
@@ -226,7 +226,7 @@ export default function RegisterPage() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-slate">
+          <p className="mt-6 text-center text-sm text-muted">
             ¿Ya tienes cuenta?{" "}
             <Link to="/login" className="font-semibold text-azure">
               Inicia sesión

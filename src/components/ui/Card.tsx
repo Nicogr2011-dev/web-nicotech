@@ -6,5 +6,5 @@ export const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(f
   { className, ...props },
   ref
 ) {
-  return <div ref={ref} className={clsx("rounded-2xl bg-white shadow-soft", className)} {...props} />;
+  return <div ref={ref} className={clsx("rounded-2xl bg-surface text-body shadow-soft", className)} {...props} />;
 });

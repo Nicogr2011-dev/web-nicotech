@@ -68,16 +68,16 @@ export function SubscriptionCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h3 className="font-display font-bold text-ink">{subscription.serviceName}</h3>
-          <p className="text-lg font-semibold text-ink">
+          <h3 className="font-display font-bold text-body">{subscription.serviceName}</h3>
+          <p className="text-lg font-semibold text-body">
             {subscription.price.toLocaleString("es-ES", { style: "currency", currency: subscription.currency })}
-            <span className="text-sm font-normal text-slate">/mes</span>
+            <span className="text-sm font-normal text-muted">/mes</span>
           </p>
         </div>
         {isPending ? <Badge tone="pending">Empieza {formatDate(subscription.nextChargeDate)}</Badge> : null}
       </div>
 
-      <div className="space-y-1 text-sm text-slate">
+      <div className="space-y-1 text-sm text-muted">
         <p>{isCancelled ? "Cobraba" : "Cobra"} el día {new Date(subscription.startDate).getDate()}</p>
         {!isPending && !isCancelled ? <p>Próximo cobro: {formatDate(subscription.nextChargeDate)}</p> : null}
       </div>
@@ -94,7 +94,7 @@ export function SubscriptionCard({
         </Badge>
       ) : null}
 
-      <div className="mt-2 flex gap-2 border-t border-black/5 pt-3 text-sm font-semibold">
+      <div className="mt-2 flex gap-2 border-t border-hairline pt-3 text-sm font-semibold">
         <button onClick={onEdit} className="text-azure hover:underline" disabled={isSaving}>
           Editar
         </button>
@@ -102,7 +102,7 @@ export function SubscriptionCard({
           onClick={handleToggle}
           onMouseEnter={subscription.status === "ACTIVE" ? handleCancelHoverStart : undefined}
           onMouseLeave={subscription.status === "ACTIVE" ? handleCancelHoverEnd : undefined}
-          className="text-slate hover:underline"
+          className="text-muted hover:underline"
           disabled={isSaving}
         >
           {subscription.status === "ACTIVE" ? "Cancelar" : "Reactivar"}

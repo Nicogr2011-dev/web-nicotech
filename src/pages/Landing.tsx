@@ -17,7 +17,7 @@ export default function LandingPage() {
         <CtaSection />
         <Changelog />
       </main>
-      <footer className="border-t border-black/5 bg-white px-4 py-8 text-center text-sm text-slate sm:px-6">
+      <footer className="border-t border-hairline bg-surface px-4 py-8 text-center text-sm text-muted sm:px-6">
         <p>
           © {new Date().getFullYear()} Nicotech ·{" "}
           <Link to="/login" className="font-medium text-azure">

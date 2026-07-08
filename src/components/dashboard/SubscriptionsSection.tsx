@@ -38,8 +38,8 @@ function SectionHeader({ dotColor, title, count }: { dotColor: string; title: st
   return (
     <div className="mb-3.5 flex items-center gap-2.5">
       <span className="h-2 w-2 rounded-full" style={{ backgroundColor: dotColor }} />
-      <h2 className="font-display text-sm font-bold text-ink">{title}</h2>
-      <span className="rounded-full bg-slate/10 px-2.5 py-0.5 text-xs font-bold text-slate">{count}</span>
+      <h2 className="font-display text-sm font-bold text-body">{title}</h2>
+      <span className="rounded-full bg-slate/10 px-2.5 py-0.5 text-xs font-bold text-muted">{count}</span>
     </div>
   );
 }
@@ -91,7 +91,7 @@ export function SubscriptionsSection() {
   }
 
   if (subscriptions === null) {
-    return <p className="text-slate">Cargando tus suscripciones…</p>;
+    return <p className="text-muted">Cargando tus suscripciones…</p>;
   }
 
   // Las eliminadas (deletedAt) se quedan fuera de todo lo "visible" — pero se siguen
@@ -143,16 +143,16 @@ export function SubscriptionsSection() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-ink">Tus suscripciones</h1>
+        <h1 className="font-display text-2xl font-bold text-body">Tus suscripciones</h1>
         <Button onClick={() => setShowAddModal(true)}>+ Añadir suscripción</Button>
       </div>
 
       {dueTomorrow.length > 0 ? (
         <div className="flex items-start gap-3 rounded-2xl border border-sunflower/40 bg-sunflower/10 px-5 py-4">
           <ClockIcon size={20} color="#a8790a" className="mt-0.5 shrink-0" />
-          <p className="text-sm font-bold text-ink">
+          <p className="text-sm font-bold text-body">
             Recuerda comprarlas mañana:{" "}
-            <span className="font-medium text-slate">{dueTomorrow.map((s) => s.serviceName).join(", ")}</span>
+            <span className="font-medium text-muted">{dueTomorrow.map((s) => s.serviceName).join(", ")}</span>
           </p>
         </div>
       ) : null}
