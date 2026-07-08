@@ -437,6 +437,16 @@ export const CHANGELOG: ChangelogEntry[] = [
       "El fallo de audio venía de más atrás: se perdían los primeros datos de conexión de la llamada antes de que estuviera lista para recibirlos, así que a veces no llegaba a conectar aunque pareciera que sí. Ya se guardan hasta que están listos — comprobado con la conexión de verdad, no solo con la pantalla.",
     bugfix: true,
   },
+  {
+    date: "08.07.26",
+    major: 16,
+    minor: 0,
+    type: "MAJOR",
+    title: "Arreglo de audio en móvil",
+    description:
+      "En el móvil, la voz de la otra persona a veces no se oía (aunque tu voz sí les llegaba a ellos) — algunos navegadores móviles bloquean la reproducción automática. Ahora, si pasa, aparece un botón para activar el audio con un toque.",
+    bugfix: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

@@ -17,6 +17,7 @@ export default function ContactPage() {
   const [phase, setPhase] = useState<CallPhase>("idle");
   const [callError, setCallError] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
+  const [needsAudioUnlock, setNeedsAudioUnlock] = useState(false);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -46,6 +47,7 @@ export default function ContactPage() {
 
   async function handleCall() {
     setCallError(null);
+    setNeedsAudioUnlock(false);
     setPhase("connecting");
 
     try {
@@ -58,7 +60,7 @@ export default function ContactPage() {
       pc.ontrack = (event) => {
         if (!audioRef.current) return;
         audioRef.current.srcObject = event.streams[0];
-        audioRef.current.play().catch(() => {});
+        audioRef.current.play().catch(() => setNeedsAudioUnlock(true));
       };
       pc.oniceconnectionstatechange = () => {
         if (pc.iceConnectionState === "failed" || pc.iceConnectionState === "disconnected") {
@@ -124,6 +126,13 @@ export default function ContactPage() {
     setMuted(next);
   }
 
+  function handleUnlockAudio() {
+    audioRef.current
+      ?.play()
+      .then(() => setNeedsAudioUnlock(false))
+      .catch(() => {});
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-page">
       <SiteNav authed={Boolean(user)} userName={user?.name ?? user?.email} tier={user?.tier} avatarUrl={user?.avatarUrl} />
@@ -145,7 +154,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <audio ref={audioRef} autoPlay className="hidden" />
+          <audio ref={audioRef} autoPlay playsInline className="hidden" />
 
           {phase === "idle" || phase === "error" ? (
             <Button className="mt-4 w-full" onClick={handleCall}>
@@ -168,6 +177,11 @@ export default function ContactPage() {
           {phase === "in-call" ? (
             <div className="mt-4 space-y-2">
               <p className="text-sm font-semibold text-mint">En llamada</p>
+              {needsAudioUnlock ? (
+                <Button className="w-full" onClick={handleUnlockAudio}>
+                  Toca para activar el audio
+                </Button>
+              ) : null}
               <div className="flex gap-2">
                 <Button variant="secondary" className="flex-1" onClick={toggleMute}>
                   {muted ? "Activar micro" : "Silenciar"}
