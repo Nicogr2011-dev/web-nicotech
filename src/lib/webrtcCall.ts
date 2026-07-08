@@ -4,13 +4,20 @@ import { apiGet, apiPost } from "@/lib/api";
 // redes corporativas, doble NAT...) — con eso, ICE se queda parado en "new" y nunca
 // llega a conectar. Añadimos de respaldo el TURN gratuito de Open Relay Project
 // (relay real de los paquetes de audio cuando la conexión directa no es posible).
+//
+// El dominio "global.relay.metered.ca" (probado antes) devuelve error 400 al pedir
+// la reserva TURN con estas credenciales estáticas — es el dominio nuevo de Metered,
+// pensado para credenciales dinámicas de una cuenta de pago. El servicio gratuito con
+// las credenciales estáticas "openrelayproject" vive en el dominio original
+// "openrelay.metered.ca"; se deja también el otro por si acaso, pero el primero que
+// responda gana.
 const ICE_SERVERS: RTCIceServer[] = [
   { urls: "stun:stun.l.google.com:19302" },
-  { urls: "stun:stun.relay.metered.ca:80" },
-  { urls: "turn:global.relay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
-  { urls: "turn:global.relay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
+  { urls: "stun:openrelay.metered.ca:80" },
+  { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
+  { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
   {
-    urls: "turn:global.relay.metered.ca:443?transport=tcp",
+    urls: "turn:openrelay.metered.ca:443?transport=tcp",
     username: "openrelayproject",
     credential: "openrelayproject",
   },

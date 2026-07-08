@@ -477,6 +477,16 @@ export const CHANGELOG: ChangelogEntry[] = [
       "El detalle técnico de la llamada ahora muestra también qué tipo de conexión se ha conseguido y si el servidor de respaldo ha fallado, para poder afinar el arreglo si el problema persiste.",
     bugfix: true,
   },
+  {
+    date: "08.07.26",
+    major: 16,
+    minor: 7,
+    type: "MAJOR",
+    title: "Arreglo del servidor de respaldo de las llamadas",
+    description:
+      "El diagnóstico reveló que el servidor de respaldo estaba rechazando la conexión (dirección equivocada). Corregido — ahora sí debería usarse cuando la conexión directa no es posible.",
+    bugfix: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
