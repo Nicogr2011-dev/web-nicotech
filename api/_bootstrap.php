@@ -60,9 +60,13 @@ function require_auth(): int
     return (int) $_SESSION['user_id'];
 }
 
-// De momento solo esta cuenta gestiona el plan Enterprise y contesta llamadas de /contacto.
+// De momento solo esta cuenta gestiona el plan Enterprise. Debe mantenerse en
+// sincronía con ADMIN_EMAIL de src/lib/admin.ts.
 const ADMIN_EMAIL = 'nicolas.grana.miguez@gmail.com';
 
+// Sin uso desde que se retiraron las llamadas (16.08.26.16.8): ningún endpoint
+// es admin-only ahora mismo. Se conserva como pareja de ADMIN_EMAIL para el
+// próximo que lo necesite.
 function require_admin(): int
 {
     global $pdo;

@@ -487,6 +487,15 @@ export const CHANGELOG: ChangelogEntry[] = [
       "El diagnóstico reveló que el servidor de respaldo estaba rechazando la conexión (dirección equivocada). Corregido — ahora sí debería usarse cuando la conexión directa no es posible.",
     bugfix: true,
   },
+  {
+    date: "16.08.26",
+    major: 16,
+    minor: 8,
+    type: "MINOR",
+    title: "Retiramos las llamadas y la página de contacto",
+    description:
+      "Las llamadas de voz por la web y la página de contacto ya no están disponibles. Si necesitas escribirnos, sigue siendo posible en hola@nicotech.es — el enlace del plan Enterprise en Precios ya lleva directamente ahí.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

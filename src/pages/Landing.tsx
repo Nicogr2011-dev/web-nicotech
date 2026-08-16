@@ -22,10 +22,6 @@ export default function LandingPage() {
           © {new Date().getFullYear()} Nicotech ·{" "}
           <Link to="/login" className="font-medium text-azure">
             Iniciar sesión
-          </Link>{" "}
-          ·{" "}
-          <Link to="/contacto" className="font-medium text-azure">
-            Contacto
           </Link>
         </p>
       </footer>

@@ -183,11 +183,11 @@ export default function PricingPage() {
             </ul>
 
             <div className="mt-6">
-              <ButtonLink href="/contacto" variant="secondary" className="w-full">
+              <ButtonLink href="mailto:hola@nicotech.es" variant="secondary" className="w-full">
                 Contactar
               </ButtonLink>
               <p className="mt-2 text-center text-xs text-muted">
-                Este plan no se compra desde la web — escríbenos o llámanos para activarlo.
+                Este plan no se compra desde la web — escríbenos a hola@nicotech.es para activarlo.
               </p>
             </div>
           </Card>

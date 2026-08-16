@@ -12,11 +12,8 @@ import ResetPasswordPage from "@/pages/ResetPassword";
 import DashboardPage from "@/pages/Dashboard";
 import InstallAppPage from "@/pages/InstallApp";
 import PricingPage from "@/pages/Pricing";
-import ContactPage from "@/pages/Contact";
-import CallsPage from "@/pages/Calls";
 import CheckoutPage from "@/pages/Checkout";
 import AccountPage from "@/pages/Account";
-import { ADMIN_EMAIL } from "@/lib/admin";
 
 function FullPageSpinner() {
   return <div className="flex min-h-screen items-center justify-center text-muted">Cargando…</div>;
@@ -26,13 +23,6 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <FullPageSpinner />;
   if (!user) return <Navigate to="/login" replace />;
-  return <>{children}</>;
-}
-
-function RequireAdmin({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  if (loading) return <FullPageSpinner />;
-  if (!user || user.email.toLowerCase() !== ADMIN_EMAIL) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
 
@@ -68,15 +58,6 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/instalar" element={<InstallAppPage />} />
         <Route path="/precios" element={<PricingPage />} />
-        <Route path="/contacto" element={<ContactPage />} />
-        <Route
-          path="/llamadas"
-          element={
-            <RequireAdmin>
-              <CallsPage />
-            </RequireAdmin>
-          }
-        />
         <Route
           path="/pago/:tier"
           element={
