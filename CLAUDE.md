@@ -25,6 +25,10 @@ php -S localhost:8000 -t api   # run the PHP backend locally (separate terminal)
 
 There is no automated test suite. UI verification is done manually or via ad-hoc Playwright runs (see "Testing" below) — there's no persisted Playwright config/spec directory in the repo.
 
+Frontend env: `cp .env.example .env` and fill `VITE_GOOGLE_CLIENT_ID` (same value as `google_client_id` in `api/config.php`). Vite inlines it at build time, so a build without `.env` ships a broken Google button — that happened in `16.08.26.16.8` and went unnoticed until `16.11`; `vite.config.ts` now refuses to `build` without it. `.env` is gitignored.
+
+Sign in with Apple was removed from the UI in `23.10.26.16.11` (button, `loginWithApple`, `signInWithApple`). `api/auth/apple.php` and the `apple_id` column are intentionally kept dormant in case it's reactivated.
+
 Local backend setup: `cp api/config.example.php api/config.php` and fill in real DB/SMTP/IMAP/reCAPTCHA credentials. `api/config.php` is gitignored — never commit it. `db/schema.sql` has the full schema; `db/migrations/` has incremental migrations layered on top (apply both locally and in production when adding one).
 
 ## Architecture

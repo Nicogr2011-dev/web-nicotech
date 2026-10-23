@@ -17,7 +17,7 @@ const SWEEP_STYLE: React.CSSProperties = {
 
 export default function RegisterPage() {
   useRecaptchaBadge();
-  const { register, loginWithGoogle, loginWithApple } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -116,7 +116,6 @@ export default function RegisterPage() {
             <SocialLoginButtons
               disabled={pending}
               onGoogleClick={() => handleSocial(loginWithGoogle)}
-              onAppleClick={() => handleSocial(loginWithApple)}
             />
           </div>
 

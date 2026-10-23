@@ -515,6 +515,15 @@ export const CHANGELOG: ChangelogEntry[] = [
       "Si al iniciar sesión o registrarte algo fallaba (por ejemplo, una contraseña incorrecta), el formulario se borraba entero y había que volver a escribir el email. Ahora se conserva lo que habías escrito.",
     bugfix: true,
   },
+  {
+    date: "23.10.26",
+    major: 16,
+    minor: 11,
+    type: "MINOR",
+    title: "Mejoras internas",
+    description: "Ajustes para mejorar la experiencia de usuario.",
+    confidential: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

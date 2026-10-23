@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { apiGet, apiPost, apiUpload, ApiError } from "@/lib/api";
 import { getRecaptchaToken } from "@/lib/recaptcha";
-import { signInWithGoogle, signInWithApple } from "@/lib/socialAuth";
+import { signInWithGoogle } from "@/lib/socialAuth";
 
 export type AuthUser = {
   id: number;
@@ -17,7 +17,6 @@ type AuthContextValue = {
   login: (email: string, password: string, remember?: boolean) => Promise<{ error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ error?: string }>;
   loginWithGoogle: () => Promise<{ error?: string }>;
-  loginWithApple: () => Promise<{ error?: string }>;
   logout: () => Promise<void>;
   setTier: (tier: AuthUser["tier"], code?: string) => Promise<{ error?: string }>;
   updateName: (name: string) => Promise<{ error?: string }>;
@@ -84,17 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return {};
     } catch (err) {
       return { error: err instanceof ApiError || err instanceof Error ? err.message : "No se pudo iniciar sesión con Google" };
-    }
-  }
-
-  async function loginWithApple() {
-    try {
-      const { idToken, user: appleUser } = await signInWithApple();
-      const data = await apiPost<{ user: AuthUser }>("/auth/apple.php", { idToken, user: appleUser });
-      setUser(data.user);
-      return {};
-    } catch (err) {
-      return { error: err instanceof ApiError || err instanceof Error ? err.message : "No se pudo iniciar sesión con Apple" };
     }
   }
 
@@ -189,7 +177,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         loginWithGoogle,
-        loginWithApple,
         logout,
         setTier,
         updateName,

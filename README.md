@@ -6,16 +6,24 @@ Nicotech es una web para organizar todas tus suscripciones (Netflix, Spotify, iC
 
 Esta fase cubre **organización de suscripciones existentes**, sin compra ni pago de nuevas suscripciones (eso llegará en una fase futura). Incluye:
 
-- Página de bienvenida pública que explica el producto.
-- Cuentas de usuario reales (registro e inicio de sesión con email/contraseña).
+- Página de bienvenida pública que explica el producto, con el historial de versiones (changelog) visible.
+- Cuentas de usuario:
+  - Registro e inicio de sesión con email y contraseña, o con **Google**.
+  - Opción "Mantener sesión iniciada".
+  - Recuperación de contraseña por email (`/#/recuperar` → enlace a `/#/restablecer-contrasena`).
 - Área de cliente (`/#/dashboard`) protegida, con:
   - Alta, edición, cancelación y borrado de suscripciones.
   - Buscador de servicios sobre un catálogo curado de ~170 servicios reales (streaming, música, software, gaming, IA, etc.) con sus planes y precios de referencia (`src/lib/serviceCatalog.ts`) — al elegir un plan se prellenan precio y moneda, siempre editables. Si el servicio no está en el catálogo, se puede escribir el nombre a mano.
   - Fecha de cobro única (de ahí se deriva el día del mes) y cálculo automático del próximo cobro.
   - Cancelación automática en una fecha concreta que tú eliges (no por número de meses).
-  - Resumen: gasto mensual total, próximo cobro y número de cancelaciones programadas.
+  - Resumen y gráficas: gasto mensual total, gasto por categoría, próximo cobro y cancelaciones programadas.
+  - Verificación de suscripciones: al añadir una, llega un email con un código `NCT-XXXXXXXX`; si lo reenvías a verifica@nicotech.es, un cron la marca como verificada.
+- Mi cuenta (`/#/cuenta`): cambiar nombre, email, contraseña y foto de perfil, y borrar la cuenta.
+- Planes (`/#/precios`): Básico (gratis, hasta 3 suscripciones), Premium Lite (hasta 7) y Premium (ilimitadas), más Enterprise por email. Todavía no hay pasarela de pago: el cambio de plan se desbloquea con un código de acceso.
+- Modo claro/oscuro.
+- PWA instalable (`/#/instalar`, `public/manifest.webmanifest` + `public/sw.js`).
 
-Explícitamente **fuera de alcance** en esta fase (para fases futuras): compra/pago de suscripciones, recordatorios por email, sincronización de calendario, recuperación de contraseña, multi-moneda, cuentas compartidas/equipo.
+Explícitamente **fuera de alcance** en esta fase (para fases futuras): compra/pago real de suscripciones y planes, recordatorios por email antes de cada cobro, sincronización de calendario, multi-moneda, cuentas compartidas/equipo.
 
 ## Stack técnico
 
@@ -32,23 +40,36 @@ El hosting compartido disponible (Dinahosting, plan básico) **no tiene Node.js*
 ```
 src/                      Frontend (Vite + React + TS)
   main.tsx, App.tsx        Punto de entrada y rutas (HashRouter)
-  pages/                   Landing, Login, Register, Dashboard
+  pages/                   Landing, Login, Register, ForgotPassword, ResetPassword,
+                           Dashboard, Account, Pricing, Checkout, InstallApp
   lib/
     api.ts                 Cliente fetch hacia la API PHP
-    AuthContext.tsx         Estado de sesión (login/register/logout/me)
-    serviceCatalog.ts       Catálogo de ~170 servicios con planes y precios
-    subscriptions.ts        Cálculo del próximo cobro
-    validation.ts           Constantes/validación compartidas (paleta de colores, etc.)
+    AuthContext.tsx        Estado de sesión (login/registro/Google/logout/me)
+    socialAuth.ts          Inicio de sesión con Google (Google Identity Services)
+    changelog.ts           Historial de versiones mostrado en la web
+    pricingPlans.ts        Planes Básico / Premium Lite / Premium
+    serviceCatalog.ts      Catálogo de ~170 servicios con planes y precios
+    subscriptions.ts       Cálculo del próximo cobro
+    validation.ts          Constantes/validación compartidas (paleta de colores, etc.)
   components/
-    nav/, landing/, dashboard/, ui/   Componentes de UI (idénticos visualmente a antes)
+    auth/                  Panel lateral y botón de Google de login/registro
+    nav/, landing/, dashboard/, ui/   Resto de componentes de UI
 
-api/                      Backend PHP (API JSON)
-  _bootstrap.php           Sesión, conexión PDO, helpers (json_response, require_auth...)
-  config.php                Credenciales de BD (NO se sube a git, ver config.example.php)
-  auth/{register,login,logout,me}.php
-  subscriptions/{list,create,update,delete,toggle}.php
+api/                      Backend PHP (API JSON, sin dependencias)
+  _bootstrap.php           Sesión, conexión PDO, helpers (json_response, require_auth, JWT...)
+  _mail.php                Envío SMTP sin librerías
+  config.php               Credenciales (NO se sube a git, ver config.example.php)
+  auth/                    register, login, logout, me, google, forgot-password, reset-password
+  account/                 update-name, update-email, update-password, upload-avatar, set-tier, delete-account
+  subscriptions/           list, create, update, delete, toggle
+  stats/                   user-count
+  cron/                    Revisión por IMAP del buzón de verificación (run-loop.sh)
 
-db/schema.sql             Esquema MySQL (tablas users y subscriptions)
+db/schema.sql             Esquema completo (tablas users y subscriptions)
+db/migrations/            Migraciones incrementales sobre el esquema
+
+dist/                     Frontend compilado (se commitea, ver "Despliegue")
+deploy.sh                 Copia dist/ y api/ a la carpeta pública del servidor
 ```
 
 ## Diseño
@@ -57,29 +78,45 @@ Estética inspirada en [coolors.co](https://coolors.co): tema claro, paleta de c
 
 ## Desarrollo local
 
-Requisitos: Node.js (solo para compilar el frontend), PHP 7.4+ y MySQL/MariaDB corriendo localmente.
+Requisitos: Node.js 20+ (solo para compilar el frontend), PHP 7.4+ (con `pdo_mysql` y `mbstring`) y MySQL/MariaDB corriendo localmente.
 
 ```bash
-# 1. Base de datos
-mysql -u root -e "CREATE DATABASE nicotech CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-mysql -u root nicotech < db/schema.sql
+# 1. Base de datos (como root de MariaDB)
+sudo mariadb -e "CREATE DATABASE nicotech CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  CREATE USER 'nicotech_user'@'localhost' IDENTIFIED BY 'una-contraseña';
+  GRANT ALL PRIVILEGES ON nicotech.* TO 'nicotech_user'@'localhost';"
+mysql -u nicotech_user -p nicotech < db/schema.sql
 
-# 2. Configura las credenciales de BD
-cp api/config.example.php api/config.php   # edita host/usuario/contraseña/nombre de BD
+# 2. Credenciales del backend
+cp api/config.example.php api/config.php   # rellena db_pass; lo demás puede quedar en CHANGE_ME en local
 
-# 3. Backend PHP (sirve la carpeta api/ en el puerto 8000)
+# 3. Variables del frontend
+cp .env.example .env                       # rellena VITE_GOOGLE_CLIENT_ID (obligatorio para compilar)
+
+# 4. Backend PHP (sirve la carpeta api/ en el puerto 8000)
 php -S localhost:8000 -t api
 
-# 4. Frontend (en otra terminal — proxy /api -> localhost:8000, ver vite.config.ts)
+# 5. Frontend (en otra terminal — proxy /api -> localhost:8000, ver vite.config.ts)
 npm install
 npm run dev
 ```
 
 Abre [http://localhost:5173](http://localhost:5173).
 
+En local, mientras las claves de SMTP, reCAPTCHA o IMAP sigan en `CHANGE_ME`, la web funciona igual: simplemente no envía correos y no verifica reCAPTCHA.
+
+### Variables del frontend (`.env`)
+
+Vite las incrusta **al compilar**, así que tienen que estar en tu `.env` cada vez que hagas `npm run build`:
+
+| Variable | Para qué |
+| --- | --- |
+| `VITE_GOOGLE_CLIENT_ID` | Client ID de OAuth de Google (el mismo que `google_client_id` en `api/config.php`). **Obligatorio**: `npm run build` falla si falta, para no publicar el botón de Google roto. |
+| `VITE_RECAPTCHA_SITE_KEY` | Clave pública de reCAPTCHA v3. Opcional. |
+
 ## Despliegue en hosting compartido (Dinahosting o similar, sin Node.js)
 
-1. **Compila el frontend en tu ordenador**:
+1. **Compila el frontend en tu ordenador** (con el `.env` relleno, ver "Variables del frontend"):
    ```bash
    npm install
    npm run build
@@ -115,10 +152,13 @@ git pull
 ./deploy.sh
 ```
 
+## Versiones
+
+Cada cambio lleva su entrada en `src/lib/changelog.ts`, que es lo que se ve en la web. Formato `DD.MM.YY.MAJOR.MINOR`: MAJOR sube con funciones nuevas y MINOR con ajustes (se reinicia a 0 en cada MAJOR). Sufijos: `.b` = arreglo de un fallo, `.c` = cambio interno (se muestra con un texto genérico).
+
 ## Roadmap (próximas fases)
 
-- Compra y pago real de nuevas suscripciones
+- Pasarela de pago real para los planes y compra de nuevas suscripciones
 - Recordatorios por email antes de cada cobro o cancelación
-- Recuperación de contraseña
 - Exportación/sincronización con calendario
 - Soporte multi-moneda
