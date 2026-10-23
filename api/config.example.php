@@ -43,4 +43,7 @@ return [
     // 4242 4242 4242 4242 y no se cobra nada. Mientras quede en 'CHANGE_ME', la
     // opción de tarjeta aparece como "Próximamente".
     'stripe_secret_key' => 'CHANGE_ME',
+    // Secreto del webhook de Stripe (whsec_...), al registrar
+    // https://nicotech.es/api/billing/webhook.php en Desarrolladores → Webhooks.
+    'stripe_webhook_secret' => 'CHANGE_ME',
 ];

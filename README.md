@@ -166,7 +166,8 @@ La pantalla de pago crea una sesión de **Stripe Checkout** (`api/billing/create
 - `app_url` en `api/config.php`: adónde vuelve Stripe tras pagar (`http://localhost:5173` en local).
 - Los precios que se cobran están en `STRIPE_PLAN_PRICES` (`api/_stripe.php`), en céntimos — hay que mantenerlos en sync con `src/lib/pricingPlans.ts`.
 - Darse de baja desde la web cancela la suscripción en Stripe al final del periodo y la web baja a Básico sola al llegar esa fecha.
-- **Pendiente para cobrar de verdad**: activar la cuenta de Stripe, cambiar a la clave live y añadir un webhook (ahora, si una renovación falla o se cancela desde el panel de Stripe, la web no se entera).
+- **Webhook** (`api/billing/webhook.php`, secreto `stripe_webhook_secret`): Stripe avisa de renovaciones, bajas o reactivaciones hechas en su panel y suscripciones canceladas por impago, y la web actualiza el plan. Registrado en Stripe para `customer.subscription.updated` y `customer.subscription.deleted`.
+- **Pendiente para cobrar de verdad**: activar la cuenta de Stripe, cambiar a la clave live y registrar el webhook también en modo live (tiene su propio secreto).
 
 ## Versiones
 

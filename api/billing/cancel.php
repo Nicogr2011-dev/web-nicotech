@@ -36,10 +36,7 @@ if ($subscription === null) {
     json_error('No hemos podido cancelar el cobro en Stripe. Inténtalo de nuevo en un momento.', 502);
 }
 
-$periodEnd = $subscription['cancel_at']
-    ?? $subscription['items']['data'][0]['current_period_end']
-    ?? $subscription['current_period_end']
-    ?? null;
+$periodEnd = $subscription['cancel_at'] ?? stripe_period_end($subscription);
 $endsAt = $periodEnd !== null ? date('Y-m-d H:i:s', (int) $periodEnd) : ($user['plan_renews_at'] ?? date('Y-m-d H:i:s'));
 
 $stmt = $pdo->prepare('UPDATE users SET plan_ends_at = ? WHERE id = ?');

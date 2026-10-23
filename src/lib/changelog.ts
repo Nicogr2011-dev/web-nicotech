@@ -640,6 +640,15 @@ export const CHANGELOG: ChangelogEntry[] = [
       "Ajustes para mejorar la experiencia de usuario.",
     confidential: true,
   },
+  {
+    date: "23.10.26",
+    major: 20,
+    minor: 7,
+    type: "MINOR",
+    title: "Tu plan, siempre al día con Stripe",
+    description:
+      "Ahora nos enteramos al momento de lo que pasa con tu pago aunque no estés en la web: cuando se renueva tu plan verás la nueva fecha, y si un cobro falla definitivamente o se cancela, tu plan se actualiza solo.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

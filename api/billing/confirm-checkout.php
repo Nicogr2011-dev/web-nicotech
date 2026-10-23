@@ -45,8 +45,7 @@ if (!in_array($subscription['status'] ?? '', ['active', 'trialing'], true) || !e
 }
 
 $interval = (string) ($session['metadata']['interval'] ?? '');
-// En las versiones recientes de la API el periodo va en cada item, no en la suscripción.
-$periodEnd = $subscription['items']['data'][0]['current_period_end'] ?? $subscription['current_period_end'] ?? null;
+$periodEnd = stripe_period_end($subscription);
 
 // Cambio de plan (ej. Premium Lite -> Premium): la suscripción anterior dejaría
 // de corresponder a nada pero seguiría cobrando, así que se cancela ya.
