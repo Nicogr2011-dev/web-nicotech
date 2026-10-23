@@ -524,6 +524,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description: "Ajustes para mejorar la experiencia de usuario.",
     confidential: true,
   },
+  {
+    date: "23.10.26",
+    major: 17,
+    minor: 0,
+    type: "MAJOR",
+    title: "Pago con tarjeta (en pruebas)",
+    description:
+      "Ya puedes pasarte a Premium o Premium Lite pagando con tarjeta, anual o mensual, a través de la página de pago segura de Stripe. De momento funciona en modo prueba: no se cobra nada y se paga con la tarjeta de prueba 4242 4242 4242 4242.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

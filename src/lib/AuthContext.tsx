@@ -19,6 +19,7 @@ type AuthContextValue = {
   loginWithGoogle: () => Promise<{ error?: string }>;
   logout: () => Promise<void>;
   setTier: (tier: AuthUser["tier"], code?: string) => Promise<{ error?: string }>;
+  confirmCheckout: (sessionId: string) => Promise<{ error?: string }>;
   updateName: (name: string) => Promise<{ error?: string }>;
   updateEmail: (email: string, currentPassword: string) => Promise<{ error?: string }>;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<{ error?: string }>;
@@ -101,6 +102,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  async function confirmCheckout(sessionId: string) {
+    try {
+      const data = await apiPost<{ user: AuthUser }>("/billing/confirm-checkout.php", { sessionId });
+      setUser(data.user);
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo comprobar el pago" };
+    }
+  }
+
   async function updateName(name: string) {
     try {
       const data = await apiPost<{ user: AuthUser }>("/account/update-name.php", { name });
@@ -179,6 +190,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loginWithGoogle,
         logout,
         setTier,
+        confirmCheckout,
         updateName,
         updateEmail,
         updatePassword,

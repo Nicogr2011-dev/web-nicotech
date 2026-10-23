@@ -35,4 +35,12 @@ return [
     'imap_port' => 993,
     'imap_user' => 'CHANGE_ME',
     'imap_pass' => 'CHANGE_ME',
+    // URL pública de la web, a la que Stripe devuelve al usuario tras pagar
+    // (en local: http://localhost:5173).
+    'app_url' => 'https://nicotech.es',
+    // Clave secreta de Stripe (dashboard.stripe.com → Desarrolladores → Claves de API).
+    // Con sk_test_... o rk_test_... todo es modo de prueba: se paga con tarjetas de prueba como
+    // 4242 4242 4242 4242 y no se cobra nada. Mientras quede en 'CHANGE_ME', la
+    // opción de tarjeta aparece como "Próximamente".
+    'stripe_secret_key' => 'CHANGE_ME',
 ];

@@ -19,11 +19,12 @@ Esta fase cubre **organización de suscripciones existentes**, sin compra ni pag
   - Resumen y gráficas: gasto mensual total, gasto por categoría, próximo cobro y cancelaciones programadas.
   - Verificación de suscripciones: al añadir una, llega un email con un código `NCT-XXXXXXXX`; si lo reenvías a verifica@nicotech.es, un cron la marca como verificada.
 - Mi cuenta (`/#/cuenta`): cambiar nombre, email, contraseña y foto de perfil, y borrar la cuenta.
-- Planes (`/#/precios`): Básico (gratis, hasta 3 suscripciones), Premium Lite (hasta 7) y Premium (ilimitadas), más Enterprise por email. Todavía no hay pasarela de pago: el cambio de plan se desbloquea con un código de acceso.
+- Planes (`/#/precios`): Básico (gratis, hasta 3 suscripciones), Premium Lite (hasta 7) y Premium (ilimitadas), más Enterprise por email.
+- Pago con tarjeta vía **Stripe Checkout** (`/#/pago/:plan`), anual o mensual. Ahora mismo en **modo prueba**: no se cobra nada y se paga con la tarjeta `4242 4242 4242 4242` (cualquier fecha futura y CVC). También se puede activar un plan con un código de acceso.
 - Modo claro/oscuro.
 - PWA instalable (`/#/instalar`, `public/manifest.webmanifest` + `public/sw.js`).
 
-Explícitamente **fuera de alcance** en esta fase (para fases futuras): compra/pago real de suscripciones y planes, recordatorios por email antes de cada cobro, sincronización de calendario, multi-moneda, cuentas compartidas/equipo.
+Explícitamente **fuera de alcance** en esta fase (para fases futuras): cobros reales (Stripe en modo live), compra de nuevas suscripciones, recordatorios por email antes de cada cobro, sincronización de calendario, multi-moneda, cuentas compartidas/equipo.
 
 ## Stack técnico
 
@@ -61,6 +62,8 @@ api/                      Backend PHP (API JSON, sin dependencias)
   config.php               Credenciales (NO se sube a git, ver config.example.php)
   auth/                    register, login, logout, me, google, forgot-password, reset-password
   account/                 update-name, update-email, update-password, upload-avatar, set-tier, delete-account
+  billing/                 config, create-checkout, confirm-checkout (Stripe Checkout)
+  _stripe.php              Cliente mínimo de la API de Stripe y precios de los planes
   subscriptions/           list, create, update, delete, toggle
   stats/                   user-count
   cron/                    Revisión por IMAP del buzón de verificación (run-loop.sh)
@@ -151,6 +154,15 @@ cd ~/nicotech-repo
 git pull
 ./deploy.sh
 ```
+
+## Pagos (Stripe)
+
+La pantalla de pago crea una sesión de **Stripe Checkout** (`api/billing/create-checkout.php`) y redirige a la página de pago de Stripe. Al volver, `api/billing/confirm-checkout.php` le pregunta a Stripe por esa sesión y solo cambia el plan si está pagada y pertenece al usuario que la confirma.
+
+- Clave: `stripe_secret_key` en `api/config.php` (dashboard.stripe.com → Desarrolladores → Claves de API). Con una clave `sk_test_…`/`rk_test_…` todo es modo prueba y la web lo avisa; mientras quede en `CHANGE_ME`, la tarjeta sale como "Próximamente".
+- `app_url` en `api/config.php`: adónde vuelve Stripe tras pagar (`http://localhost:5173` en local).
+- Los precios que se cobran están en `STRIPE_PLAN_PRICES` (`api/_stripe.php`), en céntimos — hay que mantenerlos en sync con `src/lib/pricingPlans.ts`.
+- **Pendiente para cobrar de verdad**: activar la cuenta de Stripe, cambiar a la clave live y añadir un webhook para renovaciones/cancelaciones (ahora el plan se activa al pagar y no se baja solo si la suscripción se cancela en Stripe).
 
 ## Versiones
 
