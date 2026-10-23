@@ -48,7 +48,7 @@ $session = stripe_request($config, 'POST', 'checkout/sessions', [
             'product_data' => ['name' => $plan['name']],
         ],
     ]],
-    'metadata' => ['tier' => $tier, 'user_id' => (string) $userId],
+    'metadata' => ['tier' => $tier, 'interval' => $interval, 'user_id' => (string) $userId],
     'success_url' => "{$appUrl}/?stripe_session={CHECKOUT_SESSION_ID}#/pago/{$slug}",
     'cancel_url' => "{$appUrl}/#/pago/{$slug}",
 ]);

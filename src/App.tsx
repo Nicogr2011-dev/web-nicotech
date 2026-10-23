@@ -14,6 +14,7 @@ import InstallAppPage from "@/pages/InstallApp";
 import PricingPage from "@/pages/Pricing";
 import CheckoutPage from "@/pages/Checkout";
 import AccountPage from "@/pages/Account";
+import CancelPlanPage from "@/pages/CancelPlan";
 
 function FullPageSpinner() {
   return <div className="flex min-h-screen items-center justify-center text-muted">Cargando…</div>;
@@ -104,6 +105,14 @@ export default function App() {
           element={
             <RequireAuth>
               <AccountPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/cancelar-plan"
+          element={
+            <RequireAuth>
+              <CancelPlanPage />
             </RequireAuth>
           }
         />

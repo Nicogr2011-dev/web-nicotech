@@ -9,6 +9,16 @@ export type AuthUser = {
   email: string;
   tier: "BASICO" | "PREMIUM" | "PREMIUM_LITE";
   avatarUrl: string | null;
+  /** Plan de pago de Nicotech; null en Básico. */
+  plan: {
+    interval: "year" | "month" | null;
+    /** Pagado con Stripe (si no, se activó con un código). */
+    viaStripe: boolean;
+    startedAt: string | null;
+    renewsAt: string | null;
+    /** Si se ha dado de baja: hasta cuándo conserva el plan. */
+    endsAt: string | null;
+  } | null;
 };
 
 type AuthContextValue = {
@@ -20,6 +30,7 @@ type AuthContextValue = {
   logout: () => Promise<void>;
   setTier: (tier: AuthUser["tier"], code?: string) => Promise<{ error?: string }>;
   confirmCheckout: (sessionId: string) => Promise<{ error?: string }>;
+  cancelPlan: () => Promise<{ error?: string }>;
   updateName: (name: string) => Promise<{ error?: string }>;
   updateEmail: (email: string, currentPassword: string) => Promise<{ error?: string }>;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<{ error?: string }>;
@@ -112,6 +123,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  async function cancelPlan() {
+    try {
+      const data = await apiPost<{ user: AuthUser }>("/billing/cancel.php");
+      setUser(data.user);
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo dar de baja el plan" };
+    }
+  }
+
   async function updateName(name: string) {
     try {
       const data = await apiPost<{ user: AuthUser }>("/account/update-name.php", { name });
@@ -191,6 +212,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         setTier,
         confirmCheckout,
+        cancelPlan,
         updateName,
         updateEmail,
         updatePassword,

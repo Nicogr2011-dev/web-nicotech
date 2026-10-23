@@ -12,6 +12,8 @@ import { ExpandableSubscriptionCard } from "@/components/dashboard/ExpandableSub
 import { SubscriptionModal } from "@/components/dashboard/SubscriptionModal";
 import { SubscriptionForm } from "@/components/dashboard/SubscriptionForm";
 import { EmptyState } from "@/components/dashboard/EmptyState";
+import { NicotechPlanCard } from "@/components/dashboard/NicotechPlanCard";
+import { useAuth } from "@/lib/AuthContext";
 import type { SubscriptionView } from "./types";
 
 type RawSubscription = Omit<SubscriptionView, "nextChargeDate">;
@@ -45,6 +47,7 @@ function SectionHeader({ dotColor, title, count }: { dotColor: string; title: st
 }
 
 export function SubscriptionsSection() {
+  const { user } = useAuth();
   const [subscriptions, setSubscriptions] = useState<SubscriptionView[] | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -163,6 +166,18 @@ export function SubscriptionsSection() {
         <MonthlySpendChart subscriptions={subscriptions} currency={currency} />
         <CategorySpendChart subscriptions={subscriptions} currency={currency} />
       </div>
+
+      {user?.plan ? (
+        <div>
+          <div className="mb-3.5 flex items-center gap-2.5">
+            <span className="h-2 w-2 rounded-full bg-azure" />
+            <h2 className="font-display text-sm font-bold text-body">Tu plan de Nicotech</h2>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <NicotechPlanCard user={user} />
+          </div>
+        </div>
+      ) : null}
 
       {visibleSubscriptions.length === 0 ? <EmptyState onAdd={() => setShowAddModal(true)} /> : null}
 

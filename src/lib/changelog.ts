@@ -533,6 +533,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Ya puedes pasarte a Premium o Premium Lite pagando con tarjeta, anual o mensual, a través de la página de pago segura de Stripe. De momento funciona en modo prueba: no se cobra nada y se paga con la tarjeta de prueba 4242 4242 4242 4242.",
   },
+  {
+    date: "23.10.26",
+    major: 18,
+    minor: 0,
+    type: "MAJOR",
+    title: "Tu plan de Nicotech, en tu panel",
+    description:
+      "Si tienes Premium o Premium Lite, ahora lo ves en tu panel junto al resto de suscripciones, con su precio y cuándo se renueva — y no ocupa hueco en tu límite. Desde ahí también puedes darte de baja: dejamos de cobrarte y conservas el plan hasta el final de lo que ya has pagado.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

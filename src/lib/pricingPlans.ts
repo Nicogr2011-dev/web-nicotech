@@ -53,7 +53,8 @@ export function getPlanBySlug(slug: string | undefined): Plan | undefined {
 
 /** Formatea un precio en euros, sin decimales de sobra (ej. 0.7 -> "0,70 €", 10 -> "10 €"). */
 export function formatPrice(value: number): string {
-  return `${value.toLocaleString("es-ES", { minimumFractionDigits: 0, maximumFractionDigits: 2 })} €`;
+  const decimals = Number.isInteger(value) ? 0 : 2;
+  return `${value.toLocaleString("es-ES", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })} €`;
 }
 
 /** % que te ahorras pagando anual en vez de mes a mes, redondeado. Null si el plan es gratis. */

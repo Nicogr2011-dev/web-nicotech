@@ -86,9 +86,20 @@ function require_admin(): int
  */
 function user_response(PDO $pdo, int $userId): array
 {
-    $stmt = $pdo->prepare('SELECT id, name, email, tier, avatar_path FROM users WHERE id = ?');
+    $stmt = $pdo->prepare(
+        'SELECT id, name, email, tier, avatar_path, stripe_subscription_id, plan_interval,
+                plan_started_at, plan_renews_at, plan_ends_at
+         FROM users WHERE id = ?'
+    );
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
+
+    // Baja programada que ya ha vencido: se pasa a Básico aquí, la próxima vez que
+    // el usuario carga la web (no hay webhook de Stripe que lo haga por nosotros).
+    if ($user['plan_ends_at'] !== null && strtotime($user['plan_ends_at']) <= time()) {
+        reset_plan_to_basic($pdo, $userId);
+        return user_response($pdo, $userId);
+    }
 
     return [
         'id' => (int) $user['id'],
@@ -96,7 +107,29 @@ function user_response(PDO $pdo, int $userId): array
         'email' => $user['email'],
         'tier' => $user['tier'],
         'avatarUrl' => $user['avatar_path'],
+        'plan' => $user['tier'] === 'BASICO' ? null : [
+            'interval' => $user['plan_interval'],
+            'viaStripe' => $user['stripe_subscription_id'] !== null,
+            'startedAt' => iso_or_null($user['plan_started_at']),
+            'renewsAt' => iso_or_null($user['plan_renews_at']),
+            'endsAt' => iso_or_null($user['plan_ends_at']),
+        ],
     ];
+}
+
+function iso_or_null(?string $datetime): ?string
+{
+    return $datetime === null ? null : date('c', strtotime($datetime));
+}
+
+function reset_plan_to_basic(PDO $pdo, int $userId): void
+{
+    $stmt = $pdo->prepare(
+        "UPDATE users SET tier = 'BASICO', stripe_subscription_id = NULL, plan_interval = NULL,
+                plan_started_at = NULL, plan_renews_at = NULL, plan_ends_at = NULL
+         WHERE id = ?"
+    );
+    $stmt->execute([$userId]);
 }
 
 /**

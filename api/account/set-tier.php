@@ -40,7 +40,16 @@ if (!$isPrivileged && !$isFreeTarget && !$codeValid) {
     json_error('Todavía no puedes cambiar de plan. Introduce un código de acceso o espera a que activemos los pagos.', 403);
 }
 
-$stmt = $pdo->prepare('UPDATE users SET tier = ? WHERE id = ?');
-$stmt->execute([$tier, $userId]);
+if ($isFreeTarget) {
+    reset_plan_to_basic($pdo, $userId);
+} else {
+    // Plan activado con código (o por la cuenta interna): no hay cobro detrás.
+    $stmt = $pdo->prepare(
+        'UPDATE users SET tier = ?, stripe_subscription_id = NULL, plan_interval = NULL,
+                plan_started_at = ?, plan_renews_at = NULL, plan_ends_at = NULL
+         WHERE id = ?'
+    );
+    $stmt->execute([$tier, date('Y-m-d H:i:s'), $userId]);
+}
 
 json_response(['user' => user_response($pdo, $userId)]);

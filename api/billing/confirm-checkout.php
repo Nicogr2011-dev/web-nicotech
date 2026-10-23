@@ -18,7 +18,7 @@ if (!preg_match('/^cs_[A-Za-z0-9_]+$/', $sessionId)) {
 
 // No nos fiamos de que el usuario haya vuelto a la URL de éxito: le preguntamos
 // a Stripe por la sesión y solo cambiamos de plan si está pagada y es suya.
-$session = stripe_request($config, 'GET', 'checkout/sessions/' . $sessionId);
+$session = stripe_request($config, 'GET', 'checkout/sessions/' . $sessionId, ['expand' => ['subscription']]);
 
 if ($session === null) {
     json_error('No se pudo comprobar el pago.', 502);
@@ -35,7 +35,33 @@ if (!isset(STRIPE_PLAN_PRICES[$tier])) {
     json_error('Plan no válido', 400);
 }
 
-$stmt = $pdo->prepare('UPDATE users SET tier = ? WHERE id = ?');
-$stmt->execute([$tier, $userId]);
+$subscription = is_array($session['subscription'] ?? null) ? $session['subscription'] : [];
+$interval = (string) ($session['metadata']['interval'] ?? '');
+// En las versiones recientes de la API el periodo va en cada item, no en la suscripción.
+$periodEnd = $subscription['items']['data'][0]['current_period_end'] ?? $subscription['current_period_end'] ?? null;
+
+// Cambio de plan (ej. Premium Lite -> Premium): la suscripción anterior dejaría
+// de corresponder a nada pero seguiría cobrando, así que se cancela ya.
+$stmt = $pdo->prepare('SELECT stripe_subscription_id FROM users WHERE id = ?');
+$stmt->execute([$userId]);
+$previousSubscription = $stmt->fetchColumn();
+if ($previousSubscription && $previousSubscription !== ($subscription['id'] ?? null)) {
+    stripe_request($config, 'DELETE', 'subscriptions/' . $previousSubscription);
+}
+
+$stmt = $pdo->prepare(
+    'UPDATE users SET tier = ?, stripe_subscription_id = ?, plan_interval = ?,
+            plan_started_at = ?, plan_renews_at = ?, plan_ends_at = NULL
+     WHERE id = ?'
+);
+$stmt->execute([
+    $tier,
+    $subscription['id'] ?? null,
+    in_array($interval, ['year', 'month'], true) ? $interval : null,
+    // Fechas siempre desde PHP (no NOW() de MySQL): así todas comparten zona horaria.
+    date('Y-m-d H:i:s'),
+    $periodEnd !== null ? date('Y-m-d H:i:s', (int) $periodEnd) : null,
+    $userId,
+]);
 
 json_response(['user' => user_response($pdo, $userId)]);

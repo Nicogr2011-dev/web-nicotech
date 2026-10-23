@@ -20,6 +20,7 @@ Esta fase cubre **organización de suscripciones existentes**, sin compra ni pag
   - Verificación de suscripciones: al añadir una, llega un email con un código `NCT-XXXXXXXX`; si lo reenvías a verifica@nicotech.es, un cron la marca como verificada.
 - Mi cuenta (`/#/cuenta`): cambiar nombre, email, contraseña y foto de perfil, y borrar la cuenta.
 - Planes (`/#/precios`): Básico (gratis, hasta 3 suscripciones), Premium Lite (hasta 7) y Premium (ilimitadas), más Enterprise por email.
+- Tu plan de Nicotech aparece en el panel como una suscripción más (precio, renovación), sin contar para el límite, con opción de darse de baja (`/#/cancelar-plan`): se deja de cobrar y se conserva el plan hasta el final del periodo pagado.
 - Pago con tarjeta vía **Stripe Checkout** (`/#/pago/:plan`), anual o mensual. Ahora mismo en **modo prueba**: no se cobra nada y se paga con la tarjeta `4242 4242 4242 4242` (cualquier fecha futura y CVC). También se puede activar un plan con un código de acceso.
 - Modo claro/oscuro.
 - PWA instalable (`/#/instalar`, `public/manifest.webmanifest` + `public/sw.js`).
@@ -62,7 +63,7 @@ api/                      Backend PHP (API JSON, sin dependencias)
   config.php               Credenciales (NO se sube a git, ver config.example.php)
   auth/                    register, login, logout, me, google, forgot-password, reset-password
   account/                 update-name, update-email, update-password, upload-avatar, set-tier, delete-account
-  billing/                 config, create-checkout, confirm-checkout (Stripe Checkout)
+  billing/                 config, create-checkout, confirm-checkout, cancel (Stripe Checkout y bajas)
   _stripe.php              Cliente mínimo de la API de Stripe y precios de los planes
   subscriptions/           list, create, update, delete, toggle
   stats/                   user-count
@@ -162,7 +163,8 @@ La pantalla de pago crea una sesión de **Stripe Checkout** (`api/billing/create
 - Clave: `stripe_secret_key` en `api/config.php` (dashboard.stripe.com → Desarrolladores → Claves de API). Con una clave `sk_test_…`/`rk_test_…` todo es modo prueba y la web lo avisa; mientras quede en `CHANGE_ME`, la tarjeta sale como "Próximamente".
 - `app_url` en `api/config.php`: adónde vuelve Stripe tras pagar (`http://localhost:5173` en local).
 - Los precios que se cobran están en `STRIPE_PLAN_PRICES` (`api/_stripe.php`), en céntimos — hay que mantenerlos en sync con `src/lib/pricingPlans.ts`.
-- **Pendiente para cobrar de verdad**: activar la cuenta de Stripe, cambiar a la clave live y añadir un webhook para renovaciones/cancelaciones (ahora el plan se activa al pagar y no se baja solo si la suscripción se cancela en Stripe).
+- Darse de baja desde la web cancela la suscripción en Stripe al final del periodo y la web baja a Básico sola al llegar esa fecha.
+- **Pendiente para cobrar de verdad**: activar la cuenta de Stripe, cambiar a la clave live y añadir un webhook (ahora, si una renovación falla o se cancela desde el panel de Stripe, la web no se entera).
 
 ## Versiones
 
