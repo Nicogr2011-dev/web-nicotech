@@ -17,7 +17,8 @@ Esta fase cubre **organización de suscripciones existentes**, sin compra ni pag
   - Fecha de cobro única (de ahí se deriva el día del mes) y cálculo automático del próximo cobro.
   - Cancelación automática en una fecha concreta que tú eliges (no por número de meses).
   - Resumen y gráficas: gasto mensual total, gasto por categoría, próximo cobro y cancelaciones programadas.
-  - Verificación de suscripciones: al añadir una, llega un email con un código `NCT-XXXXXXXX`; si lo reenvías a verifica@nicotech.es, un cron la marca como verificada.
+  - Comprar desde el formulario: "Comprar" abre la página de planes del servicio (`signupUrl` en el catálogo, o su web) y al volver pregunta si se ha completado la compra — sí (se guarda con fecha de hoy tras revisar el precio), todavía no (queda Pendiente) o no (no se guarda).
+  - Verificación por email (reenviar un código a verifica@nicotech.es) retirada en 20.0; el cron sigue activo solo para códigos antiguos.
 - Mi cuenta (`/#/cuenta`): cambiar nombre, email, contraseña y foto de perfil, y borrar la cuenta.
 - Planes (`/#/precios`): Básico (gratis, hasta 3 suscripciones), Premium Lite (hasta 7) y Premium (ilimitadas), más Enterprise por email.
 - Tu plan de Nicotech aparece en el panel como una suscripción más (precio, renovación), sin contar para el límite, con opción de darse de baja (`/#/cancelar-plan`): se deja de cobrar y se conserva el plan hasta el final del periodo pagado.

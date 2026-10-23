@@ -17,6 +17,11 @@ export type CatalogService = {
    */
   affiliateUrl?: string;
   /**
+   * Página donde se eligen los planes y se da de alta (ej. netflix.com/signup/planform),
+   * cuando se conoce una URL fiable y comprobada. Si no está definida, "Comprar" usa `website`.
+   */
+  signupUrl?: string;
+  /**
    * Enlace directo a la página de gestión/cancelación de la suscripción, cuando se
    * conoce una URL fiable (ej. netflix.com/cancelplan). Si no está definida, se usa
    * `website` a secas como mejor alternativa disponible.
@@ -25,9 +30,9 @@ export type CatalogService = {
   plans: ServicePlan[];
 };
 
-/** URL a usar para el botón "Comprar": el enlace de afiliado si existe, si no la web oficial. */
+/** URL a usar para el botón "Comprar": el enlace de afiliado, si no la página de planes, si no la web oficial. */
 export function getPurchaseUrl(service: CatalogService): string {
-  return service.affiliateUrl ?? service.website;
+  return service.affiliateUrl ?? service.signupUrl ?? service.website;
 }
 
 /** URL a usar para ir a cancelar/gestionar la suscripción. */
@@ -56,12 +61,12 @@ const EUR = "EUR";
  */
 export const SERVICE_CATALOG: CatalogService[] = [
   // --- Streaming de vídeo ---
-  { id: "netflix", name: "Netflix", category: "Streaming de vídeo", website: "https://www.netflix.com", manageUrl: "https://www.netflix.com/cancelplan", plans: [
+  { id: "netflix", name: "Netflix", category: "Streaming de vídeo", website: "https://www.netflix.com", signupUrl: "https://www.netflix.com/signup/planform", manageUrl: "https://www.netflix.com/cancelplan", plans: [
     { name: "Estándar con anuncios", price: 5.99, currency: EUR },
     { name: "Estándar", price: 13.99, currency: EUR },
     { name: "Premium", price: 19.99, currency: EUR },
   ]},
-  { id: "disney-plus", name: "Disney+", category: "Streaming de vídeo", website: "https://www.disneyplus.com", manageUrl: "https://www.disneyplus.com/account/subscription", plans: [
+  { id: "disney-plus", name: "Disney+", category: "Streaming de vídeo", website: "https://www.disneyplus.com", signupUrl: "https://www.disneyplus.com/es-es/sign-up", manageUrl: "https://www.disneyplus.com/account/subscription", plans: [
     { name: "Estándar con anuncios", price: 5.99, currency: EUR },
     { name: "Estándar", price: 9.99, currency: EUR },
     { name: "Premium", price: 13.99, currency: EUR },
@@ -71,7 +76,7 @@ export const SERVICE_CATALOG: CatalogService[] = [
     { name: "Estándar", price: 9.99, currency: EUR },
     { name: "Premium", price: 13.99, currency: EUR },
   ]},
-  { id: "amazon-prime-video", name: "Amazon Prime Video", category: "Streaming de vídeo", website: "https://www.primevideo.com", manageUrl: "https://www.amazon.es/manageyourprime", plans: [
+  { id: "amazon-prime-video", name: "Amazon Prime Video", category: "Streaming de vídeo", website: "https://www.primevideo.com", signupUrl: "https://www.primevideo.com/offers/nonprimehomepage", manageUrl: "https://www.amazon.es/manageyourprime", plans: [
     { name: "Con Prime", price: 4.99, currency: EUR },
     { name: "Sin anuncios", price: 7.98, currency: EUR },
   ]},
@@ -82,7 +87,7 @@ export const SERVICE_CATALOG: CatalogService[] = [
   { id: "atresplayer", name: "Atresplayer", category: "Streaming de vídeo", website: "https://www.atresplayer.com", plans: [
     { name: "Premium", price: 5.99, currency: EUR },
   ]},
-  { id: "skyshowtime", name: "SkyShowtime", category: "Streaming de vídeo", website: "https://www.skyshowtime.com", plans: [
+  { id: "skyshowtime", name: "SkyShowtime", category: "Streaming de vídeo", website: "https://www.skyshowtime.com", signupUrl: "https://www.skyshowtime.com/es/plans", plans: [
     { name: "Con anuncios", price: 3.99, currency: EUR },
     { name: "Sin anuncios", price: 6.99, currency: EUR },
   ]},
@@ -93,7 +98,7 @@ export const SERVICE_CATALOG: CatalogService[] = [
     { name: "Mensual", price: 9.99, currency: EUR },
     { name: "Anual (equiv./mes)", price: 6.66, currency: EUR },
   ]},
-  { id: "crunchyroll", name: "Crunchyroll", category: "Streaming de vídeo", website: "https://www.crunchyroll.com", plans: [
+  { id: "crunchyroll", name: "Crunchyroll", category: "Streaming de vídeo", website: "https://www.crunchyroll.com", signupUrl: "https://www.crunchyroll.com/es/premium", plans: [
     { name: "Fan", price: 6.99, currency: EUR },
     { name: "Mega Fan", price: 9.99, currency: EUR },
   ]},
@@ -132,7 +137,7 @@ export const SERVICE_CATALOG: CatalogService[] = [
     { name: "Con anuncios", price: 4.99, currency: EUR },
     { name: "Sin anuncios", price: 8.99, currency: EUR },
   ]},
-  { id: "youtube-premium", name: "YouTube Premium", category: "Streaming de vídeo", website: "https://www.youtube.com/premium", manageUrl: "https://www.youtube.com/paid_memberships", plans: [
+  { id: "youtube-premium", name: "YouTube Premium", category: "Streaming de vídeo", website: "https://www.youtube.com/premium", signupUrl: "https://www.youtube.com/premium", manageUrl: "https://www.youtube.com/paid_memberships", plans: [
     { name: "Individual", price: 12.99, currency: EUR },
     { name: "Familiar", price: 22.99, currency: EUR },
   ]},
@@ -150,19 +155,19 @@ export const SERVICE_CATALOG: CatalogService[] = [
   ]},
 
   // --- Música y audio ---
-  { id: "spotify", name: "Spotify", category: "Música y audio", website: "https://www.spotify.com", manageUrl: "https://www.spotify.com/account/subscription/", plans: [
+  { id: "spotify", name: "Spotify", category: "Música y audio", website: "https://www.spotify.com", signupUrl: "https://www.spotify.com/es/premium/", manageUrl: "https://www.spotify.com/account/subscription/", plans: [
     { name: "Individual", price: 11.99, currency: EUR },
     { name: "Dúo", price: 16.99, currency: EUR },
     { name: "Familiar", price: 19.99, currency: EUR },
   ]},
-  { id: "apple-music", name: "Apple Music", category: "Música y audio", website: "https://music.apple.com", manageUrl: "https://account.apple.com/account/manage/section/subscriptions", plans: [
+  { id: "apple-music", name: "Apple Music", category: "Música y audio", website: "https://music.apple.com", signupUrl: "https://www.apple.com/es/apple-music/", manageUrl: "https://account.apple.com/account/manage/section/subscriptions", plans: [
     { name: "Individual", price: 10.99, currency: EUR },
     { name: "Familiar", price: 16.99, currency: EUR },
   ]},
-  { id: "youtube-music", name: "YouTube Music", category: "Música y audio", website: "https://music.youtube.com", manageUrl: "https://www.youtube.com/paid_memberships", plans: [
+  { id: "youtube-music", name: "YouTube Music", category: "Música y audio", website: "https://music.youtube.com", signupUrl: "https://music.youtube.com/music_premium", manageUrl: "https://www.youtube.com/paid_memberships", plans: [
     { name: "Individual", price: 10.99, currency: EUR },
   ]},
-  { id: "amazon-music-unlimited", name: "Amazon Music Unlimited", category: "Música y audio", website: "https://music.amazon.com", plans: [
+  { id: "amazon-music-unlimited", name: "Amazon Music Unlimited", category: "Música y audio", website: "https://music.amazon.com", signupUrl: "https://www.amazon.es/music/unlimited", plans: [
     { name: "Individual", price: 10.99, currency: EUR },
     { name: "Con Prime", price: 9.99, currency: EUR },
   ]},
@@ -170,7 +175,7 @@ export const SERVICE_CATALOG: CatalogService[] = [
     { name: "HiFi", price: 10.99, currency: EUR },
     { name: "HiFi Plus", price: 19.99, currency: EUR },
   ]},
-  { id: "deezer", name: "Deezer", category: "Música y audio", website: "https://www.deezer.com", plans: [
+  { id: "deezer", name: "Deezer", category: "Música y audio", website: "https://www.deezer.com", signupUrl: "https://www.deezer.com/es/offers", plans: [
     { name: "Individual", price: 11.99, currency: EUR },
     { name: "Familiar", price: 19.99, currency: EUR },
   ]},
@@ -180,7 +185,7 @@ export const SERVICE_CATALOG: CatalogService[] = [
   { id: "audible", name: "Audible", category: "Música y audio", website: "https://www.audible.com", plans: [
     { name: "Mensual (1 crédito)", price: 9.99, currency: EUR },
   ]},
-  { id: "storytel", name: "Storytel", category: "Música y audio", website: "https://www.storytel.com", plans: [
+  { id: "storytel", name: "Storytel", category: "Música y audio", website: "https://www.storytel.com", signupUrl: "https://www.storytel.com/es/subscriptions", plans: [
     { name: "Individual", price: 9.99, currency: EUR },
   ]},
   { id: "podimo", name: "Podimo", category: "Música y audio", website: "https://podimo.com", plans: [

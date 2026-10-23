@@ -28,7 +28,6 @@ export function SubscriptionCard({
 
   const isPending = isPendingPurchase(subscription);
   const isCancelled = subscription.status === "CANCELLED";
-  const needsVerification = Boolean(subscription.verificationCode) && !subscription.verifiedAt;
 
   async function handleDelete() {
     if (!confirm(`¿Eliminar la suscripción a ${subscription.serviceName}?`)) return;
@@ -86,13 +85,8 @@ export function SubscriptionCard({
         <Badge tone="scheduled">Se cancela el {formatDate(subscription.cancelDate)}</Badge>
       ) : null}
 
-      {subscription.verifiedAt ? (
-        <Badge tone="active">✓ Verificada</Badge>
-      ) : needsVerification ? (
-        <Badge tone="pending" title="Reenvía el email de confirmación a verifica@nicotech.es">
-          Sin verificar
-        </Badge>
-      ) : null}
+      {/* Las verificadas por el antiguo reenvío a verifica@ conservan su marca. */}
+      {subscription.verifiedAt ? <Badge tone="active">✓ Verificada</Badge> : null}
 
       <div className="mt-2 flex gap-2 border-t border-hairline pt-3 text-sm font-semibold">
         <button onClick={onEdit} className="text-azure hover:underline" disabled={isSaving}>

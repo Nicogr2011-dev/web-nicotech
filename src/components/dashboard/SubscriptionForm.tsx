@@ -5,6 +5,19 @@ import { ACCENT_COLORS } from "@/lib/validation";
 import { ServiceSearchCombobox } from "@/components/dashboard/ServiceSearchCombobox";
 import type { SubscriptionView } from "./types";
 
+/**
+ * Compra desde el formulario: "waiting" mientras la web del servicio está abierta,
+ * "confirm" al volver (¿la has comprado?), y luego "bought" (revisa precio y guarda)
+ * o "later" (se guarda como Pendiente en la fecha que elija).
+ */
+type PurchaseStep = null | "waiting" | "confirm" | "bought" | "later";
+
+function isoDate(offsetDays = 0): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().slice(0, 10);
+}
+
 const MAGIC_NAMES = new Set(["skynet", "hal9000", "hal 9000"]);
 const MAGIC_NAME_JOKE =
   "🤖 Buen intento. Nicotech no gestiona suscripciones a inteligencias artificiales con planes de dominación mundial. Prueba con Netflix.";
@@ -27,7 +40,7 @@ export function SubscriptionForm({
   const [website, setWebsite] = useState<string | null>(null);
   const [cancelEnabled, setCancelEnabled] = useState(Boolean(subscription?.cancelDate));
   const [accentColor, setAccentColor] = useState(subscription?.accentColor ?? ACCENT_COLORS[0]);
-  const [waitingForPurchase, setWaitingForPurchase] = useState(false);
+  const [purchaseStep, setPurchaseStep] = useState<PurchaseStep>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const popupPollRef = useRef<number | null>(null);
 
@@ -56,17 +69,33 @@ export function SubscriptionForm({
     } catch {
       setError("No se pudo guardar la suscripción. Revisa los datos.");
       setPending(false);
-      setWaitingForPurchase(false);
     }
   }
 
-  function handleBuyClick() {
-    if (!website || !formRef.current) return;
+  function setStartDate(value: string) {
+    const input = formRef.current?.elements.namedItem("startDate") as HTMLInputElement | null;
+    if (input) input.value = value;
+  }
 
-    const startDateInput = formRef.current.elements.namedItem("startDate") as HTMLInputElement | null;
-    if (startDateInput && !startDateInput.value) {
-      startDateInput.value = new Date().toISOString().slice(0, 10);
-    }
+  function stopWaiting() {
+    if (popupPollRef.current) window.clearInterval(popupPollRef.current);
+    popupPollRef.current = null;
+    setPurchaseStep("confirm");
+  }
+
+  function handleBought() {
+    setStartDate(isoDate());
+    setPurchaseStep("bought");
+    (formRef.current?.elements.namedItem("price") as HTMLInputElement | null)?.focus();
+  }
+
+  function handleLater() {
+    setStartDate(isoDate(1));
+    setPurchaseStep("later");
+  }
+
+  function handleBuyClick() {
+    if (!website) return;
 
     const popup = window.open(website, "nicotech_purchase", "width=480,height=760");
     if (!popup) {
@@ -74,19 +103,26 @@ export function SubscriptionForm({
       return;
     }
 
-    setWaitingForPurchase(true);
+    // Antes se daba por comprada al cerrar la ventana, aunque solo se hubiera mirado.
+    // Ahora al cerrarla (o con "Ya he terminado") se pregunta.
+    setError(null);
+    setPurchaseStep("waiting");
     popupPollRef.current = window.setInterval(() => {
-      if (popup.closed) {
-        if (popupPollRef.current) window.clearInterval(popupPollRef.current);
-        popupPollRef.current = null;
-        setWaitingForPurchase(false);
-        if (formRef.current) handleSubmit(new FormData(formRef.current));
-      }
+      if (popup.closed) stopWaiting();
     }, 500);
   }
 
   return (
-    <form ref={formRef} action={handleSubmit} className="space-y-4">
+    <form
+      ref={formRef}
+      // onSubmit y no action: React 19 vacía los formularios con action al terminar,
+      // y si falla al guardar se perderían los datos (y la fecha elegida al comprar).
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit(new FormData(e.currentTarget));
+      }}
+      className="space-y-4"
+    >
       <ServiceSearchCombobox
         value={serviceName}
         onQueryChange={setServiceName}
@@ -176,9 +212,42 @@ export function SubscriptionForm({
         </div>
       </div>
 
-      {waitingForPurchase ? (
-        <p className="text-sm text-muted">
-          Esperando a que termines en la ventana emergente… al cerrarla, se añadirá la suscripción sola.
+      {purchaseStep === "waiting" ? (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-hairline px-4 py-3 text-sm">
+          <p className="text-muted">Termina la compra en la otra ventana y vuelve aquí.</p>
+          <Button type="button" variant="ghost" className="shrink-0 px-4 py-2 text-sm" onClick={stopWaiting}>
+            Ya he terminado
+          </Button>
+        </div>
+      ) : null}
+
+      {purchaseStep === "confirm" ? (
+        <div className="rounded-xl border-2 border-azure bg-azure/5 px-4 py-4">
+          <p className="font-semibold text-body">¿Has completado la compra en {serviceName}?</p>
+          <div className="mt-3 flex flex-col gap-2">
+            <Button type="button" className="px-4 py-2 text-sm" onClick={handleBought}>
+              Sí, ya la tengo
+            </Button>
+            <Button type="button" variant="secondary" className="px-4 py-2 text-sm" onClick={handleLater}>
+              Todavía no
+            </Button>
+            <Button type="button" variant="ghost" className="px-4 py-2 text-sm" onClick={() => setPurchaseStep(null)}>
+              No la voy a comprar
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      {purchaseStep === "bought" ? (
+        <p className="rounded-xl bg-mint/10 px-4 py-3 text-sm text-body">
+          ¡Genial! Revisa que el precio y la fecha coinciden con lo que has pagado (a veces hay ofertas o impuestos) y
+          pulsa Guardar.
+        </p>
+      ) : null}
+
+      {purchaseStep === "later" ? (
+        <p className="rounded-xl bg-sunflower/10 px-4 py-3 text-sm text-body">
+          Elige en "Fecha de cobro" cuándo la vas a comprar. Se guardará como Pendiente y te lo recordaremos el día antes.
         </p>
       ) : null}
 
@@ -189,13 +258,13 @@ export function SubscriptionForm({
         <Button type="button" variant="ghost" onClick={onCancel}>
           Cancelar
         </Button>
-        {!subscription && website ? (
-          <Button type="button" variant="secondary" disabled={waitingForPurchase} onClick={handleBuyClick}>
-            {waitingForPurchase ? "Esperando…" : "Comprar"}
+        {!subscription && website && purchaseStep === null ? (
+          <Button type="button" variant="secondary" onClick={handleBuyClick}>
+            Comprar
           </Button>
         ) : null}
-        <Button type="submit" disabled={pending || waitingForPurchase}>
-          {pending ? "Guardando…" : "Aceptar"}
+        <Button type="submit" disabled={pending || purchaseStep === "waiting" || purchaseStep === "confirm"}>
+          {pending ? "Guardando…" : purchaseStep === "later" ? "Guardar como pendiente" : purchaseStep === "bought" ? "Guardar" : "Aceptar"}
         </Button>
       </div>
     </form>

@@ -571,6 +571,15 @@ export const CHANGELOG: ChangelogEntry[] = [
       "Elegir Básico en Precios teniendo un plan de pago te bajaba de plan sin cancelar el cobro con tarjeta. Ahora te lleva a la pantalla de baja, que sí lo cancela.",
     bugfix: true,
   },
+  {
+    date: "23.10.26",
+    major: 20,
+    minor: 0,
+    type: "MAJOR",
+    title: "Comprar suscripciones, mejor",
+    description:
+      "\"Comprar\" te lleva ahora directo a la página de planes de Netflix, Spotify, Disney+, YouTube Premium y otros servicios populares. Al volver te preguntamos si la has comprado: si sí, revisas el precio y se guarda; si todavía no, queda como pendiente para recordártelo. Y ya no hace falta reenviar ningún correo a verifica@nicotech.es.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
