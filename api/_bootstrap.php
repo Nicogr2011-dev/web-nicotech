@@ -88,7 +88,7 @@ function user_response(PDO $pdo, int $userId): array
 {
     $stmt = $pdo->prepare(
         'SELECT id, name, email, tier, avatar_path, stripe_subscription_id, plan_interval,
-                plan_started_at, plan_renews_at, plan_ends_at
+                plan_started_at, plan_renews_at, plan_ends_at, limit_grace_ends_at
          FROM users WHERE id = ?'
     );
     $stmt->execute([$userId]);
@@ -101,12 +101,19 @@ function user_response(PDO $pdo, int $userId): array
         return user_response($pdo, $userId);
     }
 
+    // Plazo de 3 meses vencido sin volver a un plan de pago: se aplica el límite.
+    if ($user['limit_grace_ends_at'] !== null && strtotime($user['limit_grace_ends_at']) <= time()) {
+        enforce_tier_limit($pdo, $userId);
+        return user_response($pdo, $userId);
+    }
+
     return [
         'id' => (int) $user['id'],
         'name' => $user['name'],
         'email' => $user['email'],
         'tier' => $user['tier'],
         'avatarUrl' => $user['avatar_path'],
+        'limitGraceEndsAt' => iso_or_null($user['limit_grace_ends_at']),
         'plan' => $user['tier'] === 'BASICO' ? null : [
             'interval' => $user['plan_interval'],
             'viaStripe' => $user['stripe_subscription_id'] !== null,
@@ -122,6 +129,38 @@ function iso_or_null(?string $datetime): ?string
     return $datetime === null ? null : date('c', strtotime($datetime));
 }
 
+/** Máximo de suscripciones activas por plan (Premium no tiene límite). */
+const TIER_LIMITS = ['BASICO' => 3, 'PREMIUM_LITE' => 7];
+
+/** Meses que tiene quien baja a un plan con menos hueco del que usa para volver a uno mayor. */
+const LIMIT_GRACE_MONTHS = 3;
+
+/** Suscripciones que cuentan para el límite: activas y no eliminadas (incluye las pendientes de empezar). */
+function count_limited_subscriptions(PDO $pdo, int $userId): int
+{
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM subscriptions WHERE user_id = ? AND status = 'ACTIVE' AND deleted_at IS NULL");
+    $stmt->execute([$userId]);
+    return (int) $stmt->fetchColumn();
+}
+
+/**
+ * Tras un cambio de plan: si el usuario tiene más suscripciones de las que permite
+ * el plan nuevo, no se cancela nada todavía — tiene LIMIT_GRACE_MONTHS para volver
+ * a un plan mayor (se aplica en user_response() al vencer). Si no se pasa, se cierra
+ * cualquier plazo abierto. Un plazo ya en marcha no se alarga.
+ */
+function update_limit_grace(PDO $pdo, int $userId, string $tier): void
+{
+    $limit = TIER_LIMITS[$tier] ?? null;
+    if ($limit === null || count_limited_subscriptions($pdo, $userId) <= $limit) {
+        $stmt = $pdo->prepare('UPDATE users SET limit_grace_ends_at = NULL WHERE id = ?');
+        $stmt->execute([$userId]);
+        return;
+    }
+    $stmt = $pdo->prepare('UPDATE users SET limit_grace_ends_at = COALESCE(limit_grace_ends_at, ?) WHERE id = ?');
+    $stmt->execute([date('Y-m-d H:i:s', strtotime('+' . LIMIT_GRACE_MONTHS . ' months')), $userId]);
+}
+
 function reset_plan_to_basic(PDO $pdo, int $userId): void
 {
     $stmt = $pdo->prepare(
@@ -129,6 +168,36 @@ function reset_plan_to_basic(PDO $pdo, int $userId): void
                 plan_started_at = NULL, plan_renews_at = NULL, plan_ends_at = NULL
          WHERE id = ?"
     );
+    $stmt->execute([$userId]);
+    update_limit_grace($pdo, $userId, 'BASICO');
+}
+
+/**
+ * Cancela (no elimina) las suscripciones que sobran según el plan actual,
+ * empezando por las añadidas más recientemente, y cierra el plazo.
+ */
+function enforce_tier_limit(PDO $pdo, int $userId): void
+{
+    $stmt = $pdo->prepare('SELECT tier FROM users WHERE id = ?');
+    $stmt->execute([$userId]);
+    $limit = TIER_LIMITS[(string) $stmt->fetchColumn()] ?? null;
+
+    if ($limit !== null) {
+        $stmt = $pdo->prepare(
+            "SELECT id FROM subscriptions WHERE user_id = ? AND status = 'ACTIVE' AND deleted_at IS NULL ORDER BY id ASC"
+        );
+        $stmt->execute([$userId]);
+        $excess = array_slice($stmt->fetchAll(PDO::FETCH_COLUMN), $limit);
+        if ($excess) {
+            $placeholders = implode(',', array_fill(0, count($excess), '?'));
+            $stmt = $pdo->prepare(
+                "UPDATE subscriptions SET status = 'CANCELLED', cancelled_at = ? WHERE user_id = ? AND id IN ($placeholders)"
+            );
+            $stmt->execute(array_merge([date('Y-m-d H:i:s'), $userId], $excess));
+        }
+    }
+
+    $stmt = $pdo->prepare('UPDATE users SET limit_grace_ends_at = NULL WHERE id = ?');
     $stmt->execute([$userId]);
 }
 

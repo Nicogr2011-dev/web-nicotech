@@ -11,8 +11,13 @@ export type Plan = {
   /** null = plan gratuito (Básico) */
   priceYearly: number | null;
   priceMonthly: number | null;
+  /** Máximo de suscripciones activas; null = ilimitadas. Mantener en sync con TIER_LIMITS en api/_bootstrap.php. */
+  subscriptionLimit: number | null;
   features: string[];
 };
+
+/** Meses para volver a un plan mayor al bajar a uno cuyo límite superas (LIMIT_GRACE_MONTHS en el backend). */
+export const LIMIT_GRACE_MONTHS = 3;
 
 export const PLANS: Plan[] = [
   {
@@ -23,6 +28,7 @@ export const PLANS: Plan[] = [
     tagline: "Para empezar a organizarte",
     priceYearly: null,
     priceMonthly: null,
+    subscriptionLimit: 3,
     features: ["Todas las funciones de Nicotech", "Hasta 3 suscripciones a la vez"],
   },
   {
@@ -33,6 +39,7 @@ export const PLANS: Plan[] = [
     tagline: "Sin límites de suscripciones",
     priceYearly: 10,
     priceMonthly: 1,
+    subscriptionLimit: null,
     features: ["Todas las funciones de Nicotech", "Suscripciones ilimitadas"],
   },
   {
@@ -43,6 +50,7 @@ export const PLANS: Plan[] = [
     tagline: "Un punto intermedio, más barato",
     priceYearly: 8,
     priceMonthly: 0.7,
+    subscriptionLimit: 7,
     features: ["Todas las funciones de Nicotech", "Hasta 7 suscripciones a la vez"],
   },
 ];

@@ -542,6 +542,35 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Si tienes Premium o Premium Lite, ahora lo ves en tu panel junto al resto de suscripciones, con su precio y cuándo se renueva — y no ocupa hueco en tu límite. Desde ahí también puedes darte de baja: dejamos de cobrarte y conservas el plan hasta el final de lo que ya has pagado.",
   },
+  {
+    date: "23.10.26",
+    major: 19,
+    minor: 0,
+    type: "MAJOR",
+    title: "3 meses para renovar al bajar de plan",
+    description:
+      "Si pasas a un plan con menos hueco del que usas (por ejemplo, de Premium a Básico con más de 3 suscripciones), tienes 3 meses para volver a un plan superior. Te avisamos en tu panel de la fecha y de cuáles se cancelarían; si no renuevas, cancelamos las más recientes hasta quedarte en el límite.",
+  },
+  {
+    date: "23.10.26",
+    major: 19,
+    minor: 1,
+    type: "MINOR",
+    title: "Eliminar una suscripción libera hueco",
+    description:
+      "Las suscripciones que eliminabas seguían contando para el límite de tu plan, así que no podías añadir otra en su lugar. Ya no cuentan.",
+    bugfix: true,
+  },
+  {
+    date: "23.10.26",
+    major: 19,
+    minor: 2,
+    type: "MINOR",
+    title: "Cambiar a Básico desde Precios cancela el cobro",
+    description:
+      "Elegir Básico en Precios teniendo un plan de pago te bajaba de plan sin cancelar el cobro con tarjeta. Ahora te lleva a la pantalla de baja, que sí lo cancela.",
+    bugfix: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

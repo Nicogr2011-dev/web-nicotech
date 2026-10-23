@@ -21,6 +21,7 @@ Esta fase cubre **organización de suscripciones existentes**, sin compra ni pag
 - Mi cuenta (`/#/cuenta`): cambiar nombre, email, contraseña y foto de perfil, y borrar la cuenta.
 - Planes (`/#/precios`): Básico (gratis, hasta 3 suscripciones), Premium Lite (hasta 7) y Premium (ilimitadas), más Enterprise por email.
 - Tu plan de Nicotech aparece en el panel como una suscripción más (precio, renovación), sin contar para el límite, con opción de darse de baja (`/#/cancelar-plan`): se deja de cobrar y se conserva el plan hasta el final del periodo pagado.
+- Al bajar a un plan con menos hueco del que se usa (p. ej. a Básico con más de 3 suscripciones) hay **3 meses** para volver a un plan superior; el panel avisa de la fecha y de cuáles se cancelarían, y al vencer se cancelan las más recientes hasta quedar en el límite.
 - Pago con tarjeta vía **Stripe Checkout** (`/#/pago/:plan`), anual o mensual. Ahora mismo en **modo prueba**: no se cobra nada y se paga con la tarjeta `4242 4242 4242 4242` (cualquier fecha futura y CVC). También se puede activar un plan con un código de acceso.
 - Modo claro/oscuro.
 - PWA instalable (`/#/instalar`, `public/manifest.webmanifest` + `public/sw.js`).

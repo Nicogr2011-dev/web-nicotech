@@ -14,6 +14,8 @@ import { SubscriptionForm } from "@/components/dashboard/SubscriptionForm";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { NicotechPlanCard } from "@/components/dashboard/NicotechPlanCard";
 import { useAuth } from "@/lib/AuthContext";
+import { PLANS } from "@/lib/pricingPlans";
+import { ButtonLink } from "@/components/ui/Button";
 import type { SubscriptionView } from "./types";
 
 type RawSubscription = Omit<SubscriptionView, "nextChargeDate">;
@@ -120,6 +122,18 @@ export function SubscriptionsSection() {
       }
     : null;
 
+  // Plazo tras bajar de plan: mismas reglas que enforce_tier_limit() en el backend
+  // (cuentan las activas no eliminadas; sobran las añadidas más recientemente).
+  const currentPlan = PLANS.find((p) => p.id === user?.tier);
+  const limit = currentPlan?.subscriptionLimit ?? null;
+  const overLimit =
+    user?.limitGraceEndsAt && limit !== null
+      ? visibleSubscriptions
+          .filter((s) => s.status === "ACTIVE")
+          .sort((a, b) => Number(a.id) - Number(b.id))
+          .slice(limit)
+      : [];
+
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowIso = tomorrow.toISOString().slice(0, 10);
@@ -157,6 +171,29 @@ export function SubscriptionsSection() {
             Recuerda comprarlas mañana:{" "}
             <span className="font-medium text-muted">{dueTomorrow.map((s) => s.serviceName).join(", ")}</span>
           </p>
+        </div>
+      ) : null}
+
+      {overLimit.length > 0 && user?.limitGraceEndsAt && currentPlan ? (
+        <div className="flex flex-col gap-3 rounded-2xl border border-coral/40 bg-coral/10 px-5 py-4 sm:flex-row sm:items-center">
+          <div className="flex-1 text-sm">
+            <p className="font-bold text-body">
+              Tienes {overLimit.length + (limit ?? 0)} suscripciones y tu plan {currentPlan.name} permite {limit}.
+            </p>
+            <p className="mt-1 text-muted">
+              Si no vuelves a un plan superior antes del{" "}
+              <span className="font-semibold text-body">
+                {new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", year: "numeric" }).format(
+                  new Date(user.limitGraceEndsAt)
+                )}
+              </span>
+              , cancelaremos {overLimit.length === 1 ? "la más reciente" : `las ${overLimit.length} más recientes`}:{" "}
+              {overLimit.map((s) => s.serviceName).join(", ")}.
+            </p>
+          </div>
+          <ButtonLink href="/precios" className="shrink-0">
+            Ver planes
+          </ButtonLink>
         </div>
       ) : null}
 

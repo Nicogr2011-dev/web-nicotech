@@ -63,5 +63,6 @@ $stmt->execute([
     $periodEnd !== null ? date('Y-m-d H:i:s', (int) $periodEnd) : null,
     $userId,
 ]);
+update_limit_grace($pdo, $userId, $tier);
 
 json_response(['user' => user_response($pdo, $userId)]);

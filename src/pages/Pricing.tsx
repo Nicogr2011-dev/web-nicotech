@@ -135,6 +135,16 @@ export default function PricingPage() {
                     <div className="rounded-full bg-body/5 px-5 py-3 text-center text-sm font-semibold text-body">
                       Tu plan actual
                     </div>
+                  ) : plan.id === "BASICO" && user.plan?.endsAt ? (
+                    <div className="rounded-full bg-body/5 px-5 py-3 text-center text-sm font-semibold text-muted">
+                      Baja ya programada
+                    </div>
+                  ) : plan.id === "BASICO" && user.plan ? (
+                    // Pasar a Básico desde un plan de pago es darse de baja: tiene que
+                    // cancelar el cobro en Stripe y avisar del plazo de 3 meses.
+                    <ButtonLink href="/cancelar-plan" variant="secondary" className="w-full">
+                      Cambiar a este plan
+                    </ButtonLink>
                   ) : canInstantSwitch ? (
                     <Button
                       variant="secondary"

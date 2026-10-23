@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
   plan_started_at DATETIME NULL,
   plan_renews_at DATETIME NULL,
   plan_ends_at DATETIME NULL,
+  limit_grace_ends_at DATETIME NULL,
   reset_token VARCHAR(64) NULL,
   reset_token_expires DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

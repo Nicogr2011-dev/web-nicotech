@@ -9,6 +9,8 @@ export type AuthUser = {
   email: string;
   tier: "BASICO" | "PREMIUM" | "PREMIUM_LITE";
   avatarUrl: string | null;
+  /** Si tiene más suscripciones de las que permite su plan: hasta cuándo puede volver a uno mayor antes de que se cancelen las sobrantes. */
+  limitGraceEndsAt: string | null;
   /** Plan de pago de Nicotech; null en Básico. */
   plan: {
     interval: "year" | "month" | null;

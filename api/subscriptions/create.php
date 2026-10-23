@@ -19,13 +19,9 @@ $stmt = $pdo->prepare('SELECT tier FROM users WHERE id = ?');
 $stmt->execute([$userId]);
 $tier = $stmt->fetchColumn();
 
-$tierLimits = ['BASICO' => 3, 'PREMIUM_LITE' => 7];
-
-if (isset($tierLimits[$tier])) {
-    $limit = $tierLimits[$tier];
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM subscriptions WHERE user_id = ? AND status = 'ACTIVE'");
-    $stmt->execute([$userId]);
-    if ((int) $stmt->fetchColumn() >= $limit) {
+if (isset(TIER_LIMITS[$tier])) {
+    $limit = TIER_LIMITS[$tier];
+    if (count_limited_subscriptions($pdo, $userId) >= $limit) {
         json_error("Has alcanzado el límite de {$limit} suscripciones de tu plan. Pásate a un plan superior para añadir más.", 403);
     }
 }
