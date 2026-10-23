@@ -39,22 +39,11 @@ export const IconInput = forwardRef<
   );
 });
 
-export function Field({
-  label,
-  htmlFor,
-  error,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
+export function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: React.ReactNode }) {
   return (
     <div>
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
-      {error ? <p className="mt-1 text-sm text-coral">{error}</p> : null}
     </div>
   );
 }

@@ -580,6 +580,66 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "\"Comprar\" te lleva ahora directo a la página de planes de Netflix, Spotify, Disney+, YouTube Premium y otros servicios populares. Al volver te preguntamos si la has comprado: si sí, revisas el precio y se guarda; si todavía no, queda como pendiente para recordártelo. Y ya no hace falta reenviar ningún correo a verifica@nicotech.es.",
   },
+  {
+    date: "23.10.26",
+    major: 20,
+    minor: 1,
+    type: "MINOR",
+    title: "La cancelación programada ya funciona",
+    description:
+      "Si marcabas una fecha para cancelar una suscripción, al llegar ese día seguía activa y contando en tu gasto. Ahora pasa a cancelada ese día, el panel te recuerda la víspera que la canceles en el servicio (con enlace directo) y el próximo cobro ya no muestra cobros posteriores a la cancelación.",
+    bugfix: true,
+  },
+  {
+    date: "23.10.26",
+    major: 20,
+    minor: 2,
+    type: "MINOR",
+    title: "Cerrar la ventana de Google ya no bloquea el inicio de sesión",
+    description:
+      "Si cerrabas la ventana de Google sin elegir cuenta, los botones de entrar se quedaban desactivados hasta recargar la página.",
+    bugfix: true,
+  },
+  {
+    date: "23.10.26",
+    major: 20,
+    minor: 3,
+    type: "MINOR",
+    title: "Mejoras internas",
+    description:
+      "Ajustes para mejorar la experiencia de usuario.",
+    confidential: true,
+  },
+  {
+    date: "23.10.26",
+    major: 20,
+    minor: 4,
+    type: "MINOR",
+    title: "Mi cuenta, para quien entra con Google",
+    description:
+      "Si te registraste con Google, ahora puedes crear una contraseña, ver por qué no puedes cambiar el email todavía y eliminar tu cuenta (antes daba error).",
+    bugfix: true,
+  },
+  {
+    date: "23.10.26",
+    major: 20,
+    minor: 5,
+    type: "MINOR",
+    title: "Arreglos en el panel y los formularios",
+    description:
+      "Los errores al eliminar, reactivar o añadir suscripciones ahora se explican en vez de dejar los botones bloqueados; los formularios de Mi cuenta y de recuperar contraseña ya no se vacían al fallar; las gráficas ya no suman euros con dólares; y las fechas pendientes y de cobro se calculan bien a cualquier hora.",
+    bugfix: true,
+  },
+  {
+    date: "23.10.26",
+    major: 20,
+    minor: 6,
+    type: "MINOR",
+    title: "Mejoras internas",
+    description:
+      "Ajustes para mejorar la experiencia de usuario.",
+    confidential: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

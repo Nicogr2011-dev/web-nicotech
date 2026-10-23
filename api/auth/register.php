@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $body = read_json_body();
-$name = trim((string) ($body['name'] ?? ''));
+$name = clean_name((string) ($body['name'] ?? ''));
 $email = trim((string) ($body['email'] ?? ''));
 $password = (string) ($body['password'] ?? '');
 $recaptchaToken = $body['recaptchaToken'] ?? null;

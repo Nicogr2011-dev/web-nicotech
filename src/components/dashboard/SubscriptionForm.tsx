@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Field, Input, Label } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { ACCENT_COLORS } from "@/lib/validation";
+import { localIsoDate } from "@/lib/subscriptions";
+import { ApiError } from "@/lib/api";
 import { ServiceSearchCombobox } from "@/components/dashboard/ServiceSearchCombobox";
 import type { SubscriptionView } from "./types";
 
@@ -15,7 +17,7 @@ type PurchaseStep = null | "waiting" | "confirm" | "bought" | "later";
 function isoDate(offsetDays = 0): string {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);
-  return d.toISOString().slice(0, 10);
+  return localIsoDate(d);
 }
 
 const MAGIC_NAMES = new Set(["skynet", "hal9000", "hal 9000"]);
@@ -66,8 +68,9 @@ export function SubscriptionForm({
 
     try {
       await onSubmit(formData);
-    } catch {
-      setError("No se pudo guardar la suscripción. Revisa los datos.");
+    } catch (err) {
+      // El servidor explica el motivo (ej. "Has alcanzado el límite de 3 suscripciones…").
+      setError(err instanceof ApiError ? err.message : "No se pudo guardar la suscripción. Revisa los datos.");
       setPending(false);
     }
   }
@@ -125,7 +128,11 @@ export function SubscriptionForm({
     >
       <ServiceSearchCombobox
         value={serviceName}
-        onQueryChange={setServiceName}
+        onQueryChange={(name) => {
+          // Si escribe otro nombre a mano, "Comprar" ya no debe abrir la web del servicio que eligió antes.
+          setServiceName(name);
+          setWebsite(null);
+        }}
         onSelectPlan={({ serviceName, price, currency, website }) => {
           setServiceName(serviceName);
           setPrice(String(price));
@@ -165,7 +172,7 @@ export function SubscriptionForm({
           id="startDate"
           name="startDate"
           type="date"
-          defaultValue={subscription?.startDate?.slice(0, 10) ?? new Date().toISOString().slice(0, 10)}
+          defaultValue={subscription?.startDate?.slice(0, 10) ?? localIsoDate()}
           required
         />
       </Field>

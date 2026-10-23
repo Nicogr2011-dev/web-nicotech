@@ -20,7 +20,7 @@ const features = [
   {
     icon: <HourglassIcon color="#2ec4b6" />,
     title: "Programa la cancelación",
-    text: "Marca el día y te avisaremos cuando lo tengas que cancelar.",
+    text: "Marca el día: te recordamos cancelarla la víspera y deja de contar en tu gasto.",
     bg: "bg-mint/10",
   },
   {

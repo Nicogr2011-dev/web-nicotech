@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { clsx } from "clsx";
 import { apiGet, apiPost } from "@/lib/api";
-import { computeNextChargeDate, isPendingPurchase } from "@/lib/subscriptions";
+import { chargesBeforeCancelling, computeNextChargeDate, isPendingPurchase, localIsoDate, parseLocalDate } from "@/lib/subscriptions";
+import { findCatalogServiceByName, getManageUrl } from "@/lib/serviceCatalog";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { ClockIcon } from "@/components/ui/Icon";
@@ -23,7 +24,7 @@ type RawSubscription = Omit<SubscriptionView, "nextChargeDate">;
 function withComputedFields(raw: RawSubscription[]): SubscriptionView[] {
   return raw.map((s) => ({
     ...s,
-    nextChargeDate: computeNextChargeDate(new Date(s.startDate)).toISOString(),
+    nextChargeDate: computeNextChargeDate(parseLocalDate(s.startDate)).toISOString(),
   }));
 }
 
@@ -54,6 +55,7 @@ export function SubscriptionsSection() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [partying, setPartying] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     function handleParty() {
@@ -65,8 +67,13 @@ export function SubscriptionsSection() {
   }, []);
 
   const load = useCallback(async () => {
-    const data = await apiGet<{ subscriptions: RawSubscription[] }>("/subscriptions/list.php");
-    setSubscriptions(withComputedFields(data.subscriptions));
+    try {
+      const data = await apiGet<{ subscriptions: RawSubscription[] }>("/subscriptions/list.php");
+      setSubscriptions(withComputedFields(data.subscriptions));
+      setLoadError(false);
+    } catch {
+      setLoadError(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -96,7 +103,16 @@ export function SubscriptionsSection() {
   }
 
   if (subscriptions === null) {
-    return <p className="text-muted">Cargando tus suscripciones…</p>;
+    return loadError ? (
+      <div className="space-y-3">
+        <p className="text-muted">No hemos podido cargar tus suscripciones.</p>
+        <Button variant="secondary" onClick={() => load()}>
+          Reintentar
+        </Button>
+      </div>
+    ) : (
+      <p className="text-muted">Cargando tus suscripciones…</p>
+    );
   }
 
   // Las eliminadas (deletedAt) se quedan fuera de todo lo "visible" — pero se siguen
@@ -107,10 +123,16 @@ export function SubscriptionsSection() {
   const activeSubs = visibleSubscriptions.filter((s) => s.status === "ACTIVE" && !isPendingPurchase(s));
   const pendingSubs = visibleSubscriptions.filter((s) => isPendingPurchase(s));
   const cancelledSubs = visibleSubscriptions.filter((s) => s.status === "CANCELLED");
-  const currency = visibleSubscriptions[0]?.currency ?? "EUR";
-  const scheduledCancellations = visibleSubscriptions.filter((s) => s.cancelDate).length;
+  // Las gráficas no pueden sumar euros con dólares: se muestran en la moneda más
+  // usada y las suscripciones en otras monedas se quedan fuera (con un aviso).
+  const currencyCounts = new Map<string, number>();
+  visibleSubscriptions.forEach((s) => currencyCounts.set(s.currency, (currencyCounts.get(s.currency) ?? 0) + 1));
+  const currency = [...currencyCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "EUR";
+  const chartSubscriptions = subscriptions.filter((s) => s.currency === currency);
+  const otherCurrencyCount = visibleSubscriptions.filter((s) => s.currency !== currency).length;
+  const scheduledCancellations = visibleSubscriptions.filter((s) => s.status === "ACTIVE" && s.cancelDate).length;
 
-  const nextChargeSub = [...activeSubs, ...pendingSubs].sort(
+  const nextChargeSub = [...activeSubs, ...pendingSubs].filter(chargesBeforeCancelling).sort(
     (a, b) => new Date(a.nextChargeDate).getTime() - new Date(b.nextChargeDate).getTime()
   )[0];
   const nextCharge = nextChargeSub
@@ -136,9 +158,14 @@ export function SubscriptionsSection() {
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowIso = tomorrow.toISOString().slice(0, 10);
+  const tomorrowIso = localIsoDate(tomorrow);
   const dueTomorrow = visibleSubscriptions.filter(
     (s) => s.status === "ACTIVE" && s.startDate.slice(0, 10) === tomorrowIso
+  );
+  // Nicotech no puede darse de baja en Netflix por ti: el día antes de la fecha
+  // programada te recuerda hacerlo (ese día la marcamos como cancelada sola).
+  const cancelTomorrow = visibleSubscriptions.filter(
+    (s) => s.status === "ACTIVE" && s.cancelDate?.slice(0, 10) === tomorrowIso
   );
 
   function renderCard(subscription: SubscriptionView, i: number) {
@@ -174,6 +201,30 @@ export function SubscriptionsSection() {
         </div>
       ) : null}
 
+      {cancelTomorrow.length > 0 ? (
+        <div className="flex items-start gap-3 rounded-2xl border border-grape/30 bg-grape/10 px-5 py-4">
+          <ClockIcon size={20} color="#8338ec" className="mt-0.5 shrink-0" />
+          <p className="text-sm font-bold text-body">
+            Recuerda cancelarlas antes de mañana:{" "}
+            {cancelTomorrow.map((s, i) => {
+              const service = findCatalogServiceByName(s.serviceName);
+              return (
+                <span key={s.id} className="font-medium text-muted">
+                  {i > 0 ? ", " : ""}
+                  {service ? (
+                    <a href={getManageUrl(service)} target="_blank" rel="noopener noreferrer" className="text-grape hover:underline">
+                      {s.serviceName}
+                    </a>
+                  ) : (
+                    s.serviceName
+                  )}
+                </span>
+              );
+            })}
+          </p>
+        </div>
+      ) : null}
+
       {overLimit.length > 0 && user?.limitGraceEndsAt && currentPlan ? (
         <div className="flex flex-col gap-3 rounded-2xl border border-coral/40 bg-coral/10 px-5 py-4 sm:flex-row sm:items-center">
           <div className="flex-1 text-sm">
@@ -200,9 +251,15 @@ export function SubscriptionsSection() {
       <SummaryStats nextCharge={nextCharge} scheduledCancellations={scheduledCancellations} />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <MonthlySpendChart subscriptions={subscriptions} currency={currency} />
-        <CategorySpendChart subscriptions={subscriptions} currency={currency} />
+        <MonthlySpendChart subscriptions={chartSubscriptions} currency={currency} />
+        <CategorySpendChart subscriptions={chartSubscriptions} currency={currency} />
       </div>
+      {otherCurrencyCount > 0 ? (
+        <p className="-mt-5 text-xs text-muted">
+          Las gráficas están en {currency}: {otherCurrencyCount === 1 ? "1 suscripción" : `${otherCurrencyCount} suscripciones`} en
+          otra moneda no {otherCurrencyCount === 1 ? "se incluye" : "se incluyen"}.
+        </p>
+      ) : null}
 
       {user?.plan ? (
         <div>

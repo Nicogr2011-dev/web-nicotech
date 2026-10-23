@@ -20,7 +20,10 @@ $stmt = $pdo->prepare('SELECT password_hash FROM users WHERE id = ?');
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
-if (!$user || !password_verify($currentPassword, $user['password_hash'])) {
+if ($user['password_hash'] === null) {
+    json_error('Tu cuenta entra con Google: crea primero una contraseña para poder cambiar el email.', 409);
+}
+if (!check_password($currentPassword, $user['password_hash'])) {
     json_error('Contraseña incorrecta', 401);
 }
 

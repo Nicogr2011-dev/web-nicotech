@@ -47,7 +47,10 @@ export function getManageUrl(service: CatalogService): string {
  * mano no coincidirán con nada, y eso está bien (no hay enlace de cancelación que dar).
  */
 export function findCatalogServiceByName(serviceName: string): CatalogService | undefined {
-  return SERVICE_CATALOG.find((service) => serviceName.startsWith(service.name));
+  // La coincidencia más larga: "Notion AI (…)" es Notion AI, no Notion.
+  return SERVICE_CATALOG.filter(
+    (service) => serviceName === service.name || serviceName.startsWith(`${service.name} (`)
+  ).sort((a, b) => b.name.length - a.name.length)[0];
 }
 
 const EUR = "EUR";
@@ -59,7 +62,7 @@ const EUR = "EUR";
  * `website` es la web oficial del servicio, usada solo para el botón "Comprar" (abre
  * la web real en otra pestaña; Nicotech nunca gestiona el pago).
  */
-export const SERVICE_CATALOG: CatalogService[] = [
+const SERVICE_CATALOG: CatalogService[] = [
   // --- Streaming de vídeo ---
   { id: "netflix", name: "Netflix", category: "Streaming de vídeo", website: "https://www.netflix.com", signupUrl: "https://www.netflix.com/signup/planform", manageUrl: "https://www.netflix.com/cancelplan", plans: [
     { name: "Estándar con anuncios", price: 5.99, currency: EUR },

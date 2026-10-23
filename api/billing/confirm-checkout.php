@@ -36,6 +36,14 @@ if (!isset(STRIPE_PLAN_PRICES[$tier])) {
 }
 
 $subscription = is_array($session['subscription'] ?? null) ? $session['subscription'] : [];
+
+// La misma sesión se puede volver a enviar más tarde (no caduca). Solo vale si su
+// suscripción sigue viva y sin baja programada: si no, reenviar un pago antiguo
+// tras darse de baja o cambiar de plan daría el plan gratis para siempre.
+if (!in_array($subscription['status'] ?? '', ['active', 'trialing'], true) || !empty($subscription['cancel_at_period_end'])) {
+    json_error('Este pago ya no está activo.', 409);
+}
+
 $interval = (string) ($session['metadata']['interval'] ?? '');
 // En las versiones recientes de la API el periodo va en cada item, no en la suscripción.
 $periodEnd = $subscription['items']['data'][0]['current_period_end'] ?? $subscription['current_period_end'] ?? null;

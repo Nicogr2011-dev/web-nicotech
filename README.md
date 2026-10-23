@@ -15,7 +15,7 @@ Esta fase cubre **organización de suscripciones existentes**, sin compra ni pag
   - Alta, edición, cancelación y borrado de suscripciones.
   - Buscador de servicios sobre un catálogo curado de ~170 servicios reales (streaming, música, software, gaming, IA, etc.) con sus planes y precios de referencia (`src/lib/serviceCatalog.ts`) — al elegir un plan se prellenan precio y moneda, siempre editables. Si el servicio no está en el catálogo, se puede escribir el nombre a mano.
   - Fecha de cobro única (de ahí se deriva el día del mes) y cálculo automático del próximo cobro.
-  - Cancelación automática en una fecha concreta que tú eliges (no por número de meses).
+  - Cancelación programada en una fecha concreta que tú eliges: la víspera el panel te recuerda cancelarla en el servicio (con enlace a su página de gestión) y ese día pasa a "Cancelada" y deja de contar en el gasto.
   - Resumen y gráficas: gasto mensual total, gasto por categoría, próximo cobro y cancelaciones programadas.
   - Comprar desde el formulario: "Comprar" abre la página de planes del servicio (`signupUrl` en el catálogo, o su web) y al volver pregunta si se ha completado la compra — sí (se guarda con fecha de hoy tras revisar el precio), todavía no (queda Pendiente) o no (no se guarda).
   - Verificación por email (reenviar un código a verifica@nicotech.es) retirada en 20.0; el cron sigue activo solo para códigos antiguos.

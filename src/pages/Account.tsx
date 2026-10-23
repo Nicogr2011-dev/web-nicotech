@@ -10,6 +10,17 @@ import { useAuth } from "@/lib/AuthContext";
 
 type Message = { type: "ok" | "error"; text: string };
 
+/**
+ * onSubmit y no action: React 19 vacía los formularios con action al terminar,
+ * y un error (ej. contraseña incorrecta) borraría lo que el usuario escribió.
+ */
+function submitWith(handler: (formData: FormData) => void) {
+  return (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handler(new FormData(e.currentTarget));
+  };
+}
+
 function InlineMessage({ message }: { message: Message | null }) {
   if (!message) return null;
   return <p className={`text-sm ${message.type === "error" ? "text-coral" : "text-mint"}`}>{message.text}</p>;
@@ -77,6 +88,7 @@ export default function AccountPage() {
   async function handlePasswordSubmit(formData: FormData) {
     const currentPassword = String(formData.get("currentPassword") ?? "");
     const newPassword = String(formData.get("newPassword") ?? "");
+    const hadPassword = user?.hasPassword; // tras guardar, user ya trae hasPassword: true
     setPasswordPending(true);
     setPasswordMsg(null);
     const { error } = await updatePassword(currentPassword, newPassword);
@@ -85,7 +97,7 @@ export default function AccountPage() {
       setPasswordMsg({ type: "error", text: error });
       return;
     }
-    setPasswordMsg({ type: "ok", text: "Contraseña actualizada." });
+    setPasswordMsg({ type: "ok", text: hadPassword ? "Contraseña actualizada." : "Contraseña creada." });
     if (currentPasswordRef.current) currentPasswordRef.current.value = "";
     if (newPasswordRef.current) newPasswordRef.current.value = "";
   }
@@ -150,7 +162,7 @@ export default function AccountPage() {
 
         <Card className="mt-6 p-6">
           <h2 className="font-display text-lg font-bold text-body">Nombre</h2>
-          <form action={handleNameSubmit} className="mt-4 space-y-3">
+          <form onSubmit={submitWith(handleNameSubmit)} className="mt-4 space-y-3">
             <Field label="Nombre" htmlFor="account-name">
               <IconInput
                 id="account-name"
@@ -169,7 +181,12 @@ export default function AccountPage() {
 
         <Card className="mt-6 p-6">
           <h2 className="font-display text-lg font-bold text-body">Email</h2>
-          <form action={handleEmailSubmit} className="mt-4 space-y-3">
+          {user && !user.hasPassword ? (
+            <p className="mt-2 text-sm text-muted">
+              Entras con Google ({user.email}). Para cambiar el email, crea primero una contraseña aquí abajo.
+            </p>
+          ) : (
+          <form onSubmit={submitWith(handleEmailSubmit)} className="mt-4 space-y-3">
             <Field label="Nuevo email" htmlFor="account-email">
               <IconInput
                 id="account-email"
@@ -196,21 +213,29 @@ export default function AccountPage() {
               {emailPending ? "Guardando…" : "Guardar email"}
             </Button>
           </form>
+          )}
         </Card>
 
         <Card className="mt-6 p-6">
-          <h2 className="font-display text-lg font-bold text-body">Contraseña</h2>
-          <form action={handlePasswordSubmit} className="mt-4 space-y-3">
-            <Field label="Contraseña actual" htmlFor="account-current-password">
-              <IconInput
-                ref={currentPasswordRef}
-                id="account-current-password"
-                name="currentPassword"
-                type="password"
-                icon={<LockIcon size={16} />}
-                required
-              />
-            </Field>
+          <h2 className="font-display text-lg font-bold text-body">
+            {user?.hasPassword ? "Contraseña" : "Crear contraseña"}
+          </h2>
+          {user && !user.hasPassword ? (
+            <p className="mt-1 text-sm text-muted">Así también podrás entrar con tu email, además de con Google.</p>
+          ) : null}
+          <form onSubmit={submitWith(handlePasswordSubmit)} className="mt-4 space-y-3">
+            {user?.hasPassword ? (
+              <Field label="Contraseña actual" htmlFor="account-current-password">
+                <IconInput
+                  ref={currentPasswordRef}
+                  id="account-current-password"
+                  name="currentPassword"
+                  type="password"
+                  icon={<LockIcon size={16} />}
+                  required
+                />
+              </Field>
+            ) : null}
             <Field label="Nueva contraseña" htmlFor="account-new-password">
               <IconInput
                 ref={newPasswordRef}
@@ -242,10 +267,13 @@ export default function AccountPage() {
             </Button>
           ) : (
             <div className="mt-4 space-y-3">
-              <Field label="Confirma tu contraseña" htmlFor="account-delete-password">
+              <Field
+                label={user?.hasPassword ? "Confirma tu contraseña" : "Escribe ELIMINAR para confirmar"}
+                htmlFor="account-delete-password"
+              >
                 <IconInput
                   id="account-delete-password"
-                  type="password"
+                  type={user?.hasPassword ? "password" : "text"}
                   icon={<LockIcon size={16} />}
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}

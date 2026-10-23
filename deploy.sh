@@ -6,6 +6,10 @@ set -e
 
 TARGET="${1:-$HOME/www}"
 
+# assets/ lleva un hash en cada nombre: sin borrarla se acumulan todas las
+# compilaciones anteriores. La app es un único bundle y sw.js no cachea, así que
+# sustituirla entera no rompe a nadie.
+rm -rf "$TARGET/assets"
 cp -r dist/. "$TARGET/"
 rm -rf "$TARGET/api"
 cp -r api "$TARGET/api"

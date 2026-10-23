@@ -23,7 +23,11 @@ function loadScript(): Promise<void> {
     script.src = `https://www.google.com/recaptcha/api.js?render=${SITE_KEY}`;
     script.async = true;
     script.onload = () => resolve();
-    script.onerror = () => reject(new Error("No se pudo cargar reCAPTCHA"));
+    script.onerror = () => {
+      scriptPromise = null; // que el siguiente intento lo vuelva a cargar
+      script.remove();
+      reject(new Error("No se pudo cargar reCAPTCHA"));
+    };
     document.head.appendChild(script);
   });
 

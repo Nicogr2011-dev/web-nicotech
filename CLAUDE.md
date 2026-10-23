@@ -59,6 +59,15 @@ The `type` field (`MAJOR`/`MINOR`) is only read for entries with *no* suffix: `b
 
 See [[feedback_versioning_discipline]] pattern: essentially every change gets a version bump and changelog entry.
 
+**Conventions worth knowing** (from the `20.1`–`20.6` cleanup):
+- PHP runs in `Europe/Madrid` (set in `_bootstrap.php`), same as MySQL `NOW()` and production; "today" for date-only columns is `date('Y-m-d')`. Frontend: never `toISOString().slice(0, 10)` (UTC → wrong day after midnight in Spain) — use `localIsoDate()` / `parseLocalDate()` from `src/lib/subscriptions.ts`; MySQL datetimes need `replace(" ", "T")` before `new Date()` (Safari).
+- Scheduled cancellations are applied lazily by `apply_scheduled_cancellations()` (called from `list.php` and `count_limited_subscriptions()`); `cancelled_at` = the scheduled date.
+- Google-only accounts have `password_hash = NULL` (`user.hasPassword` on the frontend). Always use `check_password()`, never raw `password_verify()` on a user hash. Google login checks the token's `azp/aud` against our client ID via `tokeninfo`, and linking Google to an existing email account clears its password.
+- Names go through `clean_name()` (no control chars — they reach mail headers). `require_auth()` also checks the user row still exists.
+- `confirm-checkout.php` only accepts sessions whose subscription is `active/trialing` and not `cancel_at_period_end` (otherwise an old session could be replayed after cancelling). Deleting an account cancels its Stripe subscription first.
+- Forms use `onSubmit` + `preventDefault`, never `action={...}` (React 19 resets the form even on failure).
+- `deploy.sh` replaces `~/www/assets` each time (hashed bundles used to pile up).
+
 ## Deployment
 
 Deploys are SSH-based to Dinahosting shared hosting (no Node.js on the server): build locally (`npm run build`), commit `dist/` (yes, build output is committed — see README.md for why), push, then on the server `git pull && ./deploy.sh` (copies `dist/*` and `api/` into `~/www`, outside of which the repo/`.git` live so source isn't web-exposed). `deploy.sh` takes an optional target dir arg (defaults to `$HOME/www`).

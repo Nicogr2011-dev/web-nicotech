@@ -71,7 +71,14 @@ export default function ResetPasswordPage() {
               Contraseña actualizada. Redirigiendo al inicio de sesión…
             </p>
           ) : (
-            <form action={handleSubmit} className="mt-6 space-y-4">
+            <form
+              // onSubmit y no action: React 19 vacía el formulario con action al terminar, aunque falle.
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit(new FormData(e.currentTarget));
+              }}
+              className="mt-6 space-y-4"
+            >
               <Field label="Nueva contraseña" htmlFor="password">
                 <IconInput
                   id="password"

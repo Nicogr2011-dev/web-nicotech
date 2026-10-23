@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { clsx } from "clsx";
 import { Card } from "@/components/ui/Card";
-import { effectiveEndDate } from "@/lib/subscriptions";
+import { effectiveEndDate, parseLocalDate } from "@/lib/subscriptions";
 import type { SubscriptionView } from "./types";
 
 function lastNMonths(n: number): Date[] {
@@ -23,10 +23,10 @@ export function MonthlySpendChart({
 
   const months = lastNMonths(6);
   const monthTotals = months.map((monthStart) => {
-    const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+    const nextMonthStart = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1);
     const total = subscriptions.reduce((sum, s) => {
-      const start = new Date(s.startDate);
-      if (start > monthEnd) return sum; // todavía no había empezado
+      const start = parseLocalDate(s.startDate);
+      if (start >= nextMonthStart) return sum; // todavía no había empezado
       const endBoundary = effectiveEndDate(s);
       if (endBoundary && endBoundary < monthStart) return sum; // ya había terminado antes de este mes
       return sum + s.price;

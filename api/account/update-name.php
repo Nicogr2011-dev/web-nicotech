@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $body = read_json_body();
-$name = trim((string) ($body['name'] ?? ''));
+$name = clean_name((string) ($body['name'] ?? ''));
 
 if ($name === '' || strlen($name) > 100) {
     json_error('Introduce tu nombre');

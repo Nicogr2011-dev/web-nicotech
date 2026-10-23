@@ -58,7 +58,10 @@ function send_mail(string $toEmail, string $toName, string $subject, string $tex
     smtp_command($conn, "RCPT TO:<{$toEmail}>");
     smtp_command($conn, 'DATA');
 
-    $to = $toName !== '' ? "{$toName} <{$toEmail}>" : $toEmail;
+    // El nombre lo escribe el usuario: sin saltos de línea y codificado (RFC 2047)
+    // para que no pueda añadir cabeceras propias al correo.
+    $toName = clean_name($toName);
+    $to = $toName !== '' ? '=?UTF-8?B?' . base64_encode($toName) . "?= <{$toEmail}>" : $toEmail;
     $headers = "From: Nicotech <{$from}>\r\n"
         . "To: {$to}\r\n"
         . "Subject: =?UTF-8?B?" . base64_encode($subject) . "?=\r\n"

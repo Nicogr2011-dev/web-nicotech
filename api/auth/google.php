@@ -6,7 +6,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_error('Método no permitido', 405);
 }
 
-$config = require __DIR__ . '/../config.php';
 $clientId = $config['google_client_id'] ?? '';
 
 if ($clientId === '' || $clientId === 'CHANGE_ME') {
@@ -18,6 +17,20 @@ $accessToken = (string) ($body['accessToken'] ?? '');
 
 if ($accessToken === '') {
     json_error('Falta el token de Google', 400);
+}
+
+// Primero: ¿este token se emitió para Nicotech? userinfo acepta tokens de cualquier
+// app de Google, así que sin esto otra web con "Iniciar sesión con Google" podría
+// reutilizar el token de un usuario para entrar como él aquí.
+$rawTokenInfo = @file_get_contents(
+    'https://oauth2.googleapis.com/tokeninfo?access_token=' . rawurlencode($accessToken),
+    false,
+    stream_context_create(['http' => ['timeout' => 5, 'ignore_errors' => true]])
+);
+$tokenInfo = $rawTokenInfo !== false ? json_decode($rawTokenInfo, true) : null;
+$audience = is_array($tokenInfo) ? (string) ($tokenInfo['azp'] ?? $tokenInfo['aud'] ?? '') : '';
+if ($audience !== $clientId) {
+    json_error('No se pudo verificar la cuenta de Google', 401);
 }
 
 // Google verifica el token por nosotros: le pedimos los datos del usuario con
@@ -40,7 +53,7 @@ if (!is_array($info) || empty($info['sub']) || empty($info['email'])) {
 
 $googleId = (string) $info['sub'];
 $email = (string) $info['email'];
-$name = (string) ($info['name'] ?? $email);
+$name = clean_name((string) ($info['name'] ?? $email)) ?: $email;
 
 if (empty($info['email_verified'])) {
     json_error('Tu cuenta de Google no tiene el email verificado', 401);
@@ -58,7 +71,11 @@ if (!$user) {
     $user = $stmt->fetch();
 
     if ($user) {
-        $stmt = $pdo->prepare('UPDATE users SET google_id = ? WHERE id = ?');
+        // Google acaba de demostrar que este email es suyo; la cuenta existente
+        // pudo crearla otra persona con ese email (no se verifica al registrarse).
+        // Se borra la contraseña para que solo entre quien controla el email: si la
+        // cuenta era suya, puede crear otra con "¿La olvidaste?".
+        $stmt = $pdo->prepare('UPDATE users SET google_id = ?, password_hash = NULL WHERE id = ?');
         $stmt->execute([$googleId, $user['id']]);
     } else {
         $stmt = $pdo->prepare('INSERT INTO users (name, email, google_id) VALUES (?, ?, ?)');

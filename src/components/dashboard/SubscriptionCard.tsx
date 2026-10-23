@@ -2,14 +2,16 @@ import { useRef, useState } from "react";
 import { clsx } from "clsx";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { ApiError } from "@/lib/api";
 import { findCatalogServiceByName, getManageUrl } from "@/lib/serviceCatalog";
-import { isPendingPurchase } from "@/lib/subscriptions";
+import { chargesBeforeCancelling, isPendingPurchase, parseLocalDate } from "@/lib/subscriptions";
 import type { SubscriptionView } from "./types";
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", year: "numeric" });
 
 function formatDate(iso: string) {
-  return dateFormatter.format(new Date(iso));
+  // Las fechas sin hora (cancelDate) son días del calendario: se leen en local, no en UTC.
+  return dateFormatter.format(iso.length === 10 ? parseLocalDate(iso) : new Date(iso));
 }
 
 export function SubscriptionCard({
@@ -24,16 +26,28 @@ export function SubscriptionCard({
   onToggle: (id: string) => Promise<void>;
 }) {
   const [isSaving, setIsSaving] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const isPending = isPendingPurchase(subscription);
   const isCancelled = subscription.status === "CANCELLED";
 
+  /** Ejecuta una acción de la tarjeta sin dejarla bloqueada si la API falla (ej. límite al reactivar). */
+  async function runAction(action: () => Promise<void>) {
+    setIsSaving(true);
+    setActionError(null);
+    try {
+      await action();
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : "No se pudo completar. Inténtalo de nuevo.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   async function handleDelete() {
     if (!confirm(`¿Eliminar la suscripción a ${subscription.serviceName}?`)) return;
-    setIsSaving(true);
-    await onDelete(subscription.id);
-    setIsSaving(false);
+    await runAction(() => onDelete(subscription.id));
   }
 
   async function handleToggle() {
@@ -43,9 +57,7 @@ export function SubscriptionCard({
         window.open(getManageUrl(catalogService), "_blank", "noopener,noreferrer");
       }
     }
-    setIsSaving(true);
-    await onToggle(subscription.id);
-    setIsSaving(false);
+    await runAction(() => onToggle(subscription.id));
   }
 
   function handleCancelHoverStart() {
@@ -77,8 +89,10 @@ export function SubscriptionCard({
       </div>
 
       <div className="space-y-1 text-sm text-muted">
-        <p>{isCancelled ? "Cobraba" : "Cobra"} el día {new Date(subscription.startDate).getDate()}</p>
-        {!isPending && !isCancelled ? <p>Próximo cobro: {formatDate(subscription.nextChargeDate)}</p> : null}
+        <p>{isCancelled ? "Cobraba" : "Cobra"} el día {parseLocalDate(subscription.startDate).getDate()}</p>
+        {!isPending && !isCancelled && chargesBeforeCancelling(subscription) ? (
+          <p>Próximo cobro: {formatDate(subscription.nextChargeDate)}</p>
+        ) : null}
       </div>
 
       {subscription.cancelDate && !isCancelled ? (
@@ -87,6 +101,8 @@ export function SubscriptionCard({
 
       {/* Las verificadas por el antiguo reenvío a verifica@ conservan su marca. */}
       {subscription.verifiedAt ? <Badge tone="active">✓ Verificada</Badge> : null}
+
+      {actionError ? <p className="text-xs text-coral">{actionError}</p> : null}
 
       <div className="mt-2 flex gap-2 border-t border-hairline pt-3 text-sm font-semibold">
         <button onClick={onEdit} className="text-azure hover:underline" disabled={isSaving}>

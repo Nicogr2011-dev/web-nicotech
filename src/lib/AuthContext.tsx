@@ -9,6 +9,8 @@ export type AuthUser = {
   email: string;
   tier: "BASICO" | "PREMIUM" | "PREMIUM_LITE";
   avatarUrl: string | null;
+  /** false en cuentas creadas con Google que aún no han creado contraseña. */
+  hasPassword: boolean;
   /** Si tiene más suscripciones de las que permite su plan: hasta cuándo puede volver a uno mayor antes de que se cancelen las sobrantes. */
   limitGraceEndsAt: string | null;
   /** Plan de pago de Nicotech; null en Básico. */
@@ -101,8 +103,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function logout() {
-    await apiPost("/auth/logout.php");
-    setUser(null);
+    try {
+      await apiPost("/auth/logout.php");
+    } catch {
+      // Aunque falle la red, en este dispositivo se cierra igual: la cookie de sesión
+      // caduca sola y no tiene sentido dejar al usuario "dentro" con un error.
+    } finally {
+      setUser(null);
+    }
   }
 
   async function setTier(tier: AuthUser["tier"], code?: string) {
@@ -157,7 +165,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function updatePassword(currentPassword: string, newPassword: string) {
     try {
-      await apiPost("/account/update-password.php", { currentPassword, newPassword });
+      const data = await apiPost<{ user: AuthUser }>("/account/update-password.php", { currentPassword, newPassword });
+      setUser(data.user);
       return {};
     } catch (err) {
       return { error: err instanceof ApiError ? err.message : "No se pudo actualizar la contraseña" };

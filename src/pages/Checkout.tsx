@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { clsx } from "clsx";
 import { SiteNav } from "@/components/nav/SiteNav";
@@ -30,6 +30,7 @@ export default function CheckoutPage() {
   const [returnedSession] = useState(readReturnedSession);
   const [confirming, setConfirming] = useState(Boolean(returnedSession));
   const [confirmed, setConfirmed] = useState(false);
+  const confirmStarted = useRef(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
   const plan = getPlanBySlug(slug);
@@ -41,7 +42,9 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    if (!returnedSession) return;
+    // StrictMode monta el efecto dos veces en desarrollo: confirmar una sola vez.
+    if (!returnedSession || confirmStarted.current) return;
+    confirmStarted.current = true;
     // Quita ?stripe_session de la URL para que recargar no repita la comprobación.
     window.history.replaceState(null, "", `${window.location.pathname}${window.location.hash}`);
     confirmCheckout(returnedSession).then(({ error: err }) => {

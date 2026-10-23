@@ -20,7 +20,9 @@ $stmt = $pdo->prepare('SELECT password_hash FROM users WHERE id = ?');
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
-if (!$user || !password_verify($currentPassword, $user['password_hash'])) {
+// Las cuentas creadas con Google no tienen contraseña: pueden crear una sin la actual
+// (ya están autenticadas por la sesión).
+if ($user['password_hash'] !== null && !check_password($currentPassword, $user['password_hash'])) {
     json_error('Contraseña actual incorrecta', 401);
 }
 
@@ -28,4 +30,4 @@ $hash = password_hash($newPassword, PASSWORD_BCRYPT);
 $stmt = $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
 $stmt->execute([$hash, $userId]);
 
-json_response(['success' => true]);
+json_response(['user' => user_response($pdo, $userId)]);

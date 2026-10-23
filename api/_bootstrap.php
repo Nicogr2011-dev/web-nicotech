@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 $config = require __DIR__ . '/config.php';
 
+// La web es para España y MySQL trabaja en hora de Madrid: PHP igual, para que
+// date() y NOW() coincidan y "hoy" sea el día del calendario del usuario (en
+// producción ya lo era; en local PHP venía en UTC).
+date_default_timezone_set('Europe/Madrid');
+
 $cookieSecure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
 session_set_cookie_params([
     'lifetime' => 0,
@@ -54,10 +59,31 @@ function read_json_body(): array
 
 function require_auth(): int
 {
+    global $pdo;
     if (empty($_SESSION['user_id'])) {
         json_error('No autenticado', 401);
     }
+    // Una sesión abierta en otro dispositivo puede sobrevivir al borrado de la cuenta.
+    $stmt = $pdo->prepare('SELECT 1 FROM users WHERE id = ?');
+    $stmt->execute([(int) $_SESSION['user_id']]);
+    if (!$stmt->fetchColumn()) {
+        $_SESSION = [];
+        session_destroy();
+        json_error('No autenticado', 401);
+    }
     return (int) $_SESSION['user_id'];
+}
+
+/** password_verify que tolera cuentas sin contraseña (creadas con Google): nunca coinciden. */
+function check_password(string $password, ?string $hash): bool
+{
+    return $hash !== null && password_verify($password, $hash);
+}
+
+/** Nombre visible: sin caracteres de control (un salto de línea acabaría en las cabeceras del email). */
+function clean_name(string $name): string
+{
+    return trim((string) preg_replace('/[\x00-\x1F\x7F]/u', '', $name));
 }
 
 // De momento solo esta cuenta gestiona el plan Enterprise. Debe mantenerse en
@@ -87,7 +113,7 @@ function require_admin(): int
 function user_response(PDO $pdo, int $userId): array
 {
     $stmt = $pdo->prepare(
-        'SELECT id, name, email, tier, avatar_path, stripe_subscription_id, plan_interval,
+        'SELECT id, name, email, tier, avatar_path, password_hash, stripe_subscription_id, plan_interval,
                 plan_started_at, plan_renews_at, plan_ends_at, limit_grace_ends_at
          FROM users WHERE id = ?'
     );
@@ -113,6 +139,7 @@ function user_response(PDO $pdo, int $userId): array
         'email' => $user['email'],
         'tier' => $user['tier'],
         'avatarUrl' => $user['avatar_path'],
+        'hasPassword' => $user['password_hash'] !== null,
         'limitGraceEndsAt' => iso_or_null($user['limit_grace_ends_at']),
         'plan' => $user['tier'] === 'BASICO' ? null : [
             'interval' => $user['plan_interval'],
@@ -135,9 +162,24 @@ const TIER_LIMITS = ['BASICO' => 3, 'PREMIUM_LITE' => 7];
 /** Meses que tiene quien baja a un plan con menos hueco del que usa para volver a uno mayor. */
 const LIMIT_GRACE_MONTHS = 3;
 
+/**
+ * Cancela las suscripciones cuya fecha de cancelación programada ya ha llegado.
+ * Se llama antes de leerlas o contarlas (no hay cron que lo haga), y cancelled_at
+ * toma la fecha programada para que el gasto histórico corte ese día.
+ */
+function apply_scheduled_cancellations(PDO $pdo, int $userId): void
+{
+    $stmt = $pdo->prepare(
+        "UPDATE subscriptions SET status = 'CANCELLED', cancelled_at = cancel_date
+         WHERE user_id = ? AND status = 'ACTIVE' AND cancel_date IS NOT NULL AND cancel_date <= ?"
+    );
+    $stmt->execute([$userId, date('Y-m-d')]);
+}
+
 /** Suscripciones que cuentan para el límite: activas y no eliminadas (incluye las pendientes de empezar). */
 function count_limited_subscriptions(PDO $pdo, int $userId): int
 {
+    apply_scheduled_cancellations($pdo, $userId);
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM subscriptions WHERE user_id = ? AND status = 'ACTIVE' AND deleted_at IS NULL");
     $stmt->execute([$userId]);
     return (int) $stmt->fetchColumn();
@@ -334,6 +376,12 @@ function verify_jwt_rs256(string $jwt, string $jwksUrl, string $expectedIss, str
 /**
  * @return array{0: array|null, 1: string|null}
  */
+/** YYYY-MM-DD que existe de verdad (el regex solo no rechaza 2026-13-45, y MySQL daría un 500). */
+function is_valid_date(string $date): bool
+{
+    return (bool) preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date, $m) && checkdate((int) $m[2], (int) $m[3], (int) $m[1]);
+}
+
 function validate_subscription_payload(array $body): array
 {
     $serviceName = trim((string) ($body['serviceName'] ?? ''));
@@ -349,13 +397,16 @@ function validate_subscription_payload(array $body): array
     if (!is_numeric($price) || (float) $price <= 0) {
         return [null, 'El precio debe ser mayor que 0'];
     }
+    if ((float) $price >= 100000000) { // DECIMAL(10,2)
+        return [null, 'Precio no válido'];
+    }
     if (strlen($currency) !== 3) {
         return [null, 'Moneda no válida'];
     }
-    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
+    if (!is_valid_date($startDate)) {
         return [null, 'Fecha de cobro no válida'];
     }
-    if ($cancelDate !== null && $cancelDate !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $cancelDate)) {
+    if ($cancelDate !== null && $cancelDate !== '' && !is_valid_date((string) $cancelDate)) {
         return [null, 'Fecha de cancelación no válida'];
     }
     if (!preg_match('/^#[0-9A-Fa-f]{6}$/', $accentColor)) {
