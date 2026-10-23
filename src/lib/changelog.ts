@@ -496,6 +496,25 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Las llamadas de voz por la web y la página de contacto ya no están disponibles. Si necesitas escribirnos, sigue siendo posible en hola@nicotech.es — el enlace del plan Enterprise en Precios ya lleva directamente ahí.",
   },
+  {
+    date: "23.10.26",
+    major: 16,
+    minor: 9,
+    type: "MINOR",
+    title: "Nuevo diseño del inicio de sesión",
+    description:
+      "La página de inicio de sesión estrena el mismo diseño que la de registro: panel lateral con tus suscripciones flotando a la izquierda y el formulario a la derecha.",
+  },
+  {
+    date: "23.10.26",
+    major: 16,
+    minor: 10,
+    type: "MINOR",
+    title: "El formulario ya no se vacía al equivocarte",
+    description:
+      "Si al iniciar sesión o registrarte algo fallaba (por ejemplo, una contraseña incorrecta), el formulario se borraba entero y había que volver a escribir el email. Ahora se conserva lo que habías escrito.",
+    bugfix: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

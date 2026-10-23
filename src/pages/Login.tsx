@@ -2,11 +2,10 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { useRecaptchaBadge } from "@/lib/useRecaptchaBadge";
-import { Card } from "@/components/ui/Card";
 import { Field, IconInput } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { PaletteDots } from "@/components/ui/PaletteDots";
 import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
+import { AuthSidePanel } from "@/components/auth/AuthSidePanel";
 import { MailIcon, LockIcon, EyeIcon, EyeOffIcon } from "@/components/ui/Icon";
 
 const SWEEP_STYLE: React.CSSProperties = {
@@ -89,23 +88,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[linear-gradient(160deg,#eef2ff_0%,#f7f8fa_45%,#fef6ea_100%)] px-4 py-12 dark:bg-[linear-gradient(160deg,#141726_0%,#0a0c10_45%,#171310_100%)]">
-      <div className="w-full max-w-[400px]">
-        <div className="mb-5 text-center">
-          <Link to="/" className="font-display text-2xl font-extrabold text-body">
-            Nico<span className="text-azure">tech</span>
-          </Link>
-          <div className="mt-2.5 flex justify-center">
-            <PaletteDots size={7} />
-          </div>
-        </div>
+    <div className="grid min-h-screen sm:grid-cols-2">
+      <AuthSidePanel
+        title="Bienvenido de nuevo."
+        subtitle="Tus suscripciones te esperan justo donde las dejaste: gasto del mes, próximos cobros y cancelaciones programadas."
+      />
 
-        <Card
-          className="p-8"
+      <div className="flex items-center justify-center bg-surface px-6 py-12">
+        <div
+          className="w-full max-w-sm"
           style={{ animation: shake ? "shake-error 0.4s ease-in-out" : "card-in 0.35s ease-out" }}
         >
-          <h1 className="text-center font-display text-xl font-extrabold text-body">Inicia sesión</h1>
-          <p className="mt-1.5 text-center text-sm text-muted">Accede a tu área de cliente.</p>
+          <h1 className="font-display text-2xl font-extrabold text-body">Inicia sesión</h1>
+          <p className="mt-1.5 text-sm text-muted">Accede a tu área de cliente.</p>
 
           <div className="mt-6">
             <SocialLoginButtons
@@ -121,7 +116,15 @@ export default function LoginPage() {
             <div className="h-px flex-1 bg-hairline" />
           </div>
 
-          <form action={handleSubmit} className="space-y-4">
+          <form
+            // onSubmit y no action: React 19 vacía los formularios con action al terminar,
+            // y tras un error obligaría a reescribir el email.
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit(new FormData(e.currentTarget));
+            }}
+            className="space-y-4"
+          >
             <Field label="Email" htmlFor="email">
               <IconInput
                 id="email"
@@ -187,7 +190,7 @@ export default function LoginPage() {
               Regístrate
             </Link>
           </p>
-        </Card>
+        </div>
       </div>
     </div>
   );
