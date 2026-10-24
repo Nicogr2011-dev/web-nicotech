@@ -668,6 +668,15 @@ export const CHANGELOG: ChangelogEntry[] = [
       "Si elegías \"Mensual\" en Precios, la página de pago se abría igualmente en anual. Ahora respeta lo que elegiste.",
     bugfix: true,
   },
+  {
+    date: "24.10.26",
+    major: 20,
+    minor: 10,
+    type: "MINOR",
+    title: "Nuevo icono",
+    description:
+      "Nicotech estrena icono: la N con los puntos de colores de la marca, en la pestaña del navegador y en la app instalada en el móvil.",
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {
