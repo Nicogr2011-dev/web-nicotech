@@ -520,9 +520,9 @@ export const CHANGELOG: ChangelogEntry[] = [
     major: 16,
     minor: 11,
     type: "MINOR",
-    title: "Mejoras internas",
-    description: "Ajustes para mejorar la experiencia de usuario.",
-    confidential: true,
+    title: "Más fácil de encontrar en Google",
+    description:
+      "La portada se carga ya lista para los buscadores, con mejor título y descripción, y al compartir nicotech.es en WhatsApp, X o Telegram ahora sale una vista previa con imagen.",
   },
   {
     date: "23.10.26",
@@ -676,6 +676,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     title: "Nuevo icono",
     description:
       "Nicotech estrena icono: la N con los puntos de colores de la marca, en la pestaña del navegador y en la app instalada en el móvil.",
+  },
+  {
+    date: "24.10.26",
+    major: 20,
+    minor: 11,
+    type: "MINOR",
+    title: "Más fácil de encontrar en Google",
+    description:
+      "La portada se carga ya lista para los buscadores, con mejor título y descripción, y al compartir nicotech.es en WhatsApp, X o Telegram ahora sale una vista previa con imagen.",
   },
 ];
 

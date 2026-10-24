@@ -122,7 +122,7 @@ Vite las incrusta **al compilar**, así que tienen que estar en tu `.env` cada v
 
 ## Despliegue en hosting compartido (Dinahosting o similar, sin Node.js)
 
-1. **Compila el frontend en tu ordenador** (con el `.env` relleno, ver "Variables del frontend"):
+1. **Compila el frontend en tu ordenador** (con el `.env` relleno, ver "Variables del frontend", y el Chromium de Playwright instalado — `npx playwright install chromium` — porque al final se prerenderiza la portada para los buscadores):
    ```bash
    npm install
    npm run build

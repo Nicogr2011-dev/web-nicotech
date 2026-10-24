@@ -13,6 +13,15 @@
       })();
     </script>
     <script>
+      // La portada viene pre-pintada en el HTML (scripts/prerender.mjs) para los
+      // buscadores. En cualquier otra ruta (/#/dashboard…) se oculta al instante
+      // para que no asome hasta que React monte la página buena.
+      if (location.hash.length > 2) document.documentElement.setAttribute("data-app-route", "");
+    </script>
+    <style>
+      [data-app-route] [data-prerender] { display: none !important; }
+    </style>
+    <script>
       // Captura beforeinstallprompt lo antes posible: el navegador puede
       // dispararlo antes de que React monte y añada su propio listener,
       // y ese evento no se puede "reintentar" después si te lo pierdes.
@@ -28,11 +37,58 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#3a86ff" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nicotech — Organiza tus suscripciones</title>
+    <title>Organizador de suscripciones | Nicotech</title>
     <meta
       name="description"
-      content="Nicotech te ayuda a organizar todas tus suscripciones en un solo lugar: elige el día de cobro y programa cuándo se cancelan solas."
+      content="Organiza y controla todas tus suscripciones (Netflix, Spotify, Disney+…) en un solo lugar: cuánto gastas al mes, cuándo te cobran y recordatorios para cancelar. Empieza gratis."
     />
+    <link rel="canonical" href="https://nicotech.es/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Nicotech" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:url" content="https://nicotech.es/" />
+    <meta property="og:title" content="Nicotech — Organiza todas tus suscripciones en un solo lugar" />
+    <meta
+      property="og:description"
+      content="Controla cuánto gastas al mes en Netflix, Spotify y el resto, cuándo te cobran y cuándo cancelar."
+    />
+    <meta property="og:image" content="https://nicotech.es/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://nicotech.es/#organization",
+            "name": "Nicotech",
+            "url": "https://nicotech.es/",
+            "logo": "https://nicotech.es/icons/icon-512.png",
+            "email": "hola@nicotech.es"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://nicotech.es/#website",
+            "name": "Nicotech",
+            "url": "https://nicotech.es/",
+            "inLanguage": "es",
+            "publisher": { "@id": "https://nicotech.es/#organization" }
+          },
+          {
+            "@type": "WebApplication",
+            "name": "Nicotech",
+            "url": "https://nicotech.es/",
+            "description": "Organizador de suscripciones: registra Netflix, Spotify y el resto, mira tu gasto mensual, tus próximos cobros y programa cuándo cancelarlas.",
+            "applicationCategory": "FinanceApplication",
+            "operatingSystem": "Web, Android, iOS",
+            "inLanguage": "es",
+            "publisher": { "@id": "https://nicotech.es/#organization" }
+          }
+        ]
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

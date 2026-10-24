@@ -68,13 +68,17 @@ export function Hero() {
           className="font-display text-4xl font-extrabold text-body sm:text-5xl"
           style={{ lineHeight: 1.08 }}
         >
-          <AnimatedLine words={line1} letterOffset={0} />
-          <br />
-          <AnimatedLine words={line2} letterOffset={line1.join("").length} />
+          {/* Las letras animadas van sueltas y sin espacios: el texto real, para buscadores y lectores de pantalla, es este. */}
+          <span className="sr-only">{[...line1, ...line2].join(" ")}</span>
+          <span aria-hidden="true">
+            <AnimatedLine words={line1} letterOffset={0} />
+            <br />
+            <AnimatedLine words={line2} letterOffset={line1.join("").length} />
+          </span>
         </h1>
         <p className="mt-5 max-w-md text-lg text-muted">
-          Busca el servicio, elige el plan con su precio real, fija el día de cobro y programa cuándo quieres
-          cancelarla.
+          Tu organizador de suscripciones: busca el servicio, elige el plan con su precio real, fija el día de
+          cobro y programa cuándo quieres cancelarla.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/register">Crear cuenta gratis</ButtonLink>

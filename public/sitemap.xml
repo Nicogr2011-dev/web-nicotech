@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Solo la portada: el resto de rutas van tras "#" (HashRouter) y para Google son la misma URL. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://nicotech.es/</loc>
+  </url>
+</urlset>

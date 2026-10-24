@@ -16,7 +16,7 @@ Nicotech (nicotech.es) — a web app for organizing existing subscriptions (Netf
 
 ```bash
 npm run dev       # Vite dev server (localhost:5173), proxies /api -> localhost:8000 (see vite.config.ts)
-npm run build     # tsc -b && vite build -> dist/
+npm run build     # tsc -b && vite build && scripts/prerender.mjs -> dist/ (needs Playwright's Chromium: `npx playwright install chromium`)
 npm run lint      # oxlint
 npm run preview   # preview the production build locally
 
@@ -67,6 +67,8 @@ See [[feedback_versioning_discipline]] pattern: essentially every change gets a 
 - `confirm-checkout.php` only accepts sessions whose subscription is `active/trialing` and not `cancel_at_period_end` (otherwise an old session could be replayed after cancelling). Deleting an account cancels its Stripe subscription first.
 - Forms use `onSubmit` + `preventDefault`, never `action={...}` (React 19 resets the form even on failure).
 - `deploy.sh` replaces `~/www/assets` each time (hashed bundles used to pile up).
+
+**SEO** (`20.11`): `scripts/prerender.mjs` runs after `vite build`, opens the built site in headless Chromium (anonymous, `/api` blocked, cookie banner pre-accepted), forces `.reveal` sections to `in-view`, and injects the landing markup into `<div id="root">` inside `<div data-prerender>`. React replaces it with `createRoot` (not hydrate). An inline script in `index.html` sets `data-app-route` when there's a hash route so the prerendered landing never flashes on `/#/dashboard` etc. Title/description/OG/JSON-LD live in `index.html`; `public/robots.txt`, `public/sitemap.xml` (only `/` — hash routes are one URL to Google) and `public/og-image.png` (1200×630). The Hero `h1` letters are `aria-hidden` with an `sr-only` copy of the sentence, so crawlers read "Organiza todas tus…" and not single letters.
 
 ## Deployment
 
