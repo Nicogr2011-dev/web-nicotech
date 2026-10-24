@@ -11,8 +11,10 @@ export type AuthUser = {
   avatarUrl: string | null;
   /** false en cuentas creadas con Google que aún no han creado contraseña. */
   hasPassword: boolean;
-  /** Si tiene más suscripciones de las que permite su plan: hasta cuándo puede volver a uno mayor antes de que se cancelen las sobrantes. */
-  limitGraceEndsAt: string | null;
+  /** Hasta confirmar el email no se pueden guardar suscripciones. */
+  emailVerified: boolean;
+  /** Email nuevo pendiente de confirmar desde el enlace (el actual sigue siendo `email`). */
+  pendingEmail: string | null;
   /** Plan de pago de Nicotech; null en Básico. */
   plan: {
     interval: "year" | "month" | null;
@@ -32,9 +34,9 @@ type AuthContextValue = {
   register: (name: string, email: string, password: string) => Promise<{ error?: string }>;
   loginWithGoogle: () => Promise<{ error?: string }>;
   logout: () => Promise<void>;
-  setTier: (tier: AuthUser["tier"], code?: string) => Promise<{ error?: string }>;
-  confirmCheckout: (sessionId: string) => Promise<{ error?: string }>;
   cancelPlan: () => Promise<{ error?: string }>;
+  verifyEmail: (token: string) => Promise<{ error?: string }>;
+  resendVerification: () => Promise<{ error?: string }>;
   updateName: (name: string) => Promise<{ error?: string }>;
   updateEmail: (email: string, currentPassword: string) => Promise<{ error?: string }>;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<{ error?: string }>;
@@ -113,26 +115,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  async function setTier(tier: AuthUser["tier"], code?: string) {
-    try {
-      const data = await apiPost<{ user: AuthUser }>("/account/set-tier.php", { tier, code });
-      setUser(data.user);
-      return {};
-    } catch (err) {
-      return { error: err instanceof ApiError ? err.message : "No se pudo cambiar de plan" };
-    }
-  }
-
-  async function confirmCheckout(sessionId: string) {
-    try {
-      const data = await apiPost<{ user: AuthUser }>("/billing/confirm-checkout.php", { sessionId });
-      setUser(data.user);
-      return {};
-    } catch (err) {
-      return { error: err instanceof ApiError ? err.message : "No se pudo comprobar el pago" };
-    }
-  }
-
   async function cancelPlan() {
     try {
       const data = await apiPost<{ user: AuthUser }>("/billing/cancel.php");
@@ -140,6 +122,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return {};
     } catch (err) {
       return { error: err instanceof ApiError ? err.message : "No se pudo dar de baja el plan" };
+    }
+  }
+
+  async function verifyEmail(token: string) {
+    try {
+      await apiPost("/auth/verify-email.php", { token });
+      // El enlace puede abrirse sin sesión: si la hay, recargamos el usuario.
+      await refresh();
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo confirmar el email" };
+    }
+  }
+
+  async function resendVerification() {
+    try {
+      await apiPost("/auth/resend-verification.php");
+      return {};
+    } catch (err) {
+      return { error: err instanceof ApiError ? err.message : "No se pudo reenviar el correo" };
     }
   }
 
@@ -221,9 +223,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         loginWithGoogle,
         logout,
-        setTier,
-        confirmCheckout,
         cancelPlan,
+        verifyEmail,
+        resendVerification,
         updateName,
         updateEmail,
         updatePassword,

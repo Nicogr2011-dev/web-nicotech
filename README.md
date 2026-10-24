@@ -2,13 +2,15 @@
 
 Nicotech es una web para organizar todas tus suscripciones (Netflix, Spotify, iCloud, etc.) en un solo lugar: buscas el servicio, eliges el plan (con precio real de referencia), fijas la fecha de cobro y, si quieres, una fecha en la que se cancele sola.
 
-## Estado actual — Fase 1
+## Estado actual — Nicotech V1
 
-Esta fase cubre **organización de suscripciones existentes**, sin compra ni pago de nuevas suscripciones (eso llegará en una fase futura). Incluye:
+V1 cubre **organización de suscripciones existentes**, sin compra ni pago de nuevas suscripciones (eso llegará en una fase futura). Incluye:
 
 - Página de bienvenida pública que explica el producto, con el historial de versiones (changelog) visible.
 - Cuentas de usuario:
   - Registro e inicio de sesión con email y contraseña, o con **Google**.
+  - Confirmación del email al registrarse (enlace a `/#/verificar-email`, válido 24 h): hasta confirmarlo, la cuenta puede entrar pero no guardar suscripciones. Cambiar el email también exige confirmar el nuevo; hasta entonces sigue el anterior.
+  - Límite de intentos (tabla `auth_attempts`): 10 contraseñas fallidas por email o 30 por IP en 15 min, 5 registros por IP y hora, y tope de correos de recuperación/confirmación.
   - Opción "Mantener sesión iniciada".
   - Recuperación de contraseña por email (`/#/recuperar` → enlace a `/#/restablecer-contrasena`).
 - Área de cliente (`/#/dashboard`) protegida, con:
@@ -18,16 +20,13 @@ Esta fase cubre **organización de suscripciones existentes**, sin compra ni pag
   - Cancelación programada en una fecha concreta que tú eliges: la víspera el panel te recuerda cancelarla en el servicio (con enlace a su página de gestión) y ese día pasa a "Cancelada" y deja de contar en el gasto.
   - Resumen y gráficas: gasto mensual total, gasto por categoría, próximo cobro y cancelaciones programadas.
   - Comprar desde el formulario: "Comprar" abre la página de planes del servicio (`signupUrl` en el catálogo, o su web) y al volver pregunta si se ha completado la compra — sí (se guarda con fecha de hoy tras revisar el precio), todavía no (queda Pendiente) o no (no se guarda).
-  - Verificación por email (reenviar un código a verifica@nicotech.es) retirada en 20.0; el cron sigue activo solo para códigos antiguos.
 - Mi cuenta (`/#/cuenta`): cambiar nombre, email, contraseña y foto de perfil, y borrar la cuenta.
-- Planes (`/#/precios`): Básico (gratis, hasta 3 suscripciones), Premium Lite (hasta 7) y Premium (ilimitadas), más Enterprise por email.
-- Tu plan de Nicotech aparece en el panel como una suscripción más (precio, renovación), sin contar para el límite, con opción de darse de baja (`/#/cancelar-plan`): se deja de cobrar y se conserva el plan hasta el final del periodo pagado.
-- Al bajar a un plan con menos hueco del que se usa (p. ej. a Básico con más de 3 suscripciones) hay **3 meses** para volver a un plan superior; el panel avisa de la fecha y de cuáles se cancelarían, y al vencer se cancelan las más recientes hasta quedar en el límite.
-- Pago con tarjeta vía **Stripe Checkout** (`/#/pago/:plan`), anual o mensual. Ahora mismo en **modo prueba**: no se cobra nada y se paga con la tarjeta `4242 4242 4242 4242` (cualquier fecha futura y CVC). También se puede activar un plan con un código de acceso.
+- Planes (`/#/precios`): solo **Básico**, gratis y con suscripciones ilimitadas. Premium y Premium Lite se muestran como no disponibles (llegan con V2).
+- Quien pagó un plan antes de V1 (Stripe en modo prueba) lo ve en el panel y puede darse de baja (`/#/cancelar-plan`): se deja de cobrar y se conserva hasta el final del periodo pagado.
 - Modo claro/oscuro.
 - PWA instalable (`/#/instalar`, `public/manifest.webmanifest` + `public/sw.js`).
 
-Explícitamente **fuera de alcance** en esta fase (para fases futuras): cobros reales (Stripe en modo live), compra de nuevas suscripciones, recordatorios por email antes de cada cobro, sincronización de calendario, multi-moneda, cuentas compartidas/equipo.
+Explícitamente **fuera de alcance** en V1 (para V2): planes de pago y cobros reales (Stripe en modo live), compra de nuevas suscripciones, recordatorios por email antes de cada cobro, sincronización de calendario, multi-moneda, cuentas compartidas/equipo.
 
 ## Stack técnico
 
@@ -51,7 +50,7 @@ src/                      Frontend (Vite + React + TS)
     AuthContext.tsx        Estado de sesión (login/registro/Google/logout/me)
     socialAuth.ts          Inicio de sesión con Google (Google Identity Services)
     changelog.ts           Historial de versiones mostrado en la web
-    pricingPlans.ts        Planes Básico / Premium Lite / Premium
+    pricingPlans.ts        Planes (solo Básico disponible en V1)
     serviceCatalog.ts      Catálogo de ~170 servicios con planes y precios
     subscriptions.ts       Cálculo del próximo cobro
     validation.ts          Constantes/validación compartidas (paleta de colores, etc.)
@@ -63,15 +62,16 @@ api/                      Backend PHP (API JSON, sin dependencias)
   _bootstrap.php           Sesión, conexión PDO, helpers (json_response, require_auth, JWT...)
   _mail.php                Envío SMTP sin librerías
   config.php               Credenciales (NO se sube a git, ver config.example.php)
-  auth/                    register, login, logout, me, google, forgot-password, reset-password
-  account/                 update-name, update-email, update-password, upload-avatar, set-tier, delete-account
-  billing/                 config, create-checkout, confirm-checkout, cancel (Stripe Checkout y bajas)
-  _stripe.php              Cliente mínimo de la API de Stripe y precios de los planes
+  auth/                    register, login, logout, me, google, forgot-password, reset-password,
+                           verify-email, resend-verification
+  .htaccess                Bloquea por web los ficheros internos (_*.php, config*.php)
+  account/                 update-name, update-email, update-password, upload-avatar, delete-account
+  billing/                 cancel y webhook (bajas de planes pagados antes de V1)
+  _stripe.php              Cliente mínimo de la API de Stripe
   subscriptions/           list, create, update, delete, toggle
   stats/                   user-count
-  cron/                    Revisión por IMAP del buzón de verificación (run-loop.sh)
 
-db/schema.sql             Esquema completo (tablas users y subscriptions)
+db/schema.sql             Esquema completo (tablas users, subscriptions y auth_attempts)
 db/migrations/            Migraciones incrementales sobre el esquema
 
 dist/                     Frontend compilado (se commitea, ver "Despliegue")
@@ -109,7 +109,7 @@ npm run dev
 
 Abre [http://localhost:5173](http://localhost:5173).
 
-En local, mientras las claves de SMTP, reCAPTCHA o IMAP sigan en `CHANGE_ME`, la web funciona igual: simplemente no envía correos y no verifica reCAPTCHA.
+En local, mientras las claves de SMTP o reCAPTCHA sigan en `CHANGE_ME`, la web funciona igual: simplemente no envía correos y no verifica reCAPTCHA. Sin SMTP no llega el correo de confirmación: para probar, marca la cuenta a mano (`UPDATE users SET email_verified_at = NOW() WHERE email = ...`).
 
 ### Variables del frontend (`.env`)
 
@@ -160,14 +160,11 @@ git pull
 
 ## Pagos (Stripe)
 
-La pantalla de pago crea una sesión de **Stripe Checkout** (`api/billing/create-checkout.php`) y redirige a la página de pago de Stripe. Al volver, `api/billing/confirm-checkout.php` le pregunta a Stripe por esa sesión y solo cambia el plan si está pagada y pertenece al usuario que la confirma.
+En V1 **no se venden planes**: la página de pago y los endpoints de compra (`create-checkout`, `confirm-checkout`, `set-tier`) se retiraron en `21.0` y siguen en el historial de git para V2. Solo queda lo necesario para quien pagó antes en **modo prueba**:
 
-- Clave: `stripe_secret_key` en `api/config.php` (dashboard.stripe.com → Desarrolladores → Claves de API). Con una clave `sk_test_…`/`rk_test_…` todo es modo prueba y la web lo avisa; mientras quede en `CHANGE_ME`, la tarjeta sale como "Próximamente".
-- `app_url` en `api/config.php`: adónde vuelve Stripe tras pagar (`http://localhost:5173` en local).
-- Los precios que se cobran están en `STRIPE_PLAN_PRICES` (`api/_stripe.php`), en céntimos — hay que mantenerlos en sync con `src/lib/pricingPlans.ts`.
-- Darse de baja desde la web cancela la suscripción en Stripe al final del periodo y la web baja a Básico sola al llegar esa fecha.
-- **Webhook** (`api/billing/webhook.php`, secreto `stripe_webhook_secret`): Stripe avisa de renovaciones, bajas o reactivaciones hechas en su panel y suscripciones canceladas por impago, y la web actualiza el plan. Registrado en Stripe para `customer.subscription.updated` y `customer.subscription.deleted`.
-- **Pendiente para cobrar de verdad**: activar la cuenta de Stripe, cambiar a la clave live y registrar el webhook también en modo live (tiene su propio secreto).
+- `api/billing/cancel.php`: darse de baja cancela la suscripción en Stripe al final del periodo y la web baja a Básico sola al llegar esa fecha.
+- **Webhook** (`api/billing/webhook.php`, secreto `stripe_webhook_secret`): Stripe avisa de renovaciones, bajas o impagos y la web actualiza el plan. Registrado en Stripe para `customer.subscription.updated` y `customer.subscription.deleted`.
+- Clave `stripe_secret_key` en `api/config.php` (una `rk_test_…` restringida).
 
 ## Versiones
 
@@ -175,7 +172,7 @@ Cada cambio lleva su entrada en `src/lib/changelog.ts`, que es lo que se ve en l
 
 ## Roadmap (próximas fases)
 
-- Pasarela de pago real para los planes y compra de nuevas suscripciones
+- V2: planes de pago con cobro real (Stripe live) y compra de nuevas suscripciones
 - Recordatorios por email antes de cada cobro o cancelación
 - Exportación/sincronización con calendario
 - Soporte multi-moneda

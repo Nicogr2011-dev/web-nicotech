@@ -15,6 +15,11 @@ CREATE TABLE IF NOT EXISTS users (
   plan_renews_at DATETIME NULL,
   plan_ends_at DATETIME NULL,
   limit_grace_ends_at DATETIME NULL,
+  is_admin TINYINT(1) NOT NULL DEFAULT 0,
+  email_verified_at DATETIME NULL,
+  pending_email VARCHAR(190) NULL,
+  email_token_hash CHAR(64) NULL,
+  email_token_expires DATETIME NULL,
   reset_token VARCHAR(64) NULL,
   reset_token_expires DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -39,4 +44,14 @@ CREATE TABLE IF NOT EXISTS subscriptions (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_subscriptions_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   INDEX idx_subscriptions_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS auth_attempts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  action VARCHAR(20) NOT NULL,
+  ip VARCHAR(45) NOT NULL,
+  email VARCHAR(190) NULL,
+  created_at DATETIME NOT NULL,
+  INDEX idx_auth_attempts_ip (action, ip, created_at),
+  INDEX idx_auth_attempts_email (action, email, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

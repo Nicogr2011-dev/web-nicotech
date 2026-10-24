@@ -12,6 +12,11 @@ $password = (string) ($body['password'] ?? '');
 $recaptchaToken = $body['recaptchaToken'] ?? null;
 $remember = !empty($body['remember']);
 
+// Fuerza bruta: 10 fallos por email o 30 por IP en 15 minutos bloquean un rato.
+if (too_many_attempts($pdo, 'login', $email, 30, 10, 15)) {
+    json_error('Demasiados intentos. Espera unos minutos y vuelve a probar.', 429);
+}
+
 if (!verify_recaptcha($recaptchaToken, 'login')) {
     json_error('Verificación de seguridad fallida. Recarga la página e inténtalo de nuevo.', 400);
 }
@@ -20,9 +25,11 @@ $stmt = $pdo->prepare('SELECT id, password_hash FROM users WHERE email = ?');
 $stmt->execute([$email]);
 $user = $stmt->fetch();
 
-if (!$user || !$user['password_hash'] || !password_verify($password, $user['password_hash'])) {
+if (!$user || !check_password($password, $user['password_hash'])) {
+    record_attempt($pdo, 'login', $email);
     json_error('Email o contraseña incorrectos', 401);
 }
+clear_attempts($pdo, 'login', $email);
 
 session_regenerate_id(true);
 $_SESSION['user_id'] = (int) $user['id'];

@@ -12,18 +12,21 @@ import ResetPasswordPage from "@/pages/ResetPassword";
 import DashboardPage from "@/pages/Dashboard";
 import InstallAppPage from "@/pages/InstallApp";
 import PricingPage from "@/pages/Pricing";
-import CheckoutPage from "@/pages/Checkout";
 import AccountPage from "@/pages/Account";
 import CancelPlanPage from "@/pages/CancelPlan";
+import VerifyEmailPage from "@/pages/VerifyEmail";
+import { VerifyEmailGate } from "@/components/auth/VerifyEmailGate";
 
 function FullPageSpinner() {
   return <div className="flex min-h-screen items-center justify-center text-muted">Cargando…</div>;
 }
 
-function RequireAuth({ children }: { children: React.ReactNode }) {
+/** `allowUnverified`: páginas que una cuenta sin confirmar sí puede abrir (ej. /cuenta, para corregir el email). */
+function RequireAuth({ children, allowUnverified = false }: { children: React.ReactNode; allowUnverified?: boolean }) {
   const { user, loading } = useAuth();
   if (loading) return <FullPageSpinner />;
   if (!user) return <Navigate to="/login" replace />;
+  if (!user.emailVerified && !allowUnverified) return <VerifyEmailGate />;
   return <>{children}</>;
 }
 
@@ -59,14 +62,8 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/instalar" element={<InstallAppPage />} />
         <Route path="/precios" element={<PricingPage />} />
-        <Route
-          path="/pago/:tier"
-          element={
-            <RequireAuth>
-              <CheckoutPage />
-            </RequireAuth>
-          }
-        />
+        {/* Los planes de pago no están disponibles en V1: enlaces antiguos a /pago/... van a Precios. */}
+        <Route path="/pago/:tier" element={<Navigate to="/precios" replace />} />
         <Route
           path="/login"
           element={
@@ -92,6 +89,7 @@ export default function App() {
           }
         />
         <Route path="/restablecer-contrasena" element={<ResetPasswordPage />} />
+        <Route path="/verificar-email" element={<VerifyEmailPage />} />
         <Route
           path="/dashboard"
           element={
@@ -103,7 +101,7 @@ export default function App() {
         <Route
           path="/cuenta"
           element={
-            <RequireAuth>
+            <RequireAuth allowUnverified>
               <AccountPage />
             </RequireAuth>
           }

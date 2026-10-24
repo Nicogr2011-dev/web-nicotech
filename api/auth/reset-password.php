@@ -26,7 +26,12 @@ if (!$user || strtotime((string) $user['reset_token_expires']) < time()) {
 }
 
 $hash = password_hash($password, PASSWORD_BCRYPT);
-$stmt = $pdo->prepare('UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?');
-$stmt->execute([$hash, $user['id']]);
+// El enlace llegó a su email: de paso queda verificado.
+$stmt = $pdo->prepare(
+    'UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expires = NULL,
+            email_verified_at = COALESCE(email_verified_at, ?)
+     WHERE id = ?'
+);
+$stmt->execute([$hash, date('Y-m-d H:i:s'), $user['id']]);
 
 json_response(['success' => true]);

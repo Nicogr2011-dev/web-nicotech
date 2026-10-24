@@ -16,11 +16,15 @@ $stmt = $pdo->prepare('SELECT password_hash, avatar_path, stripe_subscription_id
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
+if (too_many_attempts($pdo, 'password', "user:{$userId}", 30, 10, 15)) {
+    json_error('Demasiados intentos. Espera unos minutos y vuelve a probar.', 429);
+}
 // Sin contraseña (cuenta de Google) se confirma escribiendo ELIMINAR.
 $confirmed = $user['password_hash'] === null
     ? strtoupper(trim($password)) === 'ELIMINAR'
     : check_password($password, $user['password_hash']);
 if (!$confirmed) {
+    record_attempt($pdo, 'password', "user:{$userId}");
     json_error($user['password_hash'] === null ? 'Escribe ELIMINAR para confirmar' : 'Contraseña incorrecta', 401);
 }
 

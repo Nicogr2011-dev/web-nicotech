@@ -8,8 +8,8 @@ import { PLANS, formatPrice } from "@/lib/pricingPlans";
 const dateFormatter = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", year: "numeric" });
 
 /**
- * La propia suscripción a Nicotech. No sale de la tabla de suscripciones sino del
- * plan del usuario, así que nunca cuenta para el límite de 3/7 de su plan.
+ * La propia suscripción a Nicotech de quien pagó un plan antes de V1 (en V1 solo
+ * existe Básico). Sale del plan del usuario, no de la tabla de suscripciones.
  */
 export function NicotechPlanCard({ user }: { user: AuthUser }) {
   const plan = PLANS.find((p) => p.id === user.tier);
@@ -45,25 +45,17 @@ export function NicotechPlanCard({ user }: { user: AuthUser }) {
         ) : null}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Badge tone="pending" title="Tu plan de Nicotech no ocupa hueco entre tus suscripciones">
-          No cuenta en tu límite
-        </Badge>
-        {billing.endsAt ? (
+      {billing.endsAt ? (
+        <div className="flex flex-wrap gap-2">
           <Badge tone="scheduled">Termina el {dateFormatter.format(new Date(billing.endsAt))}</Badge>
-        ) : null}
-      </div>
-
-      <div className="mt-2 flex gap-2 border-t border-hairline pt-3 text-sm font-semibold">
-        <Link to="/precios" className="text-azure hover:underline">
-          Cambiar de plan
-        </Link>
-        {billing.endsAt ? null : (
+        </div>
+      ) : (
+        <div className="mt-2 flex border-t border-hairline pt-3 text-sm font-semibold">
           <Link to="/cancelar-plan" className="ml-auto text-coral hover:underline">
             Darse de baja
           </Link>
-        )}
-      </div>
+        </div>
+      )}
     </Card>
   );
 }

@@ -75,11 +75,13 @@ if (!$user) {
         // pudo crearla otra persona con ese email (no se verifica al registrarse).
         // Se borra la contraseña para que solo entre quien controla el email: si la
         // cuenta era suya, puede crear otra con "¿La olvidaste?".
-        $stmt = $pdo->prepare('UPDATE users SET google_id = ?, password_hash = NULL WHERE id = ?');
-        $stmt->execute([$googleId, $user['id']]);
+        $stmt = $pdo->prepare(
+            'UPDATE users SET google_id = ?, password_hash = NULL, email_verified_at = COALESCE(email_verified_at, ?) WHERE id = ?'
+        );
+        $stmt->execute([$googleId, date('Y-m-d H:i:s'), $user['id']]);
     } else {
-        $stmt = $pdo->prepare('INSERT INTO users (name, email, google_id) VALUES (?, ?, ?)');
-        $stmt->execute([$name, $email, $googleId]);
+        $stmt = $pdo->prepare('INSERT INTO users (name, email, google_id, email_verified_at) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$name, $email, $googleId, date('Y-m-d H:i:s')]);
         $user = ['id' => $pdo->lastInsertId()];
     }
 }

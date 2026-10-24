@@ -22,7 +22,11 @@ $user = $stmt->fetch();
 
 // Las cuentas creadas con Google no tienen contraseña: pueden crear una sin la actual
 // (ya están autenticadas por la sesión).
+if (too_many_attempts($pdo, 'password', "user:{$userId}", 30, 10, 15)) {
+    json_error('Demasiados intentos. Espera unos minutos y vuelve a probar.', 429);
+}
 if ($user['password_hash'] !== null && !check_password($currentPassword, $user['password_hash'])) {
+    record_attempt($pdo, 'password', "user:{$userId}");
     json_error('Contraseña actual incorrecta', 401);
 }
 

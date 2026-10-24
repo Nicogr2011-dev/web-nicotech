@@ -81,7 +81,13 @@ export default function AccountPage() {
       setEmailMsg({ type: "error", text: error });
       return;
     }
-    setEmailMsg({ type: "ok", text: "Email actualizado." });
+    const text =
+      email.trim().toLowerCase() === user?.email.toLowerCase()
+        ? "Cambio de email cancelado."
+        : user?.emailVerified
+          ? "Te hemos enviado un enlace al nuevo email. El cambio se aplica cuando lo abras."
+          : "Email cambiado. Te hemos enviado un enlace para confirmarlo.";
+    setEmailMsg({ type: "ok", text });
     if (emailPasswordRef.current) emailPasswordRef.current.value = "";
   }
 
@@ -187,6 +193,12 @@ export default function AccountPage() {
             </p>
           ) : (
           <form onSubmit={submitWith(handleEmailSubmit)} className="mt-4 space-y-3">
+            {user?.pendingEmail ? (
+              <p className="text-sm text-muted">
+                Pendiente de confirmar: <span className="font-semibold text-body">{user.pendingEmail}</span>. Abre el
+                enlace que te enviamos ahí; hasta entonces sigues entrando con {user.email}.
+              </p>
+            ) : null}
             <Field label="Nuevo email" htmlFor="account-email">
               <IconInput
                 id="account-email"

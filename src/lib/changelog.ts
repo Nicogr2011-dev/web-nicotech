@@ -525,6 +525,33 @@ export const CHANGELOG: ChangelogEntry[] = [
       "La portada se carga ya lista para los buscadores, con mejor título y descripción, y al compartir nicotech.es en WhatsApp, X o Telegram ahora sale una vista previa con imagen.",
   },
   {
+    date: "24.10.26",
+    major: 21,
+    minor: 0,
+    type: "MAJOR",
+    title: "Nicotech V1: gratis y sin límites",
+    description:
+      "El plan Básico pasa a tener suscripciones ilimitadas, gratis y sin publicidad. Los planes de pago dejan de estar disponibles por ahora; si ya tenías uno, lo conservas y puedes darte de baja desde tu panel.",
+  },
+  {
+    date: "24.10.26",
+    major: 21,
+    minor: 1,
+    type: "MINOR",
+    title: "Confirma tu email",
+    description:
+      "Al crear una cuenta te enviamos un enlace para confirmar tu email, y al cambiarlo, el nuevo no se aplica hasta que lo confirmes desde esa dirección. Las cuentas que ya existían no tienen que hacer nada.",
+  },
+  {
+    date: "24.10.26",
+    major: 21,
+    minor: 2,
+    type: "MINOR",
+    title: "Mejoras internas",
+    description: "Ajustes para mejorar la experiencia de usuario.",
+    confidential: true,
+  },
+  {
     date: "23.10.26",
     major: 17,
     minor: 0,
@@ -685,6 +712,33 @@ export const CHANGELOG: ChangelogEntry[] = [
     title: "Más fácil de encontrar en Google",
     description:
       "La portada se carga ya lista para los buscadores, con mejor título y descripción, y al compartir nicotech.es en WhatsApp, X o Telegram ahora sale una vista previa con imagen.",
+  },
+  {
+    date: "24.10.26",
+    major: 21,
+    minor: 0,
+    type: "MAJOR",
+    title: "Nicotech V1: gratis y sin límites",
+    description:
+      "El plan Básico pasa a tener suscripciones ilimitadas, gratis y sin publicidad. Los planes de pago dejan de estar disponibles por ahora; si ya tenías uno, lo conservas y puedes darte de baja desde tu panel.",
+  },
+  {
+    date: "24.10.26",
+    major: 21,
+    minor: 1,
+    type: "MINOR",
+    title: "Confirma tu email",
+    description:
+      "Al crear una cuenta te enviamos un enlace para confirmar tu email, y al cambiarlo, el nuevo no se aplica hasta que lo confirmes desde esa dirección. Las cuentas que ya existían no tienen que hacer nada.",
+  },
+  {
+    date: "24.10.26",
+    major: 21,
+    minor: 2,
+    type: "MINOR",
+    title: "Mejoras internas",
+    description: "Ajustes para mejorar la experiencia de usuario.",
+    confidential: true,
   },
 ];
 

@@ -14,7 +14,9 @@ $email = trim((string) ($body['email'] ?? ''));
 // sistema, ni su tiempo de respuesta (el envío del email, más lento, va después).
 respond_and_continue(['success' => true]);
 
-if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+// Sin límite, cualquiera podría llenar de correos el buzón de otra persona.
+if (filter_var($email, FILTER_VALIDATE_EMAIL) && !too_many_attempts($pdo, 'forgot', $email, 10, 3, 60)) {
+    record_attempt($pdo, 'forgot', $email);
     $stmt = $pdo->prepare('SELECT id, name FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
@@ -25,7 +27,7 @@ if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $stmt = $pdo->prepare('UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?');
         $stmt->execute([$token, $expires, $user['id']]);
 
-        $link = 'https://nicotech.es/#/restablecer-contrasena?token=' . $token;
+        $link = app_url() . '/#/restablecer-contrasena?token=' . $token;
         $mailBody = "Hola {$user['name']},\n\n"
             . "Has pedido restablecer tu contraseña en Nicotech. Este enlace es válido durante 1 hora:\n\n"
             . "{$link}\n\n"

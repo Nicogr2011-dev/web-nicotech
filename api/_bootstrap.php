@@ -86,24 +86,106 @@ function clean_name(string $name): string
     return trim((string) preg_replace('/[\x00-\x1F\x7F]/u', '', $name));
 }
 
-// De momento solo esta cuenta gestiona el plan Enterprise. Debe mantenerse en
-// sincronía con ADMIN_EMAIL de src/lib/admin.ts.
-const ADMIN_EMAIL = 'nicolas.grana.miguez@gmail.com';
+/** Las cuentas sin verificar pueden entrar, pero no tocar sus suscripciones hasta confirmar el email. */
+function require_verified_auth(): int
+{
+    global $pdo;
+    $userId = require_auth();
+    $stmt = $pdo->prepare('SELECT email_verified_at FROM users WHERE id = ?');
+    $stmt->execute([$userId]);
+    if ($stmt->fetchColumn() === null) {
+        json_error('Confirma tu email para continuar.', 403);
+    }
+    return $userId;
+}
 
-// Sin uso desde que se retiraron las llamadas (16.08.26.16.8): ningún endpoint
-// es admin-only ahora mismo. Se conserva como pareja de ADMIN_EMAIL para el
-// próximo que lo necesite.
+// Sin uso por ahora: ningún endpoint es solo de admin. El permiso es la columna
+// users.is_admin (db/migrations/013), no el texto del email.
 function require_admin(): int
 {
     global $pdo;
     $userId = require_auth();
-    $stmt = $pdo->prepare('SELECT email FROM users WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT is_admin FROM users WHERE id = ?');
     $stmt->execute([$userId]);
-    $email = strtolower((string) $stmt->fetchColumn());
-    if ($email !== ADMIN_EMAIL) {
+    if ((int) $stmt->fetchColumn() !== 1) {
         json_error('No autorizado', 403);
     }
     return $userId;
+}
+
+function client_ip(): string
+{
+    return substr((string) ($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45);
+}
+
+/**
+ * Límite de intentos contra la fuerza bruta (login, registro, correos): cuenta los
+ * de $action en los últimos $minutes por IP y, si se pasa $email, por email.
+ */
+function too_many_attempts(PDO $pdo, string $action, ?string $email, int $maxPerIp, int $maxPerEmail, int $minutes): bool
+{
+    $since = date('Y-m-d H:i:s', time() - $minutes * 60);
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM auth_attempts WHERE action = ? AND ip = ? AND created_at > ?');
+    $stmt->execute([$action, client_ip(), $since]);
+    if ((int) $stmt->fetchColumn() >= $maxPerIp) {
+        return true;
+    }
+    if ($email === null) {
+        return false;
+    }
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM auth_attempts WHERE action = ? AND email = ? AND created_at > ?');
+    $stmt->execute([$action, strtolower($email), $since]);
+    return (int) $stmt->fetchColumn() >= $maxPerEmail;
+}
+
+function record_attempt(PDO $pdo, string $action, ?string $email): void
+{
+    // Nada se guarda más de un día (son IPs: datos personales).
+    $pdo->prepare('DELETE FROM auth_attempts WHERE created_at < ?')->execute([date('Y-m-d H:i:s', time() - 86400)]);
+    $stmt = $pdo->prepare('INSERT INTO auth_attempts (action, ip, email, created_at) VALUES (?, ?, ?, ?)');
+    $stmt->execute([$action, client_ip(), $email === null ? null : strtolower(substr($email, 0, 190)), date('Y-m-d H:i:s')]);
+}
+
+function clear_attempts(PDO $pdo, string $action, string $email): void
+{
+    $stmt = $pdo->prepare('DELETE FROM auth_attempts WHERE action = ? AND email = ?');
+    $stmt->execute([$action, strtolower($email)]);
+}
+
+function app_url(): string
+{
+    global $config;
+    return rtrim((string) ($config['app_url'] ?? 'https://nicotech.es'), '/');
+}
+
+/**
+ * Manda el enlace para confirmar un email: el de la cuenta recién creada o, si hay
+ * un cambio pendiente, el nuevo. En la BD solo se guarda el hash del token.
+ * Necesita api/_mail.php cargado.
+ */
+function send_email_verification(PDO $pdo, int $userId): bool
+{
+    $stmt = $pdo->prepare('SELECT name, email, pending_email FROM users WHERE id = ?');
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch();
+    if (!$user) {
+        return false;
+    }
+
+    $token = bin2hex(random_bytes(32));
+    $stmt = $pdo->prepare('UPDATE users SET email_token_hash = ?, email_token_expires = ? WHERE id = ?');
+    $stmt->execute([hash('sha256', $token), date('Y-m-d H:i:s', time() + 86400), $userId]);
+
+    $link = app_url() . '/#/verificar-email?token=' . $token;
+    $isChange = $user['pending_email'] !== null;
+    $to = $isChange ? $user['pending_email'] : $user['email'];
+    $mailBody = "Hola {$user['name']},\n\n"
+        . ($isChange
+            ? "Has pedido cambiar el email de tu cuenta de Nicotech a esta dirección. Confírmalo con este enlace (válido 24 horas):\n\n"
+            : "Gracias por crear tu cuenta en Nicotech. Confirma tu email con este enlace (válido 24 horas):\n\n")
+        . "{$link}\n\n"
+        . "Si no has sido tú, puedes ignorar este correo.";
+    return send_mail($to, $user['name'], $isChange ? 'Confirma tu nuevo email de Nicotech' : 'Confirma tu email de Nicotech', $mailBody);
 }
 
 /**
@@ -114,7 +196,7 @@ function user_response(PDO $pdo, int $userId): array
 {
     $stmt = $pdo->prepare(
         'SELECT id, name, email, tier, avatar_path, password_hash, stripe_subscription_id, plan_interval,
-                plan_started_at, plan_renews_at, plan_ends_at, limit_grace_ends_at
+                plan_started_at, plan_renews_at, plan_ends_at, limit_grace_ends_at, email_verified_at, pending_email
          FROM users WHERE id = ?'
     );
     $stmt->execute([$userId]);
@@ -140,7 +222,8 @@ function user_response(PDO $pdo, int $userId): array
         'tier' => $user['tier'],
         'avatarUrl' => $user['avatar_path'],
         'hasPassword' => $user['password_hash'] !== null,
-        'limitGraceEndsAt' => iso_or_null($user['limit_grace_ends_at']),
+        'emailVerified' => $user['email_verified_at'] !== null,
+        'pendingEmail' => $user['pending_email'],
         'plan' => $user['tier'] === 'BASICO' ? null : [
             'interval' => $user['plan_interval'],
             'viaStripe' => $user['stripe_subscription_id'] !== null,
@@ -156,8 +239,12 @@ function iso_or_null(?string $datetime): ?string
     return $datetime === null ? null : date('c', strtotime($datetime));
 }
 
-/** Máximo de suscripciones activas por plan (Premium no tiene límite). */
-const TIER_LIMITS = ['BASICO' => 3, 'PREMIUM_LITE' => 7];
+/**
+ * Máximo de suscripciones activas por plan; un plan que no aparece no tiene límite.
+ * En V1 ninguno lo tiene (Básico es ilimitado). El plazo de 3 meses de abajo queda
+ * para cuando vuelva a haber límites.
+ */
+const TIER_LIMITS = [];
 
 /** Meses que tiene quien baja a un plan con menos hueco del que usa para volver a uno mayor. */
 const LIMIT_GRACE_MONTHS = 3;

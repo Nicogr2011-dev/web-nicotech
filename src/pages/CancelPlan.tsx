@@ -1,12 +1,10 @@
-import { useEffect, useState } from "react";
-import { addMonths } from "date-fns";
+import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { SiteNav } from "@/components/nav/SiteNav";
 import { Card } from "@/components/ui/Card";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { useAuth } from "@/lib/AuthContext";
-import { apiGet } from "@/lib/api";
-import { PLANS, LIMIT_GRACE_MONTHS } from "@/lib/pricingPlans";
+import { PLANS } from "@/lib/pricingPlans";
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", year: "numeric" });
 
@@ -15,25 +13,10 @@ export default function CancelPlanPage() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Lo que había antes de confirmar: tras la baja, user.plan puede pasar a null.
-  const [done, setDone] = useState<{ planName: string; endsAt: string | null; graceEndsAt: Date } | null>(null);
-  // undefined = cargando, null = no se pudo saber.
-  const [activeCount, setActiveCount] = useState<number | null | undefined>(undefined);
-
-  useEffect(() => {
-    apiGet<{ subscriptions: { status: string; deletedAt: string | null }[] }>("/subscriptions/list.php")
-      .then(({ subscriptions }) =>
-        setActiveCount(subscriptions.filter((s) => s.status === "ACTIVE" && !s.deletedAt).length)
-      )
-      .catch(() => setActiveCount(null));
-  }, []);
+  const [done, setDone] = useState<{ planName: string; endsAt: string | null } | null>(null);
 
   const plan = PLANS.find((p) => p.id === user?.tier);
   const billing = user?.plan;
-  const basicLimit = PLANS.find((p) => p.id === "BASICO")?.subscriptionLimit ?? 3;
-  const excess = typeof activeCount === "number" ? activeCount - basicLimit : 0;
-  // El plazo empieza al pasar a Básico: al final del periodo pagado, o ya mismo si el plan era de código.
-  const downgradeDate = billing?.viaStripe && billing.renewsAt ? new Date(billing.renewsAt) : new Date();
-  const graceEndsAt = addMonths(downgradeDate, LIMIT_GRACE_MONTHS);
 
   if (!done && (!plan || !billing || billing.endsAt)) {
     return <Navigate to="/dashboard" replace />;
@@ -49,7 +32,7 @@ export default function CancelPlanPage() {
       setError(err);
       return;
     }
-    setDone({ planName: plan.name, endsAt: billing?.viaStripe ? (billing.renewsAt ?? null) : null, graceEndsAt });
+    setDone({ planName: plan.name, endsAt: billing?.viaStripe ? (billing.renewsAt ?? null) : null });
   }
 
   return (
@@ -65,12 +48,6 @@ export default function CancelPlanPage() {
                 ? `No te volveremos a cobrar. Sigues teniendo ${done.planName} hasta el ${dateFormatter.format(new Date(done.endsAt))}; después pasarás al plan Básico.`
                 : "Ya estás en el plan Básico."}
             </p>
-            {excess > 0 ? (
-              <p className="mt-3 text-muted">
-                Tienes hasta el {dateFormatter.format(done.graceEndsAt)} para volver a un plan de pago; si no,
-                cancelaremos {excess === 1 ? "tu suscripción más reciente" : `tus ${excess} suscripciones más recientes`}.
-              </p>
-            ) : null}
             <ButtonLink href="/dashboard" className="mt-6">
               Volver a mis suscripciones
             </ButtonLink>
@@ -100,24 +77,7 @@ export default function CancelPlanPage() {
                 ) : (
                   <li>• Pasarás al plan Básico ahora mismo (tu plan se activó con un código, no hay nada que cobrar).</li>
                 )}
-                {activeCount === undefined ? (
-                  <li className="text-muted">• Comprobando tus suscripciones…</li>
-                ) : activeCount === null ? (
-                  <li>
-                    • En Básico puedes tener hasta {basicLimit} suscripciones. Si tienes más, tendrás{" "}
-                    {LIMIT_GRACE_MONTHS} meses para volver a un plan de pago; si no, cancelaremos las más recientes.
-                  </li>
-                ) : excess > 0 ? (
-                  <li>
-                    • Tienes {activeCount} suscripciones activas y Básico permite {basicLimit}. Tendrás{" "}
-                    {LIMIT_GRACE_MONTHS} meses desde que pases a Básico, hasta el{" "}
-                    <span className="font-semibold">{dateFormatter.format(graceEndsAt)}</span>, para volver a un plan de
-                    pago. Si no, cancelaremos {excess === 1 ? "la más reciente" : `las ${excess} más recientes`}.
-                  </li>
-                ) : (
-                  <li>• En Básico puedes tener hasta {basicLimit} suscripciones a la vez.</li>
-                )}
-                <li>• Puedes volver a un plan de pago cuando quieras desde Precios.</li>
+                <li>• En Básico sigues teniendo todas las funciones y suscripciones ilimitadas.</li>
               </ul>
 
               {error ? <p className="text-sm text-coral">{error}</p> : null}
@@ -126,7 +86,7 @@ export default function CancelPlanPage() {
                 <ButtonLink href="/dashboard" className="flex-1">
                   Mantener mi plan
                 </ButtonLink>
-                <Button variant="ghost" className="flex-1 text-coral" disabled={pending || activeCount === undefined} onClick={handleConfirm}>
+                <Button variant="ghost" className="flex-1 text-coral" disabled={pending} onClick={handleConfirm}>
                   {pending ? "Dando de baja…" : "Confirmar baja"}
                 </Button>
               </div>

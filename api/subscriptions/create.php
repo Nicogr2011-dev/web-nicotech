@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require __DIR__ . '/../_bootstrap.php';
 
-$userId = require_auth();
+$userId = require_verified_auth();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_error('Método no permitido', 405);

@@ -5,15 +5,9 @@ declare(strict_types=1);
  * Cliente mínimo de la API de Stripe, sin librerías (el proyecto no usa Composer).
  * Stripe acepta form-encoded y devuelve JSON; la clave secreta va como Bearer.
  *
- * Mientras la clave sea sk_test_... / rk_test_..., todo ocurre en el modo de prueba de Stripe:
- * misma plataforma y misma página de pago, pero ningún cobro mueve dinero.
+ * En V1 no se venden planes: queda para dar de baja (cancel.php) y sincronizar
+ * (webhook.php) a quien ya pagó en modo de prueba.
  */
-
-/** Precios en céntimos — mantener en sync con src/lib/pricingPlans.ts. */
-const STRIPE_PLAN_PRICES = [
-    'PREMIUM' => ['name' => 'Nicotech Premium', 'year' => 3000, 'month' => 300],
-    'PREMIUM_LITE' => ['name' => 'Nicotech Premium Lite', 'year' => 1500, 'month' => 150],
-];
 
 function stripe_secret_key(array $config): string
 {
@@ -21,14 +15,6 @@ function stripe_secret_key(array $config): string
     return ($key === '' || $key === 'CHANGE_ME') ? '' : $key;
 }
 
-function stripe_is_test_mode(array $config): bool
-{
-    // sk_test_ = clave estándar, rk_test_ = clave restringida (la que crea el panel nuevo).
-    $key = stripe_secret_key($config);
-    return strpos($key, 'sk_test_') === 0 || strpos($key, 'rk_test_') === 0;
-}
-
-/** Llama a la API de Stripe. Devuelve el JSON decodificado o null si falla. */
 function stripe_request(array $config, string $method, string $path, array $params = []): ?array
 {
     $key = stripe_secret_key($config);

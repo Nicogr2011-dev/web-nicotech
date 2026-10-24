@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require __DIR__ . '/../_bootstrap.php';
 
-$userId = require_auth();
+$userId = require_verified_auth();
 apply_scheduled_cancellations($pdo, $userId);
 
 // Se incluyen también las eliminadas (deleted_at): el frontend las usa para que el

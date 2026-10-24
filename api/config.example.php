@@ -7,10 +7,6 @@ return [
     // Clave secreta de reCAPTCHA v3 (console.cloud.google.com/security/recaptcha).
     // Mientras quede en 'CHANGE_ME', la verificación se salta (no bloquea login/registro).
     'recaptcha_secret' => 'CHANGE_ME',
-    // Hash (password_hash) del código de acceso que permite cambiar de plan de
-    // pago mientras no hay pasarela real. Generarlo con:
-    // php -r 'echo password_hash("EL_CODIGO", PASSWORD_DEFAULT), PHP_EOL;'
-    'plan_redeem_code_hash' => 'CHANGE_ME',
     // Client ID de OAuth de Google (console.cloud.google.com/apis/credentials),
     // tipo "Aplicación web". Mientras quede en 'CHANGE_ME', el botón de Google
     // se muestra pero avisa de que no está listo.
@@ -22,26 +18,17 @@ return [
     // Sin uso desde 23.10.26.16.11: el botón de Apple se retiró de la web, pero
     // api/auth/apple.php sigue ahí por si se reactiva (requiere Apple Developer Program).
     'apple_client_id' => 'CHANGE_ME',
-    // Cuenta de correo usada para enviar (confirmaciones de suscripción, recuperación
+    // Cuenta de correo usada para enviar (verificación de email, recuperación
     // de contraseña). SMTPS con AUTH LOGIN, sin librerías (proyecto sin Composer).
     'smtp_host' => 'CHANGE_ME',
     'smtp_port' => 465,
     'smtp_user' => 'CHANGE_ME',
     'smtp_pass' => 'CHANGE_ME',
     'smtp_from' => 'CHANGE_ME',
-    // Buzón al que los usuarios reenvían el email de confirmación para verificar
-    // que de verdad se han suscrito; un cron revisa este buzón por IMAP.
-    'imap_host' => 'CHANGE_ME',
-    'imap_port' => 993,
-    'imap_user' => 'CHANGE_ME',
-    'imap_pass' => 'CHANGE_ME',
-    // URL pública de la web, a la que Stripe devuelve al usuario tras pagar
-    // (en local: http://localhost:5173).
+    // URL pública de la web, para los enlaces de los correos (en local: http://localhost:5173).
     'app_url' => 'https://nicotech.es',
     // Clave secreta de Stripe (dashboard.stripe.com → Desarrolladores → Claves de API).
-    // Con sk_test_... o rk_test_... todo es modo de prueba: se paga con tarjetas de prueba como
-    // 4242 4242 4242 4242 y no se cobra nada. Mientras quede en 'CHANGE_ME', la
-    // opción de tarjeta aparece como "Próximamente".
+    // En V1 no se venden planes: solo sirve para dar de baja a quien ya pagó en modo de prueba.
     'stripe_secret_key' => 'CHANGE_ME',
     // Secreto del webhook de Stripe (whsec_...), al registrar
     // https://nicotech.es/api/billing/webhook.php en Desarrolladores → Webhooks.
