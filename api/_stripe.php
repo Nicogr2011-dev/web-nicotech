@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 /** Precios en céntimos — mantener en sync con src/lib/pricingPlans.ts. */
 const STRIPE_PLAN_PRICES = [
-    'PREMIUM' => ['name' => 'Nicotech Premium', 'year' => 1000, 'month' => 100],
-    'PREMIUM_LITE' => ['name' => 'Nicotech Premium Lite', 'year' => 800, 'month' => 70],
+    'PREMIUM' => ['name' => 'Nicotech Premium', 'year' => 3000, 'month' => 300],
+    'PREMIUM_LITE' => ['name' => 'Nicotech Premium Lite', 'year' => 1500, 'month' => 150],
 ];
 
 function stripe_secret_key(array $config): string

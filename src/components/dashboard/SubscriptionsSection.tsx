@@ -15,7 +15,7 @@ import { SubscriptionForm } from "@/components/dashboard/SubscriptionForm";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { NicotechPlanCard } from "@/components/dashboard/NicotechPlanCard";
 import { useAuth } from "@/lib/AuthContext";
-import { PLANS } from "@/lib/pricingPlans";
+import { FREE_PLAN_ENDS_ON, PLANS } from "@/lib/pricingPlans";
 import { ButtonLink } from "@/components/ui/Button";
 import type { SubscriptionView } from "./types";
 
@@ -156,6 +156,8 @@ export function SubscriptionsSection() {
           .slice(limit)
       : [];
 
+  const showFreePlanNotice = user?.tier === "BASICO" && localIsoDate() < FREE_PLAN_ENDS_ON;
+
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowIso = localIsoDate(tomorrow);
@@ -190,6 +192,21 @@ export function SubscriptionsSection() {
         <h1 className="font-display text-2xl font-bold text-body">Tus suscripciones</h1>
         <Button onClick={() => setShowAddModal(true)}>+ Añadir suscripción</Button>
       </div>
+
+      {showFreePlanNotice ? (
+        <div className="flex flex-col gap-3 rounded-2xl border border-azure/30 bg-azure/10 px-5 py-4 sm:flex-row sm:items-center">
+          <p className="flex-1 text-sm font-bold text-body">
+            El plan Básico gratuito dejará de estar disponible el{" "}
+            {new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", year: "numeric" }).format(
+              parseLocalDate(FREE_PLAN_ENDS_ON)
+            )}
+            .
+          </p>
+          <ButtonLink href="/precios" variant="secondary" className="shrink-0">
+            Ver planes
+          </ButtonLink>
+        </div>
+      ) : null}
 
       {dueTomorrow.length > 0 ? (
         <div className="flex items-start gap-3 rounded-2xl border border-sunflower/40 bg-sunflower/10 px-5 py-4">

@@ -74,7 +74,6 @@ export default function PricingPage() {
           {PLANS.map((plan) => {
             const isCurrent = user?.tier === plan.id;
             const isPending = pendingId === plan.id;
-            const canInstantSwitch = canSwitch || plan.id === "BASICO";
             const savings = getYearlySavingsPercent(plan);
 
             return (
@@ -145,7 +144,7 @@ export default function PricingPage() {
                     <ButtonLink href="/cancelar-plan" variant="secondary" className="w-full">
                       Cambiar a este plan
                     </ButtonLink>
-                  ) : canInstantSwitch ? (
+                  ) : plan.id === "BASICO" ? (
                     <Button
                       variant="secondary"
                       className="w-full"
@@ -155,9 +154,26 @@ export default function PricingPage() {
                       {isPending ? "Cambiando…" : "Cambiar a este plan"}
                     </Button>
                   ) : (
-                    <ButtonLink href={`/pago/${plan.slug}`} variant="secondary" className="w-full">
-                      Suscribirme
-                    </ButtonLink>
+                    <>
+                      <ButtonLink
+                        href={`/pago/${plan.slug}?ciclo=${billingCycle === "monthly" ? "mensual" : "anual"}`}
+                        variant="secondary"
+                        className="w-full"
+                      >
+                        Suscribirme
+                      </ButtonLink>
+                      {/* La cuenta de admin también puede activarlo sin pagar, para pruebas. */}
+                      {canSwitch ? (
+                        <button
+                          type="button"
+                          disabled={isPending}
+                          onClick={() => handleTierChange(plan.id)}
+                          className="mt-2 w-full text-center text-xs font-semibold text-muted hover:text-body hover:underline"
+                        >
+                          {isPending ? "Cambiando…" : "Activar sin pagar (admin)"}
+                        </button>
+                      ) : null}
+                    </>
                   )}
                 </div>
 

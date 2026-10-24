@@ -649,6 +649,25 @@ export const CHANGELOG: ChangelogEntry[] = [
     description:
       "Ahora nos enteramos al momento de lo que pasa con tu pago aunque no estés en la web: cuando se renueva tu plan verás la nueva fecha, y si un cobro falla definitivamente o se cancela, tu plan se actualiza solo.",
   },
+  {
+    date: "24.10.26",
+    major: 20,
+    minor: 8,
+    type: "MINOR",
+    title: "Mejoras internas",
+    description: "Ajustes para mejorar la experiencia de usuario.",
+    confidential: true,
+  },
+  {
+    date: "24.10.26",
+    major: 20,
+    minor: 9,
+    type: "MINOR",
+    title: "Ya se puede pagar en mensual",
+    description:
+      "Si elegías \"Mensual\" en Precios, la página de pago se abría igualmente en anual. Ahora respeta lo que elegiste.",
+    bugfix: true,
+  },
 ];
 
 export function formatVersion(entry: ChangelogEntry): string {

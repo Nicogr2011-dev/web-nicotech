@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { clsx } from "clsx";
 import { SiteNav } from "@/components/nav/SiteNav";
 import { Card } from "@/components/ui/Card";
@@ -24,7 +24,10 @@ export default function CheckoutPage() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [billing, setBilling] = useState<{ cardEnabled: boolean; testMode: boolean } | null>(null);
-  const [interval, setBillingInterval] = useState<Interval>("year");
+  // Precios enlaza con ?ciclo=mensual|anual según lo que eligió allí; antes se abría
+  // siempre en anual y quien quería mensual acababa pagando el año.
+  const [searchParams] = useSearchParams();
+  const [interval, setBillingInterval] = useState<Interval>(searchParams.get("ciclo") === "mensual" ? "month" : "year");
   const [cardPending, setCardPending] = useState(false);
   const [cardError, setCardError] = useState<string | null>(null);
   const [returnedSession] = useState(readReturnedSession);
