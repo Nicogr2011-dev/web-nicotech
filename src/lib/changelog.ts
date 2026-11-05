@@ -739,6 +739,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     title: "Mejoras internas",
     description: "Ajustes para mejorar la experiencia de usuario.",
     confidential: true,
+  },  {
+    date: "05.11.26",
+    major: 21,
+    minor: 3,
+    type: "MINOR",
+    title: "Demo de pago y Nicotech más visible",
+    description:
+      "En Precios hay un enlace a una demo del pago con Stripe en modo prueba, para ver cómo funciona sin que se cobre nada. Además, buscadores y asistentes de IA ya saben que Nicotech es gratis, sin publicidad y sin límites.",
   },
 ];
 

@@ -75,6 +75,18 @@ export default function PricingPage() {
             );
           })}
         </div>
+
+        <p className="mt-8 text-right text-xs">
+          {/* Payment Link de Stripe en modo prueba: no cobra ni cambia ningún plan. */}
+          <a
+            href="https://buy.stripe.com/test_cNi14neoZbWA2Pw0XMbII00"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted underline-offset-2 hover:text-body hover:underline"
+          >
+            Demo de pago Stripe
+          </a>
+        </p>
       </main>
     </div>
   );
